@@ -5,5 +5,5 @@ services:
   - mongodb  
 before_script:
   - npm install
-  - sleep 10
   - node bin/www
+  - sleep 15
