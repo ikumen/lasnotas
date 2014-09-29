@@ -2,9 +2,14 @@ var request = require('superagent')
 	, mongoose = require('mongoose')
 	, should = require('should');
 
+
+mongoose.connect('mongodb://localhost/lasnotas');
+var Note = require('../server/models/notes')();
+
 function getPath (path) {
 	return 'localhost:8080' + path;
 }
+
 
 /* Test routes for Note - /notes */
 describe('Route /notes', function() {
@@ -17,16 +22,13 @@ describe('Route /notes', function() {
 
 	// seed with some test data
 	before(function (done) {
-		mongoose.connect('mongodb://localhost/lasnotas');
-		var Note = require('../server/models/notes')()
-
 		Note.remove(function (err) {
 			if(err) 
 				throw err
 
 			Note.create(notesToSave, function (err, saved1, saved2) {
 				if(err) throw err;
-				
+
 				savedNotes.push(saved1);
 				savedNotes.push(saved2);
 				done();
@@ -125,14 +127,47 @@ describe('Route /notes', function() {
 					should.exists(saved.title)
 					saved.title.should.eql(newNote.title)
 
+					// this is bad form, we using these outcomes in later test
+					savedNotes.push(saved)
+
 					done();
 				})
 		})
 	})
 
-	// // remove notes
-	// describe('DELETE /:id', function() {
-	// 	it('should')
-	// })
+	// remove notes
+	describe('DELETE /:id', function() {
+		it('should delete Note with given id', function (done) {
+			request.del(getPath('/notes/' + savedNotes[0]._id))
+				.end(function (res) {
+					res.status.should.eql(200);
+					should.exists(res.body.note)
+					should.exists(res.body.note._id)
+					res.body.note._id.should.eql(savedNotes[0]._id.toString())
+
+					done();
+				})
+		})
+	})
+
+	describe('GET /', function() {
+		before(function (done) {
+			Note.remove(function (err) {
+				if(err)
+					throw err;
+				done()
+			})
+		})
+
+		it('should return an empty list', function (done) {
+			request.get(getPath('/notes'))
+				.end(function (res) {
+					res.status.should.eql(200);
+					res.body.notes.should.be.empty
+
+					done();
+				})
+		})
+	})
 
 })

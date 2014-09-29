@@ -7,6 +7,10 @@ function sendNotFound(res) {
 	res.status(404).end();
 }
 
+function isValidId(id) {
+	return (id && id.match(/^[0-9a-fA-F]{24}$/));
+}
+
 /* GET Notes listing. */
 router.get('/', function (req, res, next) {
 	Note.find({}, function (err, notes) {
@@ -23,8 +27,8 @@ router.get('/:id', function (req, res, next) {
 	var id = req.params.id
 
 	// test if valid ObjectId
-	if(id && id.match(/^[0-9a-fA-F]{24}$/)) {
-		Note.findById(req.params.id, function (err, found) {
+	if(isValidId(id)) {
+		Note.findById(id, function (err, found) {
 			if(err)
 				return next(err)
 			else
@@ -40,7 +44,7 @@ router.get('/:id', function (req, res, next) {
 router.put('/:id', function (req, res, next) {
 	var id = req.params.id;
 
-	if(id && id.match(/^[0-9a-fA-F]{24}$/)) {
+	if(isValidId(id)) {
 		var note = { _id: id }
 		if(req.body.content)
 			note.content = req.body.content;
@@ -74,6 +78,29 @@ router.post('/', function (req, res, next) {
 			res.status(200).send({ note: saved })
 		}
 	})
+})
+
+router.delete('/:id', function (req, res, next) {
+	var id = req.params.id
+	if(isValidId(id)) {
+		Note.findById(id, function (err, found) {
+			if(err) 
+				return next(err);
+			else if(!found){
+				sendNotFound(res)
+			}
+			else {
+				found.remove(function (err) {
+					if(err) 
+						return next(err);
+					console.log("return found: ", found)
+					res.status(200).send({ note: found })
+				})
+			}
+		})
+	} else {
+		sendNotFound(res)
+	}
 })
 
 module.exports = router;
