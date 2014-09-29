@@ -1,7 +1,9 @@
 language: node_js
 node_js:
   - "0.10"
-services: mongodb  
+services: 
+  - mongodb  
 before_script:
   - npm install
+  - sleep 10
   - node bin/www
