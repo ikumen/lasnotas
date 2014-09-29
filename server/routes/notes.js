@@ -45,7 +45,7 @@ router.put('/:id', function (req, res, next) {
 	var id = req.params.id;
 
 	if(isValidId(id)) {
-		var note = { _id: id }
+		var note = {}
 		if(req.body.content)
 			note.content = req.body.content;
 		if(req.body.title)
@@ -58,8 +58,12 @@ router.put('/:id', function (req, res, next) {
 			}
 			else if(!updatedCount) 
 				sendNotFound(res);
-			else		
-				res.status(200).send({ note: note })
+			else 		
+				res.status(200).send({ note: {
+					_id: id
+					, content: note.content
+					, title: note.title 
+				}})
 		})
 	} 
 	else 
@@ -72,8 +76,7 @@ router.post('/', function (req, res, next) {
 		, id: req.body.id
 		, title: req.body.title
 	})
-	Note.findByIdAndUpdate(note, note.toObject(), 
-			{ upsert: true }, function (err, saved) {
+	Note.create(note, function (err, saved) {
 		if(err) {
 			console.log(err)
 			return next(err);
