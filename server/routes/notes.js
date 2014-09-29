@@ -93,7 +93,6 @@ router.delete('/:id', function (req, res, next) {
 				found.remove(function (err) {
 					if(err) 
 						return next(err);
-					console.log("return found: ", found)
 					res.status(200).send({ note: found })
 				})
 			}
