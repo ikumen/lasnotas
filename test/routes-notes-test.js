@@ -3,7 +3,7 @@ var request = require('superagent')
 	, should = require('should');
 
 
-mongoose.connect('mongodb://localhost/lasnotas');
+mongoose.connect('mongodb://127.0.0.1/lasnotas');
 var Note = require('../server/models/notes')();
 
 function getPath (path) {

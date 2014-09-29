@@ -29,7 +29,7 @@ var opts = {
 }
 
 // connect
-mongoose.connect('mongodb://localhost/lasnotas', opts);
+mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
 
  	// our models
 module.exports = {
