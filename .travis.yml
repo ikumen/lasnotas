@@ -6,4 +6,3 @@ services:
 before_script:
   - npm install
   - node bin/www
-  - sleep 15
