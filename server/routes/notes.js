@@ -52,8 +52,10 @@ router.put('/:id', function (req, res, next) {
 			note.title = req.body.title;
 
 		Note.update({ _id: id }, note, function (err, updatedCount, updated) {
-			if(err)
+			if(err) {
+				console.log(err)
 				return next(err);
+			}
 			else if(!updatedCount) 
 				sendNotFound(res);
 			else		
@@ -73,6 +75,7 @@ router.post('/', function (req, res, next) {
 	Note.findByIdAndUpdate(note, note.toObject(), 
 			{ upsert: true }, function (err, saved) {
 		if(err) {
+			console.log(err)
 			return next(err);
 		} else {
 			res.status(200).send({ note: saved })
