@@ -5,3 +5,5 @@ services:
   - mongodb  
 before_script:
   - node bin/www &
+env:
+  - env=development
