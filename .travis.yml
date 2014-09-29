@@ -4,6 +4,4 @@ node_js:
 services: 
   - mongodb  
 before_script:
-  - node bin/www
-script:
-  - npm test
+  - node bin/www &
