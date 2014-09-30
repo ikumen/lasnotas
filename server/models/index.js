@@ -26,6 +26,12 @@ var schemaUtils = {
 	remove_id: function (doc, ret, options) {
 		delete ret._id;
 	}
+	
+	/* Creates ObjectId */
+	, objectId: function (id) {
+		return id ? mongoose.Types.ObjectId(id) : 
+			mongoose.Types.ObjectId();
+	}
 
 	/* Very basic test for ObjectId */
 	, isObjectId: function (id) {
@@ -52,6 +58,7 @@ mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
 
 // export the models
 module.exports = {
-	Note: require('./notes')(schemaUtils)
+	Post: require('./posts')(schemaUtils)
+	, Note: require('./notes')(schemaUtils)
 	, utils: schemaUtils
 }

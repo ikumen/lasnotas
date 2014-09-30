@@ -2,7 +2,7 @@
 
 Create simple Markdown-driven blogs.
 
-<img src="https://travis-ci.org/ikumen/lasnotas.svg?branch=master"/>
+<a href="https://travis-ci.org/ikumen/lasnotas"><img src="https://travis-ci.org/ikumen/lasnotas.svg?branch=master"/></a>
 
 ## About
 

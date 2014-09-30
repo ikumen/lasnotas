@@ -2,10 +2,12 @@ extends layout
 
 block content
 	#container
-		h1= note.id
+		h1= note.title
+		h4 id: #{note.id}
 		form(action="/notes/#{note.id}" method="post")
 			include ./note-form.jade
 
 		hr/
 	#container
-		p#preview= note.content 
+		h2 Rendered
+		p#preview

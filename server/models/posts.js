@@ -20,35 +20,21 @@
  *
  */
 module.exports = function (schemaUtils) {
-	var mongoose = require('mongoose')
-		, Post = mongoose.model('Post');
+	var mongoose = require('mongoose');
 
-	var NoteSchema = mongoose.Schema({
-		content: String
-		, title: String
-		, publishedAt: Date
-		, createdAt: Date
+	var PostSchema = mongoose.Schema({
+		title: String
+		, author: String
+		, content: String
+		, slug: String
+		, tags: [String]
+		, publishedAt: String
+		, createdAt: { type: Date, default: Date.now }
 		, modifiedAt: { type: Date, default: Date.now }
 	})
 
 	// normalize use of model.id see models/index.js
-	schemaUtils.normalize_id(NoteSchema);
+	schemaUtils.normalize_id(PostSchema);
 
-	var Note = mongoose.model('Note', NoteSchema);
-
-	function postNoteHook(note) {
-
-	}
-
-	// Note.hUpdate = function (cond, update, opts, callback) {
-	// 	Note.update(cond, update, opts, function (err, upCount, rawRes) {
-	// 		if(!err && upCount) {
-	// 			//update._id = cond._id; // for updates there's not id
-	// 			Note.on('update', update)	
-	// 		}				
-	// 		callback(err, upCount, rawRes); 
-	// 	})
-	// }
-
-	return Note;
+	return mongoose.model('Post', PostSchema)
 }
