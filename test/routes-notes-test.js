@@ -1,10 +1,8 @@
 var request = require('superagent')
 	, mongoose = require('mongoose')
-	, should = require('should');
+	, should = require('should')
+	, models = require('../server/models');
 
-
-mongoose.connect('mongodb://127.0.0.1/lasnotas');
-var Note = require('../server/models/notes')();
 
 function getPath (path) {
 	return 'localhost:8080' + path;
@@ -22,11 +20,11 @@ describe('Route /notes', function() {
 
 	// seed with some test data
 	before(function (done) {
-		Note.remove(function (err) {
+		models.Note.remove(function (err) {
 			if(err) 
 				throw err
 
-			Note.create(notesToSave, function (err, saved1, saved2) {
+			models.Note.create(notesToSave, function (err, saved1, saved2) {
 				if(err) throw err;
 
 				savedNotes.push(saved1);
@@ -46,7 +44,7 @@ describe('Route /notes', function() {
 				})
 		})
 		it('should return a Note given an id', function (done) {
-			request.get(getPath('/notes/' + savedNotes[0]._id))
+			request.get(getPath('/notes/' + savedNotes[0].id))
 				.end(function (res) {
 					res.status.should.eql(200);
 
@@ -82,15 +80,15 @@ describe('Route /notes', function() {
 		var updatedContent = 'note1 content updated';
 
 		it('should get updated Note in req and return saved Note', function (done) {
-			request.put(getPath('/notes/' + savedNotes[0]._id))
+			request.put(getPath('/notes/' + savedNotes[0].id))
 				.set(headers.contentType)
-				.send({ content: updatedContent, _id: savedNotes[0]._id })
+				.send({ content: updatedContent, id: savedNotes[0].id })
 				.end(function (res) {
 					res.status.should.eql(200);
 
 					should.exists(res.body.note);
 					var updated = res.body.note;
-					updated._id.should.eql(savedNotes[0]._id.toString());
+					updated.id.should.eql(savedNotes[0].id.toString());
 					updated.content.should.eql(updatedContent);
 
 					done();
@@ -101,7 +99,7 @@ describe('Route /notes', function() {
 			var nonExistingId = mongoose.Types.ObjectId();
 			request.put(getPath('/notes/' + nonExistingId))
 				.set(headers.contentType)
-				.send({ content: updatedContent, _id: nonExistingId })
+				.send({ content: updatedContent, id: nonExistingId })
 				.end(function (res) {
 					res.status.should.eql(404);
 					done();
@@ -121,7 +119,7 @@ describe('Route /notes', function() {
 
 					should.exists(res.body.note);
 					var saved = res.body.note
-					should.exists(saved._id)
+					should.exists(saved.id)
 					should.exists(saved.content)
 					saved.content.should.eql(newNote.content)
 					should.exists(saved.title)
@@ -138,12 +136,12 @@ describe('Route /notes', function() {
 	// remove notes
 	describe('DELETE /:id', function() {
 		it('should delete Note with given id', function (done) {
-			request.del(getPath('/notes/' + savedNotes[0]._id))
+			request.del(getPath('/notes/' + savedNotes[0].id))
 				.end(function (res) {
 					res.status.should.eql(200);
 					should.exists(res.body.note)
-					should.exists(res.body.note._id)
-					res.body.note._id.should.eql(savedNotes[0]._id.toString())
+					should.exists(res.body.note.id)
+					res.body.note.id.should.eql(savedNotes[0].id.toString())
 
 					done();
 				})
@@ -152,7 +150,7 @@ describe('Route /notes', function() {
 
 	describe('GET /', function() {
 		before(function (done) {
-			Note.remove(function (err) {
+			models.Note.remove(function (err) {
 				if(err)
 					throw err;
 				done()

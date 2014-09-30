@@ -21,6 +21,25 @@
  */
 var mongoose = require('mongoose');
 
+var schemaUtils = {
+	/* Removes _id from returned copy of underlying instance */
+	remove_id: function (doc, ret, options) {
+		delete ret._id;
+	}
+
+	/* Very basic test for ObjectId */
+	, isObjectId: function (id) {
+		return (id && id.match(/^[0-9a-fA-F]{24}$/))
+	}
+
+	/* Normalize use of Model.id by hiding _id on returned toObject/toJSON instances */
+	, normalize_id: function (schema) {
+		schema.set('toObject', { transform: this.remove_id, virtuals: true });
+		schema.set('toJSON', { transform: this.remove_id, virtuals: true });
+		return schema;
+	}
+}
+
 // configure
 var opts = {
 	server: {
@@ -31,7 +50,7 @@ var opts = {
 // connect
 mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
 
- 	// our models
+// export the models
 module.exports = {
-	Note: require('./notes')()
+	Note: require('./notes')(schemaUtils)
 }

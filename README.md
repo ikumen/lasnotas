@@ -9,6 +9,7 @@ Create simple Markdown-driven blogs.
 I wanted to learn the JavaScript stack&mdash;specifically [MEAN](http://en.wikipedia.org/wiki/MEAN)&mdash;and blog what I've learn for reference. [Github Pages](https://pages.github.com) was the obvious choice to host the blog, but in the end I decided to [eat my own dog food](http://en.wikipedia.org/wiki/Eating_your_own_dog_food) and build one&mdash;it'll be more fun and challenging then another [Todo app](http://todomvc.com/).
 
 ## Notes
+
 ### Initial checkin
 - Installed Node.js and Express
 - `npm init` to generate `package.json`
@@ -148,5 +149,56 @@ $ mocha test/routes-notes-test.js
 Sweet! Continue with several more iterations of write test, fail test, implement feature, pass test and we'll eventually have our feature set and tests to back them up.
 
 Next I'll look into some mocking frameworks and rewrite the test so that I'm testing in isolation&mdash;a single unit of work&mdash;which is our ultimate goal.
+
+### CI with Travis
+To start, I dded a `.travis.yml` YAML file to the project (NOTE: don't use tabs), then configured with the following.
+
+```yaml
+language: node_js
+node_js:
+  - "0.10"
+services: 
+  - mongodb  
+before_script:
+  - node bin/www &
+env:
+  - env=development
+```
+
+The first two entries and last are pretty self-explanatory. 
+
+```yaml
+services:
+  - mongodb
+```
+Travis can provides [services](http://docs.travis-ci.com/user/database-setup/) for your application during testing&mdash;MongoDB in my case.
+
+```yaml
+before_script:
+  - node bin/www &
+```
+
+`before_script` is one of the events of a [complete Travis life cycle](http://docs.travis-ci.com/user/build-lifecycle/). It's called before the test script, so it's a good place to put dependencies&mdash;like starting your application if you're running an integration style test. I used [`&`](http://www.thegeekstuff.com/2010/05/unix-background-job/) put my script to the background otherwise the life cycle will hang waiting for control to be handed back to it before executing the test scripts.
+
+# Normalizing Model.id
+By default Mongoose creates a virtual getter for id which returns the underlying document ObjectId _id. The returned objects/json (via toObject, toJSON) will usually contain both a _id and id attribute. I wanted to normalize the use of just id and hide _id from clients, I added the following utility functions.
+
+```javascript
+var schemaUtils = {
+  remove_id: function (doc, ret, options) {
+    delete ret._id;
+  }
+  , normalize_id: function (schema) {
+    schema.set('toObject', { transform: this.remove_id, virtuals: true });
+    schema.set('toJSON', { transform: this.remove_id, virtuals: true });
+    return schema;
+  }
+  ...
+}
+
+// normalize id for NoteSchema
+schemaUtils.normalize_id(NoteSchema);
+```
+
 
 

@@ -60,7 +60,7 @@ router.put('/:id', function (req, res, next) {
 				sendNotFound(res);
 			else 		
 				res.status(200).send({ note: {
-					_id: id
+					id: id
 					, content: note.content
 					, title: note.title 
 				}})
@@ -73,7 +73,6 @@ router.put('/:id', function (req, res, next) {
 router.post('/', function (req, res, next) {
 	var note = new Note({
 		content: req.body.content
-		, id: req.body.id
 		, title: req.body.title
 	})
 	Note.create(note, function (err, saved) {

@@ -19,15 +19,21 @@
  *  Thong Nguyen <thong@gnoht.com>
  *
  */
-module.exports = function() {
+module.exports = function (schemaUtils) {
 	var mongoose = require('mongoose');
+
+	console.log(schemaUtils)
 
 	var NoteSchema = mongoose.Schema({
 		content: String
 		, title: String
-		, created: Date
-		, modified: { type: Date, default: Date.now }
+		, publishedAt: Date
+		, createdAt: Date
+		, modifiedAt: { type: Date, default: Date.now }
 	})
+
+	// normalize use of model.id see models/index.js
+	schemaUtils.normalize_id(NoteSchema);
 
 	return mongoose.model('Note', NoteSchema)
 }
