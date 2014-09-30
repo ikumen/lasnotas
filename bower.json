@@ -1,0 +1,17 @@
+{
+  "name": "lasnotas",
+  "version": "0.0.0",
+  "private": true,
+  "homepage": "https://github.com/ikumen/lasnotas",
+  "authors": [
+    "Thong Nguyen <thong@gnoht.com>"
+  ],
+  "license": "GPLv2",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
