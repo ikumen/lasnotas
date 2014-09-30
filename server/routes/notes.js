@@ -83,6 +83,7 @@ router.post('/:id', function (req, res, next) {
 			note.title = req.body.title;
 
 		Note.update({ _id: id }, note, function (err, updatedCount, updated) {
+			console.log(err)
 			if(err) {
 				return next(err);
 			}

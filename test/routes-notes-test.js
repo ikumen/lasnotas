@@ -89,6 +89,7 @@ describe('Route /notes', function() {
 				.set(headers)
 				.send({ content: updatedContent, id: savedNotes[0].id })
 				.end(function (res) {
+					console.log(res)
 					res.status.should.eql(200);
 
 					should.exists(res.body.note);
@@ -106,6 +107,7 @@ describe('Route /notes', function() {
 				.set(headers)
 				.send({ content: updatedContent, id: nonExistingId })
 				.end(function (res) {
+					console.log(res)
 					res.status.should.eql(404);
 					done();
 				})
