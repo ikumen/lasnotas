@@ -17,7 +17,8 @@ describe('Route /notes', function() {
          , new models.Note({ title: 'note2', content: 'note2 content' })
    	]
 		, headers = {
-         contentType: ['Content-Type', 'application/json']
+         'Content-Type': 'application/json'
+         , Accept: 'application/json'
       }
 
 	// seed with some test data
@@ -40,6 +41,7 @@ describe('Route /notes', function() {
 	describe('GET /:id', function() {
 		it('should return 404 when id not found', function (done) {
 			request.get(getPath('/notes/12345'))
+				.set(headers)
 				.end(function (res) {
 					res.status.should.eql(404);
 					done();
@@ -47,6 +49,7 @@ describe('Route /notes', function() {
 		})
 		it('should return a Note given an id', function (done) {
 			request.get(getPath('/notes/' + savedNotes[0].id))
+				.set(headers)
 				.end(function (res) {
 					res.status.should.eql(200);
 
@@ -64,6 +67,7 @@ describe('Route /notes', function() {
 	describe('GET /', function() {
 		it('should return a list of Notes', function (done) {
 			request.get(getPath('/notes'))
+				.set(headers)
 				.end(function (res) {
 					res.status.should.eql(200);
 					should.exists(res.body.notes);
@@ -76,13 +80,13 @@ describe('Route /notes', function() {
 	})
 
 	// update existing not
-	describe('PUT /:id', function() {
+	describe('POST /:id', function() {
 
 		var updatedContent = 'note1 content updated';
 
 		it('should get updated Note in req and return saved Note', function (done) {
-			request.put(getPath('/notes/' + savedNotes[0].id))
-				.set(headers.contentType)
+			request.post(getPath('/notes/' + savedNotes[0].id))
+				.set(headers)
 				.send({ content: updatedContent, id: savedNotes[0].id })
 				.end(function (res) {
 					res.status.should.eql(200);
@@ -98,8 +102,8 @@ describe('Route /notes', function() {
 
 		it('should get 404 when id not found', function (done) {
 			var nonExistingId = mongoose.Types.ObjectId();
-			request.put(getPath('/notes/' + nonExistingId))
-				.set(headers.contentType)
+			request.post(getPath('/notes/' + nonExistingId))
+				.set(headers)
 				.send({ content: updatedContent, id: nonExistingId })
 				.end(function (res) {
 					res.status.should.eql(404);
@@ -113,7 +117,7 @@ describe('Route /notes', function() {
 		it('should get new Note in req and return saved Note', function (done) {
 			var newNote = { title: 'note3', content: 'note3 content' }
 			request.post(getPath('/notes'))
-				.set(headers.contentType)
+				.set(headers)
 				.send(newNote)
 				.end(function (res) {
 					res.status.should.eql(200);
@@ -138,6 +142,7 @@ describe('Route /notes', function() {
 	describe('DELETE /:id', function() {
 		it('should delete Note with given id', function (done) {
 			request.del(getPath('/notes/' + savedNotes[0].id))
+				.set(headers)
 				.end(function (res) {
 					res.status.should.eql(200);
 					should.exists(res.body.note)
@@ -160,6 +165,7 @@ describe('Route /notes', function() {
 
 		it('should return an empty list', function (done) {
 			request.get(getPath('/notes'))
+				.set(headers)
 				.end(function (res) {
 					res.status.should.eql(200);
 					res.body.notes.should.be.empty

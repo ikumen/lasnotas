@@ -1,0 +1,11 @@
+extends layout
+
+block content
+	#container
+		h1= note.id
+		form(action="/notes/#{note.id}" method="post")
+			include ./note-form.jade
+
+		hr/
+	#container
+		p#preview= note.content 

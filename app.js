@@ -51,31 +51,42 @@ app.use('/notes', notes);
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
-    next(err);
+    return next(err);
 });
 
-// error handlers
+function handleError(error, req, res) {
+    res.status(error.status || 500);
+    res.format({
+        html: function() { res.render('error', error) }
+        , json: function() { res.send({ 'error': error}) }
+    })
+}
 
-// development error handler
-// will print stacktrace
 if (app.get('env') === 'development') {
+    // show pretty html output
+    app.locals.pretty = true; 
+
+    // development error handler will take precedence
+    // will print stacktrace
     app.use(function(err, req, res, next) {
-        res.status(err.status || 500);
-        res.render('error', {
-            message: err.message,
-            error: err
-        });
+        var error = {
+            status: err.status
+            , message: err.message
+            , error: err
+        }
+        handleError(error, req, res);
     });
 }
 
 // production error handler
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
-    res.status(err.status || 500);
-    res.render('error', {
-        message: err.message,
-        error: {}
-    });
+    var error = {
+        status: err.status
+        , message: err.message
+        , error: {}
+    }
+    handleError(error, req, res)
 });
 
 module.exports = app;

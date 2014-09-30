@@ -180,6 +180,21 @@ before_script:
 
 `before_script` is one of the events of a [complete Travis life cycle](http://docs.travis-ci.com/user/build-lifecycle/). It's called before the test script, so it's a good place to put dependencies&mdash;like starting your application if you're running an integration style test. I used [`&`](http://www.thegeekstuff.com/2010/05/unix-background-job/) put my script to the background otherwise the life cycle will hang waiting for control to be handed back to it before executing the test scripts.
 
+# Stories
+Let's hash out some requirements and a backlog.
+
+As a user I want an online blog/note taking app
+    1. should be able to access the app online
+    2. should be able to create a note
+        1. should be able to edit the note in Markdown
+        2. should be able to preview the note as I edit
+    3. should be able to publish/share the note
+        1. the Markdown note should be converted html
+        2. the publishing should be as simple as possible
+        
+    
+
+
 # Normalizing Model.id
 By default, Mongoose creates a virtual getter `id` which returns the document `_id` field. To use this field, you can pass the `toObject/toJSON` functions an option to enable it on a per-instance basis. 
 
@@ -215,6 +230,13 @@ var schemaUtils = {
 // normalize id for NoteSchema
 schemaUtils.normalize_id(NoteSchema);
 ```
+
+# 2. should be able to create a note
+
+
+# Markdown Parser
+Although creating a Markdown parser would have been a cool and challenging project, I decided to use a third party lib&mdash;specifically [marked](https://github.com/chjj/marked). Notes will be submitted in raw Markdown to server, there it will get saved. 
+
 
 
 

@@ -4,17 +4,20 @@ var express = require('express')
 	, models = require('../models')
 	, Note = mongoose.model('Note');
 
-function sendNotFound(res) {
-	res.status(404).end();
-}
-
 /* GET Notes listing. */
 router.get('/', function (req, res, next) {
 	Note.find({}, function (err, notes) {
 		if(err) 
 			return next(err);
 		else {
-			res.status(200).send({ notes: notes });	
+			res.format({
+				html: function() {
+					res.render('notes', { notes: notes, title: 'Notes'})		
+				}
+				, json: function() {
+					res.status(200).send({ notes: notes });	
+				}
+			})
 		}
 	})
 });
@@ -27,18 +30,28 @@ router.get('/:id', function (req, res, next) {
 	if(models.utils.isObjectId(id)) {
 		Note.findById(id, function (err, found) {
 			if(err)
-				return next(err)
-			else
-				res.status(200).send({ note: found })
-		})
+				return next(err);
+			else if(!found) 
+				return next(); //404 
+			else {
+				res.format({
+					json: function() {
+						res.status(200).send({ note: found })	
+					}
+					, html: function() {
+						res.render('note', { note: found })		
+					}
+				})
+			}
+		});
 	}
 	else {
-		sendNotFound(res);
+		return next(); //404
 	}
 });
 
 /* PUT updates for Note */
-router.put('/:id', function (req, res, next) {
+router.post('/:id', function (req, res, next) {
 	var id = req.params.id;
 
 	if(models.utils.isObjectId(id)) {
@@ -53,17 +66,25 @@ router.put('/:id', function (req, res, next) {
 				return next(err);
 			}
 			else if(!updatedCount) 
-				sendNotFound(res);
-			else 		
-				res.status(200).send({ note: {
-					id: id
-					, content: note.content
-					, title: note.title 
-				}})
-		})
+				return next(); //404
+			else {
+				res.format({
+					json: function() {
+						res.status(200).send({ note: {
+							id: id
+							, content: note.content
+							, title: note.title 
+						}})
+					}
+					, html: function() {
+						res.redirect('/notes')		
+					}
+				})
+			}		
+		}); //Note.update
 	} 
 	else 
-		sendNotFound(res);
+		return next(); //404
 })
 
 router.post('/', function (req, res, next) {
@@ -75,7 +96,14 @@ router.post('/', function (req, res, next) {
 		if(err) {
 			return next(err);
 		} else {
-			res.status(200).send({ note: saved })
+			res.format({
+				json: function() {
+					res.status(200).send({ note: saved })	
+				}
+				, html: function() {
+					res.redirect('/notes')		
+				}
+			})
 		}
 	})
 })
@@ -86,20 +114,27 @@ router.delete('/:id', function (req, res, next) {
 		Note.findById(id, function (err, found) {
 			if(err) 
 				return next(err);
-			else if(!found){
-				sendNotFound(res)
-			}
+			else if(!found) 
+				return next();
 			else {
 				found.remove(function (err) {
 					if(err) 
 						return next(err);
-					res.status(200).send({ note: found })
+					else {
+						res.format({
+							json: function() {
+								res.status(200).send({ note: found })			
+							}
+							, html: function() {
+								res.redirect('/notes')
+							}
+						})
+					}
 				})
 			}
 		})
-	} else {
-		sendNotFound(res)
-	}
+	} else 
+		return next();
 })
 
 module.exports = router;
