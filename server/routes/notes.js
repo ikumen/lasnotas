@@ -76,7 +76,7 @@ router.post('/:id', function (req, res, next) {
 	var id = req.params.id;
 
 	if(models.utils.isObjectId(id)) {
-		var note = { _id: id }
+		var note = { _id: models.utils.objectId(id) }
 		if(req.body.content)
 			note.content = req.body.content;
 		if(req.body.title)
