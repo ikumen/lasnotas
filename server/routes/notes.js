@@ -1,14 +1,11 @@
-var express = require('express');
-var router = express.Router();
-var mongoose = require('mongoose')
-var Note = mongoose.model('Note');
+var express = require('express')
+	, router = express.Router()
+	, mongoose = require('mongoose')
+	, models = require('../models')
+	, Note = mongoose.model('Note');
 
 function sendNotFound(res) {
 	res.status(404).end();
-}
-
-function isValidId(id) {
-	return (id && id.match(/^[0-9a-fA-F]{24}$/));
 }
 
 /* GET Notes listing. */
@@ -27,7 +24,7 @@ router.get('/:id', function (req, res, next) {
 	var id = req.params.id
 
 	// test if valid ObjectId
-	if(isValidId(id)) {
+	if(models.utils.isObjectId(id)) {
 		Note.findById(id, function (err, found) {
 			if(err)
 				return next(err)
@@ -44,7 +41,7 @@ router.get('/:id', function (req, res, next) {
 router.put('/:id', function (req, res, next) {
 	var id = req.params.id;
 
-	if(isValidId(id)) {
+	if(models.utils.isObjectId(id)) {
 		var note = {}
 		if(req.body.content)
 			note.content = req.body.content;
@@ -53,7 +50,6 @@ router.put('/:id', function (req, res, next) {
 
 		Note.update({ _id: id }, note, function (err, updatedCount, updated) {
 			if(err) {
-				console.log(err)
 				return next(err);
 			}
 			else if(!updatedCount) 
@@ -77,7 +73,6 @@ router.post('/', function (req, res, next) {
 	})
 	Note.create(note, function (err, saved) {
 		if(err) {
-			console.log(err)
 			return next(err);
 		} else {
 			res.status(200).send({ note: saved })
@@ -87,7 +82,7 @@ router.post('/', function (req, res, next) {
 
 router.delete('/:id', function (req, res, next) {
 	var id = req.params.id
-	if(isValidId(id)) {
+	if(models.utils.isObjectId(id)) {
 		Note.findById(id, function (err, found) {
 			if(err) 
 				return next(err);

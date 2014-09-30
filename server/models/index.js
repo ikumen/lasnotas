@@ -53,4 +53,5 @@ mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
 // export the models
 module.exports = {
 	Note: require('./notes')(schemaUtils)
+	, utils: schemaUtils
 }

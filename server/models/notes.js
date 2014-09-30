@@ -22,8 +22,6 @@
 module.exports = function (schemaUtils) {
 	var mongoose = require('mongoose');
 
-	console.log(schemaUtils)
-
 	var NoteSchema = mongoose.Schema({
 		content: String
 		, title: String
