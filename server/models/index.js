@@ -32,9 +32,9 @@ var schemaUtils = {
 		return (id && id.match(/^[0-9a-fA-F]{24}$/))
 	}
 
-	/* Normalize use of Model.id by hiding _id on returned toObject/toJSON instances */
+	/* Enables use of model.id, and removes _id on toJSON calls  */
 	, normalize_id: function (schema) {
-		schema.set('toObject', { transform: this.remove_id, virtuals: true });
+		schema.set('toObject', { virtuals: true });
 		schema.set('toJSON', { transform: this.remove_id, virtuals: true });
 		return schema;
 	}

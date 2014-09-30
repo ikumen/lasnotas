@@ -181,7 +181,23 @@ before_script:
 `before_script` is one of the events of a [complete Travis life cycle](http://docs.travis-ci.com/user/build-lifecycle/). It's called before the test script, so it's a good place to put dependencies&mdash;like starting your application if you're running an integration style test. I used [`&`](http://www.thegeekstuff.com/2010/05/unix-background-job/) put my script to the background otherwise the life cycle will hang waiting for control to be handed back to it before executing the test scripts.
 
 # Normalizing Model.id
-By default Mongoose creates a virtual getter for id which returns the underlying document ObjectId _id. The returned objects/json (via toObject, toJSON) will usually contain both a _id and id attribute. I wanted to normalize the use of just id and hide _id from clients, I added the following utility functions.
+By default, Mongoose creates a virtual getter `id` which returns the document `_id` field. To use this field, you can pass the `toObject/toJSON` functions an option to enable it on a per-instance basis. 
+
+```javascript
+doc.toObject({ virtuals: true })
+doc.toJSON({ virtuals: true })
+```
+
+Or enable it at the schema level for all instances of a schema
+
+```javascript
+schema.set('toObject', { virtuals: true })
+schema.set('toJSON', { virtuals: true })
+
+doc.toJSON() //-> { _id: 542a5f6b655fdc7e24043e16, id: 542a5f6b655fdc7e24043e16, .... }
+```
+
+But you'll notice that both _id and id are returned. These isn't a big deal on the back-end but at the API level response to client, it might be a good idea to remove the _id and only send back id. So I added a simple normalizing function to remove `_id` on `toJSON` calls, and enable use of `id` to both toObject and toJSON. 
 
 ```javascript
 var schemaUtils = {
@@ -189,7 +205,7 @@ var schemaUtils = {
     delete ret._id;
   }
   , normalize_id: function (schema) {
-    schema.set('toObject', { transform: this.remove_id, virtuals: true });
+    schema.set('toObject', { transform: virtuals: true });
     schema.set('toJSON', { transform: this.remove_id, virtuals: true });
     return schema;
   }

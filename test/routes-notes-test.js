@@ -11,12 +11,14 @@ function getPath (path) {
 
 /* Test routes for Note - /notes */
 describe('Route /notes', function() {
-    var savedNotes = []
-        , notesToSave = [
-            new models.Note({ title: 'note1' , content: 'note1 content'})
-            ,new models.Note({ title: 'note2', content: 'note2 content' })]
-        , headers = {
-            contentType: ['Content-Type', 'application/json']}
+   var savedNotes = []
+		, notesToSave = [
+         new models.Note({ title: 'note1' , content: 'note1 content'})
+         , new models.Note({ title: 'note2', content: 'note2 content' })
+   	]
+		, headers = {
+         contentType: ['Content-Type', 'application/json']
+      }
 
 	// seed with some test data
 	before(function (done) {
@@ -64,7 +66,6 @@ describe('Route /notes', function() {
 			request.get(getPath('/notes'))
 				.end(function (res) {
 					res.status.should.eql(200);
-
 					should.exists(res.body.notes);
 					var notes = res.body.notes;
 					notes.should.have.length(savedNotes.length);
