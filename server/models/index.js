@@ -19,46 +19,59 @@
  *  Thong Nguyen <thong@gnoht.com>
  *
  */
-var mongoose = require('mongoose');
+(function() {
+	var mongoose = require('mongoose');
 
-var schemaUtils = {
-	/* Removes _id from returned copy of underlying instance */
-	remove_id: function (doc, ret, options) {
-		delete ret._id;
-	}
-	
-	/* Creates ObjectId */
-	, objectId: function (id) {
-		return id ? mongoose.Types.ObjectId(id) : 
-			mongoose.Types.ObjectId();
+	// configure
+	var opts = {
+		server: {
+			socketOptions: { keepAlive: 1 }
+		}
 	}
 
-	/* Very basic test for ObjectId */
-	, isObjectId: function (id) {
-		return (id && id.match(/^[0-9a-fA-F]{24}$/))
+	// connect
+	mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
+
+	// some helpers
+	var schemaUtils = {
+		/* Removes _id from returned copy of underlying instance */
+		remove_id: function (doc, ret, options) {
+			delete ret._id;
+		},
+		
+		/* Creates ObjectId */
+		objectId: function (id) {
+			return id ? mongoose.Types.ObjectId(id) : 
+				mongoose.Types.ObjectId();
+		},
+
+		/* Very basic test for ObjectId */
+		isObjectId: function (id) {
+			return (id && id.match(/^[0-9a-fA-F]{24}$/))
+		},
+
+		/* Enables use of model.id, and removes _id on toJSON calls  */
+		normalize_id: function (schema) {
+			schema.set('toObject', { virtuals: true });
+			schema.set('toJSON', { transform: this.remove_id, virtuals: true });
+			return schema;
+		}
 	}
 
-	/* Enables use of model.id, and removes _id on toJSON calls  */
-	, normalize_id: function (schema) {
-		schema.set('toObject', { virtuals: true });
-		schema.set('toJSON', { transform: this.remove_id, virtuals: true });
-		return schema;
+	var models = {
+		Post: require('./posts')(schemaUtils),
+		Note: require('./notes')(schemaUtils),
+		utils: schemaUtils
 	}
-}
 
-// configure
-var opts = {
-	server: {
-		socketOptions: { keepAlive: 1 }
+	// call any postCreates
+	for(var name in models) {
+		var model = models[name];
+		if(model.postCreate && model.postCreate instanceof Function) {
+			model.postCreate(models)
+		}
 	}
-}
 
-// connect
-mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
+	module.exports = models;
 
-// export the models
-module.exports = {
-	Post: require('./posts')(schemaUtils)
-	, Note: require('./notes')(schemaUtils)
-	, utils: schemaUtils
-}
+})()

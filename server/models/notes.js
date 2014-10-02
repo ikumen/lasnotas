@@ -21,7 +21,7 @@
  */
 module.exports = function(schemaUtils) {
 	var mongoose = require('mongoose')
-		, Post = mongoose.model('Post');
+		, utils = require('../utils');
 
 	var NoteSchema = mongoose.Schema({
 		content: String
@@ -33,22 +33,27 @@ module.exports = function(schemaUtils) {
 
 	// normalize use of model.id see models/index.js
 	schemaUtils.normalize_id(NoteSchema);
-
+	
 	var Note = mongoose.model('Note', NoteSchema);
 
-	function postNoteHook(note) {
+	// extend Note as Subject for Listeners to register with
+	utils.inherit(Note, new utils.Subject());
 
+	/**
+	 * Update functionality with hook to notify any listeners of the updated
+	 * Note. Only calls notify on success update. 
+	 */
+	Note.updateAndNotify = function (cond, update, opts, cb) {
+		if(typeof cb === 'undefined' && opts instanceof Function) {
+			cb = opts;
+			opts = {};
+		}
+		Note.update(cond, update, opts, function (err, updateCount, rawRes) {
+			if(!err && updateCount) 
+				Note.notify(update); // notify listeners of our update
+			cb(err, updateCount, rawRes);
+		});
 	}
-
-	// Note.hUpdate = function (cond, update, opts, callback) {
-	// 	Note.update(cond, update, opts, function (err, upCount, rawRes) {
-	// 		if(!err && upCount) {
-	// 			//update._id = cond._id; // for updates there's not id
-	// 			Note.on('update', update)	
-	// 		}				
-	// 		callback(err, upCount, rawRes); 
-	// 	})
-	// }
 
 	return Note;
 }

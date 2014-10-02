@@ -24,6 +24,7 @@ var express = require('express')
 	, mongoose = require('mongoose')
 	, models = require('../models');
 
+
 /* Get all Notes */
 router.get('/', function (req, res, next) {
 	models.Note.find({}, function (err, notes) {
@@ -106,7 +107,7 @@ router.post('/:id', function (req, res, next) {
 		if(req.body.publishedAt)
 			note.publishedAt = req.body.publishedAt
 
-		models.Note.update({ _id: id }, note, function (err, updatedCount, updated) {
+		models.Note.updateAndNotify({ _id: id }, note, function (err, updatedCount, updated) {
 			//console.log(err)
 			if(err) {
 				return next(err);

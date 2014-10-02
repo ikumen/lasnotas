@@ -20,7 +20,8 @@
  *
  */
 module.exports = function (schemaUtils) {
-	var mongoose = require('mongoose');
+	var mongoose = require('mongoose'),
+		utils = require('../utils');
 
 	var PostSchema = mongoose.Schema({
 		title: String
@@ -36,5 +37,20 @@ module.exports = function (schemaUtils) {
 	// normalize use of model.id see models/index.js
 	schemaUtils.normalize_id(PostSchema);
 
-	return mongoose.model('Post', PostSchema)
+	// create our Post model
+	var Post = mongoose.model('Post', PostSchema);
+	
+	// Post inherits Listener capabilities
+	utils.inherit(Post, new utils.Listener(function (note) {
+		//TODO: implement
+	}));
+
+	// add postCreate life-cycle callback to Post
+	utils.postCreate(Post, function (models) {
+		models.Note.addListener(Post)
+	})
+
+
+
+	return Post;
 }
