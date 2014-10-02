@@ -22,12 +22,11 @@
 var express = require('express')
 	, router = express.Router()
 	, mongoose = require('mongoose')
-	, models = require('../models')
-	, Note = mongoose.model('Note');
+	, models = require('../models');
 
-/* GET Notes listing. */
+/* Get all Notes */
 router.get('/', function (req, res, next) {
-	Note.find({}, function (err, notes) {
+	models.Note.find({}, function (err, notes) {
 		if(err) 
 			return next(err);
 		else {
@@ -43,13 +42,13 @@ router.get('/', function (req, res, next) {
 	})
 });
 
-/* GET a Note */
+/* Get Note with given id */
 router.get('/:id', function (req, res, next) {
 	var id = req.params.id
 
 	// test if valid ObjectId
 	if(models.utils.isObjectId(id)) {
-		Note.findById(id, function (err, found) {
+		models.Note.findById(id, function (err, found) {
 			if(err)
 				return next(err);
 			else if(!found) 
@@ -71,7 +70,30 @@ router.get('/:id', function (req, res, next) {
 	}
 });
 
-/* PUT updates for Note */
+/* Create new Note from passed in params */
+router.post('/', function (req, res, next) {
+	var note = new models.Note({
+		content: req.body.content
+		, title: req.body.title
+		, publishedAt: req.body.publishedAt
+	})
+	models.Note.create(note, function (err, saved) {
+		if(err) {
+			return next(err);
+		} else {
+			res.format({
+				json: function() {
+					res.status(200).send({ note: saved })	
+				}
+				, html: function() {
+					res.redirect('/notes/' + saved.id)		
+				}
+			})
+		}
+	})
+})
+
+/* Updates Note with given id and params */
 router.post('/:id', function (req, res, next) {
 	var id = req.params.id;
 
@@ -81,9 +103,11 @@ router.post('/:id', function (req, res, next) {
 			note.content = req.body.content;
 		if(req.body.title)
 			note.title = req.body.title;
+		if(req.body.publishedAt)
+			note.publishedAt = req.body.publishedAt
 
-		Note.update({ _id: id }, note, function (err, updatedCount, updated) {
-			console.log(err)
+		models.Note.update({ _id: id }, note, function (err, updatedCount, updated) {
+			//console.log(err)
 			if(err) {
 				return next(err);
 			}
@@ -109,31 +133,11 @@ router.post('/:id', function (req, res, next) {
 		return next(); //404
 })
 
-router.post('/', function (req, res, next) {
-	var note = new Note({
-		content: req.body.content
-		, title: req.body.title
-	})
-	Note.create(note, function (err, saved) {
-		if(err) {
-			return next(err);
-		} else {
-			res.format({
-				json: function() {
-					res.status(200).send({ note: saved })	
-				}
-				, html: function() {
-					res.redirect('/notes/' + saved.id)		
-				}
-			})
-		}
-	})
-})
-
+/* Removes Note with given id */
 router.delete('/:id', function (req, res, next) {
 	var id = req.params.id
 	if(models.utils.isObjectId(id)) {
-		Note.findById(id, function (err, found) {
+		models.Note.findById(id, function (err, found) {
 			if(err) 
 				return next(err);
 			else if(!found) 

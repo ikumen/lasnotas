@@ -69,6 +69,7 @@ if (app.get('env') === 'development') {
     // development error handler will take precedence
     // will print stacktrace
     app.use(function(err, req, res, next) {
+        console.log(err)
         var error = {
             status: err.status
             , message: err.message

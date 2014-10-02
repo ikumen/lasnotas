@@ -19,7 +19,7 @@
  *  Thong Nguyen <thong@gnoht.com>
  *
  */
-module.exports = function (schemaUtils) {
+module.exports = function(schemaUtils) {
 	var mongoose = require('mongoose')
 		, Post = mongoose.model('Post');
 

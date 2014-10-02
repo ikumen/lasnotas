@@ -1,7 +1,7 @@
 var request = require('superagent')
 	, mongoose = require('mongoose')
 	, should = require('should')
-	, models = require('../server/models');
+	, models = require('../../server/models');
 
 
 function getPath (path) {
@@ -37,8 +37,9 @@ describe('Route /notes', function() {
 		})
 	})
 
-
+	/* Test getting a single Note */
 	describe('GET /:id', function() {
+		// when id is invalid or non-existing
 		it('should return 404 when id not found', function (done) {
 			request.get(getPath('/notes/12345'))
 				.set(headers)
@@ -47,6 +48,7 @@ describe('Route /notes', function() {
 					done();
 				})
 		})
+		// when id is valid
 		it('should return a Note given an id', function (done) {
 			request.get(getPath('/notes/' + savedNotes[0].id))
 				.set(headers)
@@ -64,7 +66,9 @@ describe('Route /notes', function() {
 		})
 	})
 
+	/* Test getting a list of Notes */
 	describe('GET /', function() {
+		// when list is not empty
 		it('should return a list of Notes', function (done) {
 			request.get(getPath('/notes'))
 				.set(headers)
@@ -79,17 +83,17 @@ describe('Route /notes', function() {
 		})
 	})
 
-	// update existing not
+	/* Test updating a Note */
 	describe('POST /:id', function() {
 
 		var updatedContent = 'note1 content updated';
 
+		// when updated data is valid
 		it('should get updated Note in req and return saved Note', function (done) {
 			request.post(getPath('/notes/' + savedNotes[0].id))
 				.set(headers)
 				.send({ content: updatedContent, id: savedNotes[0].id })
 				.end(function (res) {
-					console.log(res)
 					res.status.should.eql(200);
 
 					should.exists(res.body.note);
@@ -101,21 +105,22 @@ describe('Route /notes', function() {
 				})
 		})
 
+		// when id of target Note is invalid/non-existing
 		it('should get 404 when id not found', function (done) {
 			var nonExistingId = mongoose.Types.ObjectId();
 			request.post(getPath('/notes/' + nonExistingId))
 				.set(headers)
 				.send({ content: updatedContent, id: nonExistingId })
 				.end(function (res) {
-					console.log(res)
 					res.status.should.eql(404);
 					done();
 				})
 		});
 	})
 
-	// create note
+	/* Tests creating a Note */
 	describe('POST /', function() {
+		// when create data is valid
 		it('should get new Note in req and return saved Note', function (done) {
 			var newNote = { title: 'note3', content: 'note3 content' }
 			request.post(getPath('/notes'))
@@ -140,8 +145,9 @@ describe('Route /notes', function() {
 		})
 	})
 
-	// remove notes
+	/* Test removing a Note */
 	describe('DELETE /:id', function() {
+		// when id of Note to be deleted is valid
 		it('should delete Note with given id', function (done) {
 			request.del(getPath('/notes/' + savedNotes[0].id))
 				.set(headers)
@@ -150,12 +156,12 @@ describe('Route /notes', function() {
 					should.exists(res.body.note)
 					should.exists(res.body.note.id)
 					res.body.note.id.should.eql(savedNotes[0].id.toString())
-
 					done();
 				})
 		})
 	})
 
+	/* Test getting list of Notes */
 	describe('GET /', function() {
 		before(function (done) {
 			models.Note.remove(function (err) {
@@ -164,14 +170,13 @@ describe('Route /notes', function() {
 				done()
 			})
 		})
-
+		// when list is empty
 		it('should return an empty list', function (done) {
 			request.get(getPath('/notes'))
 				.set(headers)
 				.end(function (res) {
 					res.status.should.eql(200);
 					res.body.notes.should.be.empty
-
 					done();
 				})
 		})
