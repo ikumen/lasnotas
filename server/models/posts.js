@@ -21,6 +21,7 @@
  */
 module.exports = function (schemaUtils) {
 	var mongoose = require('mongoose'),
+		converter = require('../../lib/note-converters/md-to-html')
 		utils = require('../utils');
 
 	var PostSchema = mongoose.Schema({
@@ -42,7 +43,22 @@ module.exports = function (schemaUtils) {
 	
 	// Post inherits Listener capabilities
 	utils.inherit(Post, new utils.Listener(function (note) {
-		//TODO: implement
+		converter(note, function(err, res) {
+			var post = new Post({
+				_id: note.id,
+				title: res.title,
+				publishedAt: res.publishedAt,
+				content: res.content,
+				tags: res.tags
+			})
+			console.log(post)
+			Post.findByIdAndUpdate(post.id, post.toObject(), { upsert: true }, function (err, saved) {
+				if(err) {
+					console.error(err);
+					throw err;
+				}		
+			})
+		});
 	}));
 
 	// add postCreate life-cycle callback to Post

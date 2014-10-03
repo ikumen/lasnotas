@@ -99,7 +99,7 @@ router.post('/:id', function (req, res, next) {
 	var id = req.params.id;
 
 	if(models.utils.isObjectId(id)) {
-		var note = {}
+		var note = new models.Note({ _id: models.utils.objectId(id) })
 		if(req.body.content)
 			note.content = req.body.content;
 		if(req.body.title)
@@ -107,7 +107,7 @@ router.post('/:id', function (req, res, next) {
 		if(req.body.publishedAt)
 			note.publishedAt = req.body.publishedAt
 
-		models.Note.updateAndNotify({ _id: id }, note, function (err, updatedCount, updated) {
+		models.Note.updateAndNotify({ _id: note.id }, note.toJSON(), function (err, updatedCount, updated) {
 			//console.log(err)
 			if(err) {
 				return next(err);
@@ -117,11 +117,7 @@ router.post('/:id', function (req, res, next) {
 			else {
 				res.format({
 					json: function() {
-						res.status(200).send({ note: {
-							id: id
-							, content: note.content
-							, title: note.title 
-						}})
+						res.status(200).send({ note: note.toJSON() })
 					}
 					, html: function() {
 						res.redirect('/notes/' + id)		

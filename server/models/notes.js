@@ -44,7 +44,7 @@ module.exports = function(schemaUtils) {
 	 * Note. Only calls notify on success update. 
 	 */
 	Note.updateAndNotify = function (cond, update, opts, cb) {
-		if(typeof cb === 'undefined' && opts instanceof Function) {
+		if(utils.isUndefined(cb) && utils.isFunction(opts)) {
 			cb = opts;
 			opts = {};
 		}

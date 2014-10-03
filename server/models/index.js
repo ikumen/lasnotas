@@ -52,7 +52,8 @@
 
 		/* Enables use of model.id, and removes _id on toJSON calls  */
 		normalize_id: function (schema) {
-			schema.set('toObject', { virtuals: true });
+//			schema.set('toObject', { virtuals: true });
+			schema.set('toObject', { transform: this.remove_id, virtuals: true });
 			schema.set('toJSON', { transform: this.remove_id, virtuals: true });
 			return schema;
 		}

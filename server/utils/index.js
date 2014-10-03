@@ -60,9 +60,14 @@
 			target[prop] = src[prop];
 		}
 	}
-
 	exports.postCreate = function (target, callback) {
 		target.postCreate = callback
+	}
+	exports.isUndefined = function (obj) {
+		return (typeof obj === 'undefined');
+	}
+	exports.isFunction = function (obj) {
+		return (typeof obj === 'function');
 	}
 
 
