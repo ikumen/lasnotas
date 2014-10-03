@@ -32,7 +32,16 @@
 	}
 
 	// connect
+	//mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
+
+	console.log("----- mongoose version: " + mongoose.version)
 	mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
+	mongoose.connect('mongodb://127.0.0.1/lasnotas', function(err){
+  		var admin = new mongoose.mongo.Admin(mongoose.connection.db);
+  		admin.buildInfo(function (err, info) {
+     		console.log("---------mongo version: " + info.version);
+  		});
+	});
 
 	// some helpers
 	var schemaUtils = {
