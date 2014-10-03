@@ -26,7 +26,7 @@ describe('Route /notes', function() {
 		models.Note.remove(function (err) {
 			if(err) 
 				throw err
-
+			console.log(notesToSave[0].toUpdate())
 			models.Note.create(notesToSave, function (err, saved1, saved2) {
 				if(err) throw err;
 
@@ -106,13 +106,16 @@ describe('Route /notes', function() {
 		})
 
 		// when id of target Note is invalid/non-existing
-		it('should get 404 when id not found', function (done) {
+		it('should create new when id not found', function (done) {
 			var nonExistingId = mongoose.Types.ObjectId();
 			request.post(getPath('/notes/' + nonExistingId))
 				.set(headers)
 				.send({ content: updatedContent, id: nonExistingId })
 				.end(function (res) {
-					res.status.should.eql(404);
+					res.status.should.eql(200);
+					should.exists(res.body.note)
+					var created = res.body.note;
+					created.id.should.eql(nonExistingId.toString());
 					done();
 				})
 		});

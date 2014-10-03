@@ -31,12 +31,11 @@ module.exports = function (schemaUtils) {
 		, slug: String
 		, tags: [String]
 		, publishedAt: String
-		, createdAt: { type: Date, default: Date.now }
 		, modifiedAt: { type: Date, default: Date.now }
 	})
 
-	// normalize use of model.id see models/index.js
-	schemaUtils.normalize_id(PostSchema);
+	// @see models/index.js for it's use
+	schemaUtils.normalizeModel(PostSchema);
 
 	// create our Post model
 	var Post = mongoose.model('Post', PostSchema);
@@ -44,19 +43,11 @@ module.exports = function (schemaUtils) {
 	// Post inherits Listener capabilities
 	utils.inherit(Post, new utils.Listener(function (note) {
 		converter(note, function(err, res) {
-			var post = new Post({
-				_id: note.id,
-				title: res.title,
-				publishedAt: res.publishedAt,
-				content: res.content,
-				tags: res.tags
-			})
-			console.log(post)
-			Post.findByIdAndUpdate(post.id, post.toObject(), { upsert: true }, function (err, saved) {
-				if(err) {
-					console.error(err);
-					throw err;
-				}		
+			var post = new Post(res);
+			post.id = note.id // Posts are tied to Notes
+			Post.findByIdAndUpdate(post.id, post.toObject(), 
+					{ upsert: true }, function (err, saved) {
+				if(err) throw err;
 			})
 		});
 	}));

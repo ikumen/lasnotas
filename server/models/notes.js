@@ -27,33 +27,40 @@ module.exports = function(schemaUtils) {
 		content: String
 		, title: String
 		, publishedAt: Date
-		, createdAt: Date
 		, modifiedAt: { type: Date, default: Date.now }
 	})
 
-	// normalize use of model.id see models/index.js
-	schemaUtils.normalize_id(NoteSchema);
-	
-	var Note = mongoose.model('Note', NoteSchema);
+	// @see models/index.js for it's use 
+	schemaUtils.normalizeModel(NoteSchema);
 
-	// extend Note as Subject for Listeners to register with
-	utils.inherit(Note, new utils.Subject());
 
 	/**
-	 * Update functionality with hook to notify any listeners of the updated
-	 * Note. Only calls notify on success update. 
+	 * Handles upserting note, and on successful upsert, notifies any
+	 * listeners of with. see /server/utils.js for Subject/Listner info
 	 */
-	Note.updateAndNotify = function (cond, update, opts, cb) {
-		if(utils.isUndefined(cb) && utils.isFunction(opts)) {
-			cb = opts;
-			opts = {};
+	NoteSchema.static('upsertAndNotify', function (note, opts, callback) {
+		if(utils.isUndefined(callback) && utils.isFunction(opts)) {
+			callback = opts; // shift and normalize argument positions
+			opts = {}; 
 		}
-		Note.update(cond, update, opts, function (err, updateCount, rawRes) {
-			if(!err && updateCount) 
-				Note.notify(update); // notify listeners of our update
-			cb(err, updateCount, rawRes);
+		var _Note = this
+		opts.upsert = true; // enable upserting		
+		this.findByIdAndUpdate(note.id, note.toObject(), opts, function (err, upserted) {
+			// check if upsert was success and notifiy listeners
+			if(!err && !utils.isUndefined(upserted)) {
+				_Note.notify(upserted);
+			}
+				
+			// send back err/upserted doc
+			callback(err, upserted);
 		});
-	}
+	});
+
+	// apply schema to Note class	
+	var Note = mongoose.model('Note', NoteSchema);
+
+	// let Note inherit Subject functionality
+	utils.inherit(Note, new utils.Subject());
 
 	return Note;
 }

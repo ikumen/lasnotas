@@ -19,10 +19,11 @@
  *  Thong Nguyen <thong@gnoht.com>
  *
  */
-var express = require('express')
-	, router = express.Router()
-	, mongoose = require('mongoose')
-	, models = require('../models');
+var express = require('express'),
+	router = express.Router(),
+	mongoose = require('mongoose'),
+	models = require('../models'),
+	utils = require('../utils');
 
 
 /* Get all Notes */
@@ -71,64 +72,43 @@ router.get('/:id', function (req, res, next) {
 	}
 });
 
-/* Create new Note from passed in params */
-router.post('/', function (req, res, next) {
+function handleUpsert(req, res, next) {
+	var id = req.params.id;
+	// either have no id (i.e new note), or valid ObjectId
+	if(id && !models.utils.isObjectId(id)) {
+		return next(); // 404
+	}
+
 	var note = new models.Note({
-		content: req.body.content
-		, title: req.body.title
-		, publishedAt: req.body.publishedAt
-	})
-	models.Note.create(note, function (err, saved) {
-		if(err) {
-			return next(err);
+		id: id,
+		content: req.body.content,
+		title: req.body.title 
+	});
+
+	console.log("-----", note)
+
+	models.Note.upsertAndNotify(note, function (err, saved) {
+		if(err || !saved) {
+			return next(err); // handles 500 and 404
 		} else {
 			res.format({
 				json: function() {
-					res.status(200).send({ note: saved })	
-				}
-				, html: function() {
-					res.redirect('/notes/' + saved.id)		
+					res.status(200).send({ note: note.toJSON() })
+				},
+
+				html: function() {
+					res.redirect('/notes/' + id)		
 				}
 			})
 		}
-	})
-})
+	}); 
+}
+
+/* Create new Note from passed in params */
+router.post('/', handleUpsert);
 
 /* Updates Note with given id and params */
-router.post('/:id', function (req, res, next) {
-	var id = req.params.id;
-
-	if(models.utils.isObjectId(id)) {
-		var note = new models.Note({ _id: models.utils.objectId(id) })
-		if(req.body.content)
-			note.content = req.body.content;
-		if(req.body.title)
-			note.title = req.body.title;
-		if(req.body.publishedAt)
-			note.publishedAt = req.body.publishedAt
-
-		models.Note.updateAndNotify({ _id: note.id }, note.toJSON(), function (err, updatedCount, updated) {
-			//console.log(err)
-			if(err) {
-				return next(err);
-			}
-			else if(!updatedCount) 
-				return next(); //404
-			else {
-				res.format({
-					json: function() {
-						res.status(200).send({ note: note.toJSON() })
-					}
-					, html: function() {
-						res.redirect('/notes/' + id)		
-					}
-				})
-			}		
-		}); //Note.update
-	} 
-	else 
-		return next(); //404
-})
+router.post('/:id', handleUpsert);
 
 /* Removes Note with given id */
 router.delete('/:id', function (req, res, next) {
