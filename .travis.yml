@@ -8,7 +8,7 @@ before_install:
 services: 
   - mongodb  
 before_script:
-  - "until nc -z localhost 27017; do echo Waiting for MongoDB; sleep 1; done"
+  - "until nc -z localhost 27017; do echo Waiting for MongoDB; sleep 5; done"
   - node bin/www &
 env:
   - env=development
