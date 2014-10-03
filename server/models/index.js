@@ -20,7 +20,9 @@
  *
  */
 (function() {
-	var mongoose = require('mongoose');
+	var mongoose = require('mongoose'),
+		utils = require('../utils');
+
 
 	// configure
 	var opts = {
@@ -29,16 +31,22 @@
 		}
 	}
 
+	console.log("----- mongoose version: " + mongoose.version)
 	// connect
-	mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
+	mongoose.connect('mongodb://127.0.0.1/lasnotas', function(err){
+  		var admin = new mongoose.mongo.Admin(mongoose.connection.db);
+  		admin.buildInfo(function (err, info) {
+     		console.log("---------mongo version: " + info.version);
+  		});
+	});
 
 	// some helpers
 	var schemaUtils = {
 		/* Removes _id from returned copy of underlying instance */
-		remove_id: function (doc, ret, options) {
+		remove_id: function (doc, ret, opts) {
 			delete ret._id;
 		},
-		
+
 		/* Creates ObjectId */
 		objectId: function (id) {
 			return id ? mongoose.Types.ObjectId(id) : 
@@ -50,11 +58,29 @@
 			return (id && id.match(/^[0-9a-fA-F]{24}$/))
 		},
 
-		/* Enables use of model.id, and removes _id on toJSON calls  */
-		normalize_id: function (schema) {
-//			schema.set('toObject', { virtuals: true });
+		/* 
+		 * Add/remove some defaults to make each model easier to work with.
+		 * Note: only apply this to schemas that are using ObjectId as id
+		 */
+		normalizeModel: function (schema) {
+			// we prefer to work with model.id vs model._id so let's remove
+			// _id when we call toObject/toJSON on it and show model.id only
+			// Note: underlying _id is still there in the model 
 			schema.set('toObject', { transform: this.remove_id, virtuals: true });
 			schema.set('toJSON', { transform: this.remove_id, virtuals: true });
+
+			// model.id = setter is missing, so let's add support for it
+			schema.virtual('id').set(function (id) {
+				if(schemaUtils.isObjectId(id)) {
+					this._id = mongoose.Types.ObjectId(id);
+					this.existing = true;
+				}
+			});
+
+			// ObjectIds have timestamp built-in, let's provide friend way to get it
+			schema.virtual('createdAt').get(function () {
+				return this._id.getTimestamp();
+			})
 			return schema;
 		}
 	}
@@ -65,10 +91,10 @@
 		utils: schemaUtils
 	}
 
-	// call any postCreates
+	// call any postCreate hooks
 	for(var name in models) {
 		var model = models[name];
-		if(model.postCreate && model.postCreate instanceof Function) {
+		if(model.postCreate && utils.isFunction(model.postCreate)) {
 			model.postCreate(models)
 		}
 	}
