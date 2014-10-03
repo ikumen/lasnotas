@@ -24,12 +24,9 @@ describe('Route /notes', function() {
 	// seed with some test data
 	before(function (done) {
 		models.Note.remove(function (err) {
-			if(err) 
-				throw err
-			console.log(notesToSave[0].toUpdate())
+			if(err) throw err
 			models.Note.create(notesToSave, function (err, saved1, saved2) {
 				if(err) throw err;
-
 				savedNotes.push(saved1);
 				savedNotes.push(saved2);
 				done();

@@ -33,7 +33,6 @@ module.exports = function(schemaUtils) {
 	// @see models/index.js for it's use 
 	schemaUtils.normalizeModel(NoteSchema);
 
-
 	/**
 	 * Handles upserting note, and on successful upsert, notifies any
 	 * listeners of with. see /server/utils.js for Subject/Listner info

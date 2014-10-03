@@ -85,8 +85,6 @@ function handleUpsert(req, res, next) {
 		title: req.body.title 
 	});
 
-	console.log("-----", note)
-
 	models.Note.upsertAndNotify(note, function (err, saved) {
 		if(err || !saved) {
 			return next(err); // handles 500 and 404
