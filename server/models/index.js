@@ -32,16 +32,7 @@
 	}
 
 	// connect
-	//mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
-
-	console.log("----- mongoose version: " + mongoose.version)
-	//mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
-	mongoose.connect('mongodb://127.0.0.1/lasnotas', function(err){
-  		var admin = new mongoose.mongo.Admin(mongoose.connection.db);
-  		admin.buildInfo(function (err, info) {
-     		console.log("---------mongo version: " + info.version);
-  		});
-	});
+	mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
 
 	// some helpers
 	var schemaUtils = {
@@ -69,7 +60,7 @@
 			// we prefer to work with model.id vs model._id so let's remove
 			// _id when we call toObject/toJSON on it and show model.id only
 			// Note: underlying _id is still there in the model 
-			schema.set('toObject', { transform: this.remove_id, virtuals: true });
+			schema.set('toObject', { virtuals: true });
 			schema.set('toJSON', { transform: this.remove_id, virtuals: true });
 
 			// model.id = setter is missing, so let's add support for it

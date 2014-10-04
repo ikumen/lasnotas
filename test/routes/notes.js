@@ -13,7 +13,7 @@ function getPath (path) {
 describe('Route /notes', function() {
    var savedNotes = []
 		, notesToSave = [
-         new models.Note({ title: 'note1' , content: 'note1 content'})
+         new models.Note({ title: 'note1' , content: 'note1 content' })
          , new models.Note({ title: 'note2', content: 'note2 content' })
    	]
 		, headers = {

@@ -20,8 +20,9 @@
  *
  */
 module.exports = function(schemaUtils) {
-	var mongoose = require('mongoose')
-		, utils = require('../utils');
+	var mongoose = require('mongoose'),
+		utils = require('../utils'),
+		mutils = require('../../node_modules/mongoose/lib/utils');
 
 	var NoteSchema = mongoose.Schema({
 		content: String
