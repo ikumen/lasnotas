@@ -1,5 +1,5 @@
-var models = require('../../server/models')
-	utils = require('../../server/utils');
+var models = require('../../../server/models')
+	utils = require('../../../server/utils');
 
 describe('Note model', function() {
 

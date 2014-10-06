@@ -1,7 +1,7 @@
 var request = require('superagent')
 	, mongoose = require('mongoose')
 	, should = require('should')
-	, models = require('../../server/models');
+	, models = require('../../../server/models');
 
 
 function getPath (path) {

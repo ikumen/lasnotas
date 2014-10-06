@@ -9,6 +9,7 @@ before_install:
   - "sudo service mongod stop"
   - "sudo service mongod start"
 before_script:
+  - "npm install -g grunt-cli"
   - "until nc -z localhost 27017; do echo Waiting for MongoDB; sleep 5; done"
   - node bin/www &
 env:

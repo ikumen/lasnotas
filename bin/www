@@ -20,7 +20,7 @@
  *  Thong Nguyen <thong@gnoht.com>
  *
  */
-var debug = require('debug')('github-lasnotas');
+var debug = require('debug')('lasnotas');
 var app = require('../app');
 
 app.set('port', process.env.PORT || 8080);

@@ -1,0 +1,22 @@
+<div class="container-fluid">
+<div class="row">
+	<div class="col-xs-24">
+		<button data-ng-click="save">save</button>
+	</div>
+</div>
+<div class="row">
+	<div class="col-xs-24 col-sm-12">
+		<div ui-ace="{
+			useWrapMode: true,
+			showGutter: true,
+			theme: 'tomorrow_night_eighties',
+			mode: 'markdown',
+			onLoad: editorLoaded,
+			onChange: editorChanged
+		}"></div>
+	</div>
+	<div class="hidden-xs col-sm-12">
+		<lasnotas-preview/>
+	</div>
+</div>
+</div>
