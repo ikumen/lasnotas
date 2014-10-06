@@ -5,7 +5,7 @@ var request = require('superagent')
 
 
 function getPath (path) {
-	return 'localhost:8080' + path;
+	return 'localhost:8080/api/notes' + path;
 }
 
 
@@ -38,7 +38,7 @@ describe('Route /notes', function() {
 	describe('GET /:id', function() {
 		// when id is invalid or non-existing
 		it('should return 404 when id not found', function (done) {
-			request.get(getPath('/notes/12345'))
+			request.get(getPath('/12345'))
 				.set(headers)
 				.end(function (res) {
 					res.status.should.eql(404);
@@ -47,7 +47,7 @@ describe('Route /notes', function() {
 		})
 		// when id is valid
 		it('should return a Note given an id', function (done) {
-			request.get(getPath('/notes/' + savedNotes[0].id))
+			request.get(getPath('/' + savedNotes[0].id))
 				.set(headers)
 				.end(function (res) {
 					res.status.should.eql(200);
@@ -67,7 +67,7 @@ describe('Route /notes', function() {
 	describe('GET /', function() {
 		// when list is not empty
 		it('should return a list of Notes', function (done) {
-			request.get(getPath('/notes'))
+			request.get(getPath('/'))
 				.set(headers)
 				.end(function (res) {
 					res.status.should.eql(200);
@@ -87,12 +87,11 @@ describe('Route /notes', function() {
 
 		// when updated data is valid
 		it('should get updated Note in req and return saved Note', function (done) {
-			request.post(getPath('/notes/' + savedNotes[0].id))
+			request.post(getPath('/' + savedNotes[0].id))
 				.set(headers)
 				.send({ content: updatedContent, id: savedNotes[0].id })
-				.end(function (res) {
+				.end(function (err, res) {
 					res.status.should.eql(200);
-
 					should.exists(res.body.note);
 					var updated = res.body.note;
 					updated.id.should.eql(savedNotes[0].id.toString());
@@ -105,7 +104,7 @@ describe('Route /notes', function() {
 		// when id of target Note is invalid/non-existing
 		it('should create new when id not found', function (done) {
 			var nonExistingId = mongoose.Types.ObjectId();
-			request.post(getPath('/notes/' + nonExistingId))
+			request.post(getPath('/' + nonExistingId))
 				.set(headers)
 				.send({ content: updatedContent, id: nonExistingId })
 				.end(function (res) {
@@ -123,7 +122,7 @@ describe('Route /notes', function() {
 		// when create data is valid
 		it('should get new Note in req and return saved Note', function (done) {
 			var newNote = { title: 'note3', content: 'note3 content' }
-			request.post(getPath('/notes'))
+			request.post(getPath('/'))
 				.set(headers)
 				.send(newNote)
 				.end(function (res) {
@@ -149,7 +148,7 @@ describe('Route /notes', function() {
 	describe('DELETE /:id', function() {
 		// when id of Note to be deleted is valid
 		it('should delete Note with given id', function (done) {
-			request.del(getPath('/notes/' + savedNotes[0].id))
+			request.del(getPath('/' + savedNotes[0].id))
 				.set(headers)
 				.end(function (res) {
 					res.status.should.eql(200);
@@ -172,7 +171,7 @@ describe('Route /notes', function() {
 		})
 		// when list is empty
 		it('should return an empty list', function (done) {
-			request.get(getPath('/notes'))
+			request.get(getPath('/'))
 				.set(headers)
 				.end(function (res) {
 					res.status.should.eql(200);

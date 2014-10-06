@@ -32,14 +32,7 @@ router.get('/', function (req, res, next) {
 		if(err) 
 			return next(err);
 		else {
-			res.format({
-				html: function() {
-					res.render('notes', { notes: notes, title: 'Notes'})		
-				}
-				, json: function() {
-					res.status(200).send({ notes: notes });	
-				}
-			})
+			res.status(200).send({ notes: notes });	
 		}
 	})
 });
@@ -56,14 +49,7 @@ router.get('/:id', function (req, res, next) {
 			else if(!found) 
 				return next(); //404 
 			else {
-				res.format({
-					json: function() {
-						res.status(200).send({ note: found })	
-					}
-					, html: function() {
-						res.render('note', { note: found })		
-					}
-				})
+				res.status(200).send({ note: found })	
 			}
 		});
 	}
@@ -89,15 +75,7 @@ function handleUpsert(req, res, next) {
 		if(err || !saved) {
 			return next(err); // handles 500 and 404
 		} else {
-			res.format({
-				json: function() {
-					res.status(200).send({ note: note.toJSON() })
-				},
-
-				html: function() {
-					res.redirect('/notes/' + id)		
-				}
-			})
+			res.status(200).send({ note: note.toJSON() })
 		}
 	}); 
 }
@@ -122,14 +100,7 @@ router.delete('/:id', function (req, res, next) {
 					if(err) 
 						return next(err);
 					else {
-						res.format({
-							json: function() {
-								res.status(200).send({ note: found })			
-							}
-							, html: function() {
-								res.redirect('/notes')
-							}
-						})
+						res.status(200).send({ note: found })			
 					}
 				})
 			}
