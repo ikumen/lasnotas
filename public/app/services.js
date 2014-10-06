@@ -18,3 +18,9 @@ angular.module('lasnotas')
 .factory('noteService', ['$resource', function ($resource) {
 	return $resource('/api/notes/:id');
 }])
+
+.factory('noteTemplates', [function () {
+	return {
+		emptyNote: '---\ntitle:\ndate:\ntags:\n---\n'
+	}
+}])

@@ -8,6 +8,7 @@ describe('editor controllers', function() {
 		_$routeParams,
 		_noteService,
 		_appUtils,
+		_noteTemplates,
 
 		// helper for creating editorCtrl	
 		editorCtrl,
@@ -27,13 +28,15 @@ describe('editor controllers', function() {
 		module('lasnotas')
 
 		// have angular mock inject us some resources
-		inject(function ($rootScope, $controller, $location, $routeParams, noteService, appUtils) {
+		inject(function ($rootScope, $controller, $location, 
+					$routeParams, noteService, appUtils, noteTemplates) {
 			// create a new $scope for our controller
 			_$scope = $rootScope.$new();
 			_$location = $location
 			_$routeParams = $routeParams
 			_noteService = noteService
 			_appUtils = appUtils
+			_noteTemplates = noteTemplates
 
 			_noteService.get = function (params, callback) {
 				callback(utils.newNote({ id: params.id, content: '' }))
@@ -69,7 +72,8 @@ describe('editor controllers', function() {
 			expect(_$scope.editor).toBeDefined();
 			// and a new Note is initialized in scope
 			expect(_$scope.note).toBeDefined();
-
+			expect(_$scope.note.content).toEqual(_noteTemplates.emptyNote)
+			expect(_aceEditor.getValue()).toEqual(_noteTemplates.emptyNote)
 		})
 
 

@@ -5,8 +5,8 @@ angular.module('lasnotas')
 /**
  * Manages editor interactions (e.g. initializing editor, saving, opening files)
  */
-.controller('editorCtrl', ['$log', '$scope', '$routeParams', '$location', 'noteService', 'appUtils',
-			function ($log, $scope, $routeParams, $location, noteService, appUtils) {	
+.controller('editorCtrl', ['$log', '$scope', '$routeParams', '$location', 'noteService', 'appUtils', 'noteTemplates',
+			function ($log, $scope, $routeParams, $location, noteService, appUtils, noteTemplates) {	
 	$log.info("Starting editorCtrl");
 
 	/**
@@ -30,7 +30,7 @@ angular.module('lasnotas')
 			modifiedAt: (note.modifiedAt || null),
 			id: (note.id || null),
 			title: (note.title || null),
-			content: (note.content || null)
+			content: (note.content || noteTemplates.emptyNote)
 		}
 
 		if(angular.isFunction(callback)) {
@@ -63,7 +63,11 @@ angular.module('lasnotas')
 		if(!$scope.editor)
 			$scope.editor = editor;
 		$scope.initNote(function (note) {
-
+			// set content, then move caret to end
+			$scope.editor.setValue(note.content, 1)
+			// then bring editor to focus
+			$scope.editor.focus();
+			
 		})
 	}
 
