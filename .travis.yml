@@ -6,6 +6,7 @@ before_install:
   - "echo 'deb http://downloads-distro.mongodb.org/repo/ubuntu-upstart dist 10gen' | sudo tee /etc/apt/sources.list.d/mongodb.list"
   - "sudo apt-get update"
   - "sudo apt-get install -y mongodb-org=2.6.4 mongodb-org-server=2.6.4"
+  - "sudo service mongod stop"
   - "sudo service mongod start"
 before_script:
   - "until nc -z localhost 27017; do echo Waiting for MongoDB; sleep 5; done"
