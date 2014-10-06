@@ -21,7 +21,7 @@
  */
 (function() {
 	var mongoose = require('mongoose'),
-		utils = require('../utils');
+		utils = require('../../lib/utils');
 
 
 	// configure

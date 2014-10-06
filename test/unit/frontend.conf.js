@@ -12,10 +12,11 @@ module.exports = function (config) {
 			'public/lib/angular-mocks/angular-mocks.js',
 			'public/lib/marked/lib/marked.js',
 			'public/lib/note-converters/md-to-html.js',
+			'public/lib/utils/index.js',
 			'public/app/module.js',
 			'public/app/services.js',
 			'public/app/controllers.js',
-			'test/unit/public/app.*.js',
+			'test/unit/public/*.js',
 		],
 
 		autoWatch: false,

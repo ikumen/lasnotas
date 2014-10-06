@@ -1,5 +1,5 @@
 var converter = require('../../../lib/note-converters/md-to-html'),
-	utils = require('../../../server/utils'),
+	utils = require('../../../lib/utils'),
 	should = require('should');
 
 var testMarkdown = "---\n"+

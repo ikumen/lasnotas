@@ -23,7 +23,7 @@ var express = require('express'),
 	router = express.Router(),
 	mongoose = require('mongoose'),
 	models = require('../models'),
-	utils = require('../utils');
+	utils = require('../../lib/utils');
 
 
 /* Get all Notes */

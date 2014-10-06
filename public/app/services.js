@@ -8,6 +8,12 @@ angular.module('lasnotas')
 	return noteConverter;
 })
 
+.factory('appUtils', function() {
+	if(angular.isUndefined(lasnotasUtils))
+		throw new Error('Missing external lib "lasnotasUtils"')
+	return lasnotasUtils;
+})
+
 /* Returns service responsible for interacting with Note api */
 .factory('noteService', ['$resource', function ($resource) {
 	return $resource('/api/notes/:id');

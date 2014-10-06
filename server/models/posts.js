@@ -22,7 +22,7 @@
 module.exports = function (schemaUtils) {
 	var mongoose = require('mongoose'),
 		converter = require('../../lib/note-converters/md-to-html')
-		utils = require('../utils');
+		utils = require('../../lib/utils');
 
 	var PostSchema = mongoose.Schema({
 		title: String
