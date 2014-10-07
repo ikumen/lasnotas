@@ -1,6 +1,6 @@
 'use strict';
 
-describe('Editor Controllers', function() {
+describe('lasnotas module controllers', function() {
 		
 		// references to the inject angular resources
 	var _$scope, 			
@@ -46,9 +46,9 @@ describe('Editor Controllers', function() {
 					id: params.id, 
 					content: _noteTemplates.emptyNote + '\n' + sampleContent
 				})
-
 				callback({ note: note })
 			}
+
 			_noteService.save = function (note, callback) {
 				callback({ note: {
 						id: noteId,
@@ -73,10 +73,9 @@ describe('Editor Controllers', function() {
 		})
 	})
 
-	describe('Editor initialization', function() {
+	describe('editorCtrl', function() {
 		it('should not be defined if ace not loaded', function() {
 			editorCtrl();
-			
 			expect(_$scope.editor).not.toBeDefined()
 		})
 		
@@ -125,10 +124,8 @@ describe('Editor Controllers', function() {
 			expect(_$location.path).toHaveBeenCalledWith('/new')
 
 		})
-	})
 
-	describe('Editor saving', function() {
-		it('should save new content added to ace editor', function() {
+		it('should save new note', function() {
 			editorCtrl();
 			_$scope.editorLoaded(_aceEditor);
 			_aceEditor.setValue(sampleContent);
@@ -141,6 +138,25 @@ describe('Editor Controllers', function() {
 			_$scope.saveNote()	// gets new content from editor
 
 			expect(_$scope.note.id).toBe(noteId);
+
+		})
+
+		it('should remove a note', function() {
+			editorCtrl();
+			_$scope.editorLoaded(_aceEditor);
+			
+			spyOn(_noteService, 'save').and.callThrough();
+			spyOn(window, 'confirm').and.returnValue(true);
+			spyOn(_noteService, 'remove').and.callFake(function (params, callback) {
+				expect(params.id).toEqual(_$scope.note.id)
+				expect(typeof callback).toEqual('function')
+			});
+
+			_$scope.saveNote();
+			_$scope.removeNote(_$scope.note);
+
+			expect(_noteService.save).toHaveBeenCalled();
+			expect(_noteService.remove).toHaveBeenCalled();
 
 		})
 	})

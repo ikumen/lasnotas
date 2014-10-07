@@ -85,5 +85,13 @@ angular.module('lasnotas')
 		})
 	}
 
+	$scope.removeNote = function (note) {
+		if(note.id && window.confirm('Remove "' + note.id + '"')) {
+			noteService.remove({ id: note.id }, function (resp) {
+				$location.path('/new');
+			})
+		}
+	}
+
 	
 }])
