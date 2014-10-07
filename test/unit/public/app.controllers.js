@@ -22,7 +22,7 @@ describe('Editor Controllers', function() {
 			setValue: function (value) { this.value = value }
 		},
 
-		savedNoteId = '541763d53002b5c27b2e755a',
+		noteId = '541763d53002b5c27b2e755a',
 		sampleContent = '# How to test angular applications';
 
 
@@ -42,11 +42,16 @@ describe('Editor Controllers', function() {
 			_noteTemplates = noteTemplates
 
 			_noteService.get = function (params, callback) {
-				callback(utils.newNote({ id: params.id, content: _noteTemplates.emptyNote + '\n' + sampleContent }))
+				var note = utils.newNote({ 
+					id: params.id, 
+					content: _noteTemplates.emptyNote + '\n' + sampleContent
+				})
+
+				callback({ note: note })
 			}
 			_noteService.save = function (note, callback) {
 				callback({ note: {
-						id: savedNoteId,
+						id: noteId,
 						createdAt: new Date(),
 						modifiedAt: new Date(),
 						content: (note.content || null),
@@ -90,11 +95,35 @@ describe('Editor Controllers', function() {
 		})
 
 		it('should be initialized with existing Note', function() {
-			_$routeParams.id = '1234567890'
+			_$routeParams.id = noteId
 			editorCtrl();
 			_$scope.editorLoaded(_aceEditor) 
 			expect(_$scope.note).toBeDefined();
 			expect(_$scope.note.content).toMatch(sampleContent)
+		})
+
+		it('should redirect to /new if unable to load note', function() {
+			// setup mock and spy
+			_noteService.get = function (params, callback, errCallback) {
+			 	errCallback({ error: { 
+             status: 404
+            , message: 'Not found'
+            , error: {}
+				}})
+			}
+
+			spyOn(_$location, 'path')
+
+			// given request with noteId
+			_$routeParams.id = noteId
+			editorCtrl()
+
+			// set editor and load note
+			_$scope.editorLoaded(_aceEditor)
+
+			expect(_$location.path).toHaveBeenCalled();
+			expect(_$location.path).toHaveBeenCalledWith('/new')
+
 		})
 	})
 
@@ -111,7 +140,7 @@ describe('Editor Controllers', function() {
 			expect(_$scope.note.content).toMatch(sampleContent)
 			_$scope.saveNote()	// gets new content from editor
 
-			expect(_$scope.note.id).toBe(savedNoteId);
+			expect(_$scope.note.id).toBe(noteId);
 
 		})
 	})

@@ -47,8 +47,8 @@ angular.module('lasnotas')
 	 */
 	$scope.initNote = function (callback) {
 		if(angular.isDefined($routeParams.id)) {
-			noteService.get({ id: $routeParams.id }, function (note, header) {
-				$scope.setNote($scope, note, callback);
+			noteService.get({ id: $routeParams.id }, function (resp, header) {
+				$scope.setNote($scope, resp.note, callback);
 			}, function (errResp) {
 				$location.path('/new');
 			});
@@ -62,15 +62,15 @@ angular.module('lasnotas')
 	 * which we set it to local scope and peform an additional initialization.
 	 */
 	$scope.editorLoaded = function (editor) {
-		if(!$scope.editor)
+		if(!$scope.editor) {
 			$scope.editor = editor;
-		$scope.initNote(function (note) {
-			// set content, then move caret to end
-			$scope.editor.setValue(note.content, 1)
-			// then bring editor to focus
-			$scope.editor.focus();
-
-		})
+			$scope.initNote(function (note) {
+				// set content, then move caret to end
+				$scope.editor.setValue(note.content, 1)
+				// then bring editor to focus
+				$scope.editor.focus();
+			})
+		}
 	}
 
 	$scope.editorChanged = function (v) {
@@ -80,7 +80,7 @@ angular.module('lasnotas')
 	$scope.saveNote = function () {
 		noteService.save($scope.note, function (resp) {
 			$scope.setNote($scope, resp.note, function (note) {
-				//console.log(note)
+				
 			})
 		})
 	}
