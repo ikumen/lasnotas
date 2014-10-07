@@ -20,11 +20,13 @@ module.exports = function (config) {
 		],
 
 		autoWatch: false,
-		singleRun: false, 
+    reporters: ['progress', 'mocha'], 
 		frameworks: ['jasmine'],
 		browsers: ['PhantomJS'],
 		plugins: [
 			'karma-jasmine',
+//			'karma-junit-reporter',
+			'karma-mocha-reporter',
 			'karma-phantomjs-launcher'		
 		],
 

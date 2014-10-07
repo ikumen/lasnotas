@@ -1,6 +1,6 @@
 'use strict';
 
-describe('editor controllers', function() {
+describe('Editor Controllers', function() {
 		
 		// references to the inject angular resources
 	var _$scope, 			
@@ -20,7 +20,10 @@ describe('editor controllers', function() {
 			focus: function() {},
 			getValue: function() { return this.value },
 			setValue: function (value) { this.value = value }
-		};
+		},
+
+		savedNoteId = '541763d53002b5c27b2e755a',
+		sampleContent = '# How to test angular applications';
 
 
 	beforeEach(function() {
@@ -39,7 +42,17 @@ describe('editor controllers', function() {
 			_noteTemplates = noteTemplates
 
 			_noteService.get = function (params, callback) {
-				callback(utils.newNote({ id: params.id, content: '' }))
+				callback(utils.newNote({ id: params.id, content: _noteTemplates.emptyNote + '\n' + sampleContent }))
+			}
+			_noteService.save = function (note, callback) {
+				callback({ note: {
+						id: savedNoteId,
+						createdAt: new Date(),
+						modifiedAt: new Date(),
+						content: (note.content || null),
+						title: (note.title || null)
+					}
+				})
 			}
 
 			// using the injected angular resources, let's create an instance of our
@@ -52,17 +65,17 @@ describe('editor controllers', function() {
 					noteService: _noteService
 				})
 			}
-
 		})
 	})
 
-	describe('editor initialization', function() {
-		it('editor should not be defined', function() {
+	describe('Editor initialization', function() {
+		it('should not be defined if ace not loaded', function() {
 			editorCtrl();
+			
 			expect(_$scope.editor).not.toBeDefined()
 		})
 		
-		it('editor is initialized', function() {
+		it('should be initialized with empty Note', function() {
 			// given an editor
 			editorCtrl();
 			// and external editor is loaded
@@ -76,7 +89,31 @@ describe('editor controllers', function() {
 			expect(_aceEditor.getValue()).toEqual(_noteTemplates.emptyNote)
 		})
 
+		it('should be initialized with existing Note', function() {
+			_$routeParams.id = '1234567890'
+			editorCtrl();
+			_$scope.editorLoaded(_aceEditor) 
+			expect(_$scope.note).toBeDefined();
+			expect(_$scope.note.content).toMatch(sampleContent)
+		})
+	})
 
+	describe('Editor saving', function() {
+		it('should save new content added to ace editor', function() {
+			editorCtrl();
+			_$scope.editorLoaded(_aceEditor);
+			_aceEditor.setValue(sampleContent);
+
+			expect(_$scope.note).toBeDefined();
+			expect(_$scope.note.id).toBe(null);
+
+			_$scope.editorChanged({})		// trigger editor change		
+			expect(_$scope.note.content).toMatch(sampleContent)
+			_$scope.saveNote()	// gets new content from editor
+
+			expect(_$scope.note.id).toBe(savedNoteId);
+
+		})
 	})
 
 })

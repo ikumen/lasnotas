@@ -9,6 +9,8 @@ angular.module('lasnotas')
 			function ($log, $scope, $routeParams, $location, noteService, appUtils, noteTemplates) {	
 	$log.info("Starting editorCtrl");
 
+	$scope.note = {}
+
 	/**
 	 * Helper for normalizing Note data from any given source. The normalized
 	 * note is then made available to the given scope.
@@ -19,7 +21,7 @@ angular.module('lasnotas')
 	 * @param note optional note to normalize, otherwise create a new Note
 	 * @param callback optional callback(note), otherwise return the Note
 	 */
-	function setNote (scope, note, callback) {
+	$scope.setNote = function(scope, note, callback) {
 		if(angular.isUndefined(callback) && angular.isFunction(note)) {
 			callback = note;
 			note = {};
@@ -46,12 +48,12 @@ angular.module('lasnotas')
 	$scope.initNote = function (callback) {
 		if(angular.isDefined($routeParams.id)) {
 			noteService.get({ id: $routeParams.id }, function (note, header) {
-				setNote($scope, note, callback);
+				$scope.setNote($scope, note, callback);
 			}, function (errResp) {
 				$location.path('/new');
 			});
 		} else {
-			setNote($scope, callback);
+			$scope.setNote($scope, callback);
 		}
 	}
 
@@ -67,7 +69,19 @@ angular.module('lasnotas')
 			$scope.editor.setValue(note.content, 1)
 			// then bring editor to focus
 			$scope.editor.focus();
-			
+
+		})
+	}
+
+	$scope.editorChanged = function (v) {
+		$scope.note.content = $scope.editor.getValue();
+	}
+
+	$scope.saveNote = function () {
+		noteService.save($scope.note, function (resp) {
+			$scope.setNote($scope, resp.note, function (note) {
+				//console.log(note)
+			})
 		})
 	}
 

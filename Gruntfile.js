@@ -13,6 +13,7 @@ module.exports = function (grunt) {
     karma: {
       unit: {
         configFile: 'test/unit/frontend.conf.js',
+        singleRun: false,
         background: true
       },
       travis: {
