@@ -5,11 +5,12 @@ angular.module('lasnotas')
 /**
  * Manages editor interactions (e.g. initializing editor, saving, opening files)
  */
-.controller('editorCtrl', ['$log', '$scope', '$routeParams', '$location', 'noteService', 'appUtils', 'noteTemplates',
-			function ($log, $scope, $routeParams, $location, noteService, appUtils, noteTemplates) {	
+.controller('editorCtrl', ['$log', '$scope', '$routeParams', '$location', 'noteService', 'appUtils', 'noteTemplates', 'noteConverter',
+			function ($log, $scope, $routeParams, $location, noteService, appUtils, noteTemplates, noteConverter) {	
 	$log.info("Starting editorCtrl");
 
 	$scope.note = {}
+	$scope.post = {}
 
 	/**
 	 * Helper for normalizing Note data from any given source. The normalized
@@ -75,13 +76,20 @@ angular.module('lasnotas')
 
 	$scope.editorChanged = function (v) {
 		$scope.note.content = $scope.editor.getValue();
+		$scope.convertNote($scope.note)
 	}
 
-	$scope.saveNote = function () {
-		noteService.save($scope.note, function (resp) {
+	$scope.saveNote = function (toSave) {
+		noteService.save(toSave, function (resp) {
 			$scope.setNote($scope, resp.note, function (note) {
-				
+					
 			})
+		})
+	}
+
+	$scope.convertNote = function (note) {
+		noteConverter.convert(note, function (err, post) {
+			$scope.post = post;
 		})
 	}
 

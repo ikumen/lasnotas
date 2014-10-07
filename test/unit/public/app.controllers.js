@@ -7,6 +7,7 @@ describe('lasnotas module controllers', function() {
 		_$location,
 		_$routeParams,
 		_noteService,
+		_noteConverter,
 		_appUtils,
 		_noteTemplates,
 
@@ -23,7 +24,13 @@ describe('lasnotas module controllers', function() {
 		},
 
 		noteId = '541763d53002b5c27b2e755a',
-		sampleContent = '# How to test angular applications';
+		sampleContent = '---\n' +
+			'title:How to test angular applications\n' +
+			'date: 2012-01-23\n' +
+			'tags: javascript, nodejs, angular\n' +
+			'---\n' +
+			'# Part 1\n' +
+			'_emphasized text_';
 
 
 	beforeEach(function() {
@@ -32,14 +39,15 @@ describe('lasnotas module controllers', function() {
 
 		// have angular mock inject us some resources
 		inject(function ($rootScope, $controller, $location, 
-					$routeParams, noteService, appUtils, noteTemplates) {
+					$routeParams, noteService, appUtils, noteTemplates, noteConverter) {
 			// create a new $scope for our controller
 			_$scope = $rootScope.$new();
-			_$location = $location
-			_$routeParams = $routeParams
-			_noteService = noteService
-			_appUtils = appUtils
-			_noteTemplates = noteTemplates
+			_$location = $location;
+			_$routeParams = $routeParams;
+			_noteService = noteService;
+			_noteConverter = noteConverter;
+			_appUtils = appUtils;
+			_noteTemplates = noteTemplates;
 
 			_noteService.get = function (params, callback) {
 				var note = utils.newNote({ 
@@ -48,8 +56,11 @@ describe('lasnotas module controllers', function() {
 				})
 				callback({ note: note })
 			}
-
+			_noteService.remove = function (params, callback) {
+				callback({})
+			}
 			_noteService.save = function (note, callback) {
+				note = (note || {})
 				callback({ note: {
 						id: noteId,
 						createdAt: new Date(),
@@ -147,16 +158,29 @@ describe('lasnotas module controllers', function() {
 			
 			spyOn(_noteService, 'save').and.callThrough();
 			spyOn(window, 'confirm').and.returnValue(true);
-			spyOn(_noteService, 'remove').and.callFake(function (params, callback) {
-				expect(params.id).toEqual(_$scope.note.id)
-				expect(typeof callback).toEqual('function')
-			});
+			spyOn(_noteService, 'remove').and.callThrough();
+			spyOn(_$location, 'path');
 
 			_$scope.saveNote();
 			_$scope.removeNote(_$scope.note);
 
 			expect(_noteService.save).toHaveBeenCalled();
 			expect(_noteService.remove).toHaveBeenCalled();
+
+			expect(_$location.path).toHaveBeenCalledWith('/new');
+		})
+
+		it('should have a post (rendered note) in scope', function() {
+			editorCtrl();
+			_$scope.editorLoaded(_aceEditor)
+			_aceEditor.setValue(sampleContent)
+			_$scope.editorChanged({})
+
+			expect(_$scope.post).toBeDefined()
+			expect(_$scope.post.content).toMatch(/<em>emphasized text<\/em>/)
+			expect(_$scope.post.title).toMatch(/How to test angular applications/)
+			expect(_$scope.post.tags).toContain('javascript')
+			expect(_$scope.post.tags).toContain('angular')
 
 		})
 	})

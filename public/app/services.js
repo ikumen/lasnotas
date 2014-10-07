@@ -2,9 +2,12 @@
 
 angular.module('lasnotas')
 
-/* Returns a Note converter (/lib/note-converters) that was configured */
+/* 
+ * Returns a Note converter (/lib/note-converters) that is assumed to 
+ * be source in at global scope 
+ * TODO: better way to source in? look at requirejs
+ */
 .factory('noteConverter', function() {
-	//TODO: better way to source this in?
 	return noteConverter;
 })
 
