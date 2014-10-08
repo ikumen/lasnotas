@@ -19,6 +19,7 @@ describe('lasnotas module controllers', function() {
 			value: '',
 			gotoLine: function() {},
 			focus: function() {},
+			clearSelection: function() {},
 			getValue: function() { return this.value },
 			setValue: function (value) { this.value = value }
 		},

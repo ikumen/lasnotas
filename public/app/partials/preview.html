@@ -1,0 +1,14 @@
+<div>
+	<h1>{{ post.title }}</h1>
+	<div>
+		<span>
+			{{post.publishedAt | date : 'dd MMM yyyy' }}
+		</span>
+		<span ng-repeat="tag in post.tags">
+			{{ tag }}
+		</span>
+	</div>
+	<div ng-bind-html="post.content">
+	</div>
+</div>
+

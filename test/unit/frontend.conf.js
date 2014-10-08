@@ -8,6 +8,7 @@ module.exports = function (config) {
 			'public/lib/angular/angular.min.js',
 			'public/lib/angular-resource/angular-resource.min.js',
 			'public/lib/angular-route/angular-route.min.js',
+			'public/lib/angular-sanitize/angular-sanitize.min.js',
 			'public/lib/angular-ui-ace/ui-ace.min.js',
 			'public/lib/angular-mocks/angular-mocks.js',
 			'public/lib/marked/lib/marked.js',

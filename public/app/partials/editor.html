@@ -2,7 +2,7 @@
 <div class="row">
 	<div class="col-xs-24">
 		<button data-ng-click="saveNote(note)">save</button>
-		{{note}}
+		{{post}}
 	</div>
 </div>
 <div class="row">
@@ -17,7 +17,7 @@
 		}"></div>
 	</div>
 	<div class="hidden-xs col-sm-12">
-		<lasnotas-preview/>
+		<div data-ng-include="'/app/partials/preview.html'" onload="post = this.post"></div>
 	</div>
 </div>
 </div>
