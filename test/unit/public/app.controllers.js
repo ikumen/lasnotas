@@ -162,7 +162,7 @@ describe('lasnotas module controllers', function() {
 			spyOn(_noteService, 'remove').and.callThrough();
 			spyOn(_$location, 'path');
 
-			_$scope.saveNote();
+			_$scope.saveNote(_$scope.note, {});
 			_$scope.removeNote(_$scope.note);
 
 			expect(_noteService.save).toHaveBeenCalled();

@@ -59,7 +59,7 @@ router.get('/:id', function (req, res, next) {
 });
 
 function handleUpsert(req, res, next) {
-	var id = req.params.id;
+	var id = ((req.params.id || req.body.id) || null);
 	// either have no id (i.e new note), or valid ObjectId
 	if(id && !models.utils.isObjectId(id)) {
 		return next(); // 404

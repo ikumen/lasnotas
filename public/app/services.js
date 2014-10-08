@@ -19,7 +19,9 @@ angular.module('lasnotas')
 
 /* Returns service responsible for interacting with Note api */
 .factory('noteService', ['$resource', function ($resource) {
-	return $resource('/api/notes/:id');
+	return $resource('/api/notes/:id', {}, { 
+		'query': { isArray: false }
+	});
 }])
 
 .factory('noteTemplates', [function () {

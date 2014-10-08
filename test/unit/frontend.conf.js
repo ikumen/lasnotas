@@ -10,6 +10,7 @@ module.exports = function (config) {
 			'public/lib/angular-route/angular-route.min.js',
 			'public/lib/angular-sanitize/angular-sanitize.min.js',
 			'public/lib/angular-ui-ace/ui-ace.min.js',
+			'public/lib/angular-ui-bootstrap/ui-bootstrap-custom-tpls-0.10.0.min.js',
 			'public/lib/angular-mocks/angular-mocks.js',
 			'public/lib/marked/lib/marked.js',
 			'public/lib/note-converters/md-to-html.js',

@@ -5,12 +5,18 @@ angular.module('lasnotas')
 /**
  * Manages editor interactions (e.g. initializing editor, saving, opening files)
  */
-.controller('editorCtrl', ['$log', '$scope', '$routeParams', '$location', 'noteService', 'appUtils', 'noteTemplates', 'noteConverter',
-			function ($log, $scope, $routeParams, $location, noteService, appUtils, noteTemplates, noteConverter) {	
+.controller('editorCtrl', ['$log', '$scope', '$routeParams', '$location', '$modal', 'noteService', 'appUtils', 'noteTemplates', 'noteConverter',
+			function ($log, $scope, $routeParams, $location, $modal, noteService, appUtils, noteTemplates, noteConverter) {	
 	$log.info("Starting editorCtrl");
 
 	$scope.note = {}	// note we're editing
 	$scope.post = {}	// a converted note, available for previewing	
+	$scope.modalShown = false;
+	$scope.showPreview = true;
+
+	$scope.toggleModal = function() {
+    $scope.modalShown = !$scope.modalShown;
+  };
 
 	/**
 	 * Helper for loading the initial Note and setting it to scope. First check 
@@ -113,5 +119,34 @@ angular.module('lasnotas')
 		}
 	}
 
+	$scope.openNewNote = function() {
+		$location.path('/new')
+	}
+
+	$scope.showNotesModal = function () {
+		noteService.query(function (resp) {
+			if(resp) {
+				var modalInstance = $modal.open({
+					templateUrl: '/app/partials/modal.html',
+					controller: function ($scope, $modalInstance, notes) {
+						$scope.notes = notes;
+						$scope.openNote = function (note) {
+							$modalInstance.close(note.id)
+						}
+					},
+					size: 'md',
+					resolve: {
+						notes: function () { return resp.notes }
+					}
+				});
+
+				modalInstance.result.then(function (noteId) {
+					if(noteId) {
+						$location.path('/' + noteId)
+					}
+				});
+			} 
+		});
+	}
 	
 }])

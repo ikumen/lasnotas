@@ -1,0 +1,10 @@
+<div class="modal-body">
+  <ul class="list-unstyled">
+    <li ng-repeat="note in notes">
+      <a x-ng-click="openNote(note)">{{note.title || note.id }}</a>
+    </li>
+  </ul>
+</div>
+<div class="modal-footer">
+  <button class="btn btn-sm btn-default" x-ng-click="$dismiss()">Cancel</button>
+</div>

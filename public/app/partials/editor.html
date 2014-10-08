@@ -1,8 +1,8 @@
 <div class="container-fluid">
 <div class="row">
 	<div class="col-xs-24">
+		<button data-ng-click="showNotesModal()">open</button>
 		<button data-ng-click="saveNote(note)">save</button>
-		{{post}}
 	</div>
 </div>
 <div class="row">
@@ -17,7 +17,7 @@
 		}"></div>
 	</div>
 	<div class="hidden-xs col-sm-12">
-		<div data-ng-include="'/app/partials/preview.html'" onload="post = this.post"></div>
+		<post-preview post="post" note="note" preview="showPreview"/>
 	</div>
 </div>
 </div>
