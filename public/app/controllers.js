@@ -11,12 +11,6 @@ angular.module('lasnotas')
 
 	$scope.note = {}	// note we're editing
 	$scope.post = {}	// a converted note, available for previewing	
-	$scope.modalShown = false;
-	$scope.showPreview = true;
-
-	$scope.toggleModal = function() {
-    $scope.modalShown = !$scope.modalShown;
-  };
 
 	/**
 	 * Helper for loading the initial Note and setting it to scope. First check 
@@ -31,6 +25,7 @@ angular.module('lasnotas')
 			noteService.get({ id: $routeParams.id }, function (resp, header) {
 				$scope.setNote($scope, resp.note, callback);
 			}, function (errResp) {
+				//console.log(errResp)
 				// unable to load the existing note, load a new one
 				$location.path('/new');
 			});
@@ -91,6 +86,11 @@ angular.module('lasnotas')
 		}
 	}
 
+	$scope.handleError = function (err) {
+		//console.log("error: ", err)
+		$location.path('/new');
+	}
+
 	$scope.editorChanged = function (v) {
 		$scope.note.content = $scope.editor.getValue();
 		$scope.convertNote($scope.note);
@@ -98,9 +98,14 @@ angular.module('lasnotas')
 
 	$scope.saveNote = function (toSave) {
 		noteService.save(toSave, function (resp) {
-			$scope.setNote($scope, resp.note, function (note) {
-					
-			})
+			if(!$routeParams.id) {
+				$location.path('/' + resp.note.id)
+			} else {
+				$scope.setNote($scope, resp.note, function (note) {
+				})
+			}
+		}, function(errResp) {
+			handleError(errResp.data)
 		})
 	}
 
@@ -111,10 +116,13 @@ angular.module('lasnotas')
 		})
 	}
 
-	$scope.removeNote = function (note) {
+	$scope.removeNote = function (note, callback) {
 		if(note.id && window.confirm('Remove "' + note.id + '"')) {
 			noteService.remove({ id: note.id }, function (resp) {
-				$location.path('/new');
+				if(callback && (typeof callback === 'function'))
+					callback(resp.note)
+				else
+					$location.path('/new');
 			})
 		}
 	}
@@ -125,6 +133,7 @@ angular.module('lasnotas')
 
 	$scope.showNotesModal = function () {
 		noteService.query(function (resp) {
+			var removeNote = $scope.removeNote
 			if(resp) {
 				var modalInstance = $modal.open({
 					templateUrl: '/app/partials/modal.html',
@@ -132,7 +141,15 @@ angular.module('lasnotas')
 						$scope.notes = notes;
 						$scope.openNote = function (note) {
 							$modalInstance.close(note.id)
+							
 						}
+
+						$scope.deleteNote = function (note) {
+							removeNote(note, function (removed) {
+								$scope.notes.splice($scope.notes.indexOf(note), 1);
+							})
+						}
+
 					},
 					size: 'md',
 					resolve: {

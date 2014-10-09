@@ -1,7 +1,10 @@
 <div class="modal-body">
-  <ul class="list-unstyled">
+  <ul class="list-unstyled ul-hover">
     <li ng-repeat="note in notes">
       <a x-ng-click="openNote(note)">{{note.title || note.id }}</a>
+      <span class="pull-right">
+        <a data-ng-click="deleteNote(note)">delete</a>
+      </span>
     </li>
   </ul>
 </div>

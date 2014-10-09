@@ -58,7 +58,7 @@ describe('lasnotas module controllers', function() {
 				callback({ note: note })
 			}
 			_noteService.remove = function (params, callback) {
-				callback({})
+				callback(params)
 			}
 			_noteService.save = function (note, callback) {
 				note = (note || {})
@@ -137,23 +137,45 @@ describe('lasnotas module controllers', function() {
 
 		})
 
-		it('should save new note', function() {
+		it('should redirect after saving a new note', function() {
 			editorCtrl();
 			_$scope.editorLoaded(_aceEditor);
 			_aceEditor.setValue(sampleContent);
+
+			spyOn(_$location, 'path')
 
 			expect(_$scope.note).toBeDefined();
 			expect(_$scope.note.id).toBe(null);
 
 			_$scope.editorChanged({})		// trigger editor change		
 			expect(_$scope.note.content).toMatch(sampleContent)
-			_$scope.saveNote()	// gets new content from editor
+			_$scope.saveNote(_$scope.note)	// gets new content from editor
 
+			expect(_$location.path).toHaveBeenCalledWith('/' + noteId)
+		})
+
+		it('should save an existing note', function() {
+			_$routeParams.id = noteId
+			editorCtrl();
+			_$scope.editorLoaded(_aceEditor);
+			_aceEditor.setValue(sampleContent);
+
+			spyOn(_$scope, 'setNote')
+
+			expect(_$scope.note).toBeDefined();
 			expect(_$scope.note.id).toBe(noteId);
+
+			_$scope.editorChanged({})		// trigger editor change		
+			expect(_$scope.note.content).toMatch(sampleContent)
+			_$scope.saveNote(_$scope.note)	// gets new content from editor
+
+			expect(_$scope.setNote).toHaveBeenCalled();
 
 		})
 
+
 		it('should remove a note', function() {
+			_$routeParams.id = noteId
 			editorCtrl();
 			_$scope.editorLoaded(_aceEditor);
 			
@@ -162,7 +184,7 @@ describe('lasnotas module controllers', function() {
 			spyOn(_noteService, 'remove').and.callThrough();
 			spyOn(_$location, 'path');
 
-			_$scope.saveNote(_$scope.note, {});
+			_$scope.saveNote(_$scope.note);
 			_$scope.removeNote(_$scope.note);
 
 			expect(_noteService.save).toHaveBeenCalled();
