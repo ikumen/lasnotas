@@ -3,11 +3,60 @@
 angular.module('lasnotas')
 
 /**
+ * Base controller with some common functionality (e.g, alert messages)
+ */
+.controller('baseCtrl', ['$scope', '$routeParams', '$timeout', 'flashService',
+			function ($scope, $routeParams, $timeout, flashService) {
+
+	$scope.alerts = [];
+
+	// handles closing/removing current alert
+	$scope.closeAlert = function (index) {
+		$scope.alerts.splice(index, 1);
+	}
+
+	$scope.addAlert = function (alert, useFlash) {
+		if(useFlash) {
+			flashService.setFlash('alert', alert)
+		}	else {
+			$scope.alerts.push(alert);
+			$timeout(function() {
+				$scope.alerts.splice($scope.alerts.indexOf(alert), 1);
+			}, 3000);
+		}	
+	}
+
+	$scope.errorAlert = function (msg, surviveRedirect) {
+		$scope.addAlert({ type: 'alert-danger', msg: msg }, surviveRedirect);
+	}
+
+	$scope.successAlert = function (msg, surviveRedirect) {
+		$scope.addAlert({ type: 'alert-success', msg: msg }, surviveRedirect);	
+	}
+
+	// wait until we've successfully loaded, then check flash
+	// if we have any alerts
+	$scope.$on("$routeChangeSuccess", function() {
+		$timeout(function() {
+			if(flashService.getFlash('alert')) {
+				$scope.addAlert(flashService.getFlash('alert'))
+			}
+		}, 500);
+	});
+
+}])
+
+
+/**
  * Manages editor interactions (e.g. initializing editor, saving, opening files)
  */
-.controller('editorCtrl', ['$log', '$scope', '$routeParams', '$location', '$modal', 'noteService', 'appUtils', 'noteTemplates', 'noteConverter',
-			function ($log, $scope, $routeParams, $location, $modal, noteService, appUtils, noteTemplates, noteConverter) {	
-	$log.info("Starting editorCtrl");
+.controller('editorCtrl', ['$controller', '$scope', '$routeParams', '$location', '$modal', 'noteService', 'appUtils', 'noteTemplates', 'noteConverter',
+			function ($controller, $scope, $routeParams, $location, $modal, noteService, appUtils, noteTemplates, noteConverter) {	
+
+	/* inherit baseCtrl functionality */
+	angular.extend(this, $controller('baseCtrl', { $scope: $scope }))			
+
+	console.info("Starting editorCtrl");
 
 	$scope.note = {}	// note we're editing
 	$scope.post = {}	// a converted note, available for previewing	
@@ -102,11 +151,15 @@ angular.module('lasnotas')
 
 	$scope.saveNote = function (toSave) {
 		noteService.save(toSave, function (resp) {
+			var successMsg = "'" + (resp.note.title || resp.note.id) + "' successfully saved!";
 			if(!$routeParams.id) {
+				$scope.successAlert(successMsg, true);
 				$location.path('/' + resp.note.id)
 			} else {
 				$scope.setNote($scope, resp.note, function (note) {
-				})
+					// 
+				});
+				$scope.successAlert(successMsg);
 			}
 		}, function(errResp) {
 			handleError(errResp.data)
