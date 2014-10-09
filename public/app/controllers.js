@@ -176,9 +176,13 @@ angular.module('lasnotas')
 	$scope.removeNote = function (note, callback) {
 		if(note.id && window.confirm('Remove "' + note.id + '"')) {
 			noteService.remove({ id: note.id }, function (resp) {
-				if(callback && (typeof callback === 'function'))
+				var successMsg = "Note '" + (note.title || note.id) + "' has been deleted!";
+				if(callback && (typeof callback === 'function')) {
 					callback(resp.note)
+					$scope.successAlert(successMsg)				
+				}
 				else
+					$scope.successAlert(successMsg, true)				
 					$scope.openNewNote();
 			})
 		}
