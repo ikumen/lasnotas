@@ -27,12 +27,16 @@ angular.module('lasnotas')
 			}, function (errResp) {
 				//console.log(errResp)
 				// unable to load the existing note, load a new one
-				$location.path('/new');
+				$scope.openNewNote();
 			});
 		} else {
 			// 2) create a new Note (default action for setNote)
 			$scope.setNote($scope, callback);
 		}
+	}
+
+	$scope.openNewNote = function() {
+		$location.path('/new')
 	}
 
 	/**
@@ -49,8 +53,8 @@ angular.module('lasnotas')
 	$scope.setNote = function(scope, note, callback) {
 		if(angular.isUndefined(callback) && angular.isFunction(note)) {
 			callback = note;
-			note = {};
 		}
+		note = (note || {})
 		// creates from copy of given note or defaults
 		scope.note = {
 			createdAt: (note.createdAt || null),
@@ -88,7 +92,7 @@ angular.module('lasnotas')
 
 	$scope.handleError = function (err) {
 		//console.log("error: ", err)
-		$location.path('/new');
+		$scope.openNewNote();
 	}
 
 	$scope.editorChanged = function (v) {
@@ -122,13 +126,9 @@ angular.module('lasnotas')
 				if(callback && (typeof callback === 'function'))
 					callback(resp.note)
 				else
-					$location.path('/new');
+					$scope.openNewNote();
 			})
 		}
-	}
-
-	$scope.openNewNote = function() {
-		$location.path('/new')
 	}
 
 	$scope.showNotesModal = function () {

@@ -18,7 +18,8 @@ module.exports = function (config) {
 			'public/app/module.js',
 			'public/app/services.js',
 			'public/app/controllers.js',
-			'test/unit/public/*.js',
+			'test/unit/public/test.utils.js',
+			'test/unit/public/app.controllers.js',
 		],
 
 		autoWatch: false,
