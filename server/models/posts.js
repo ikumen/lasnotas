@@ -42,8 +42,18 @@ module.exports = function (schemaUtils) {
 	
 	// Post inherits Listener capabilities
 	utils.inherit(Post, new utils.Listener(function (note) {
-		converter(note, function(err, res) {
-			var post = new Post(res);
+		converter(note, function(err, converted) {
+			var post = new Post(converted);
+			if(post.publishedAt && post.title) {
+				post.slug = post.publishedAt.replace(/-/g, '/') + '/' +
+					(post.title
+						.replace(/\s+/g, '_') // whitespace to _
+						.replace(/\W/g,'')		// remove non word chars
+						.replace(/_/g, '-')		// replace _ with -
+						.toLowerCase()
+					)
+			}
+			console.log(post)
 			post.id = note.id // Posts are tied to Notes
 			Post.findByIdAndUpdate(post.id, post.toObject(), 
 					{ upsert: true }, function (err, saved) {
