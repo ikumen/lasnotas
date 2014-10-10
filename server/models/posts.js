@@ -25,13 +25,13 @@ module.exports = function (schemaUtils) {
 		utils = require('../../lib/utils');
 
 	var PostSchema = mongoose.Schema({
-		title: String
-		, author: String
-		, content: String
-		, slug: String
-		, tags: [String]
-		, publishedAt: String
-		, modifiedAt: { type: Date, default: Date.now }
+		title: String,
+		author: { type: String, default: 'thong' },
+		content: String,
+		slug: String,
+		tags: [String],
+		publishedAt: String,
+		modifiedAt: { type: Date, default: Date.now }
 	})
 
 	// @see models/index.js for it's use

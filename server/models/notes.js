@@ -24,10 +24,11 @@ module.exports = function(schemaUtils) {
 		utils = require('../../lib/utils');
 
 	var NoteSchema = mongoose.Schema({
-		content: String
-		, title: String
-		, publishedAt: Date
-		, modifiedAt: { type: Date, default: Date.now }
+		author: { type: String, default: 'thong' },
+		content: String,
+		title: String,
+		publishedAt: Date,
+		modifiedAt: { type: Date, default: Date.now }
 	})
 
 	// @see models/index.js for it's use 

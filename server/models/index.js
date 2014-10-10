@@ -82,6 +82,7 @@
 	var models = {
 		Post: require('./posts')(schemaUtils),
 		Note: require('./notes')(schemaUtils),
+		User: require('./users')(schemaUtils),
 		utils: schemaUtils
 	}
 

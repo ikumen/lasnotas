@@ -10,4 +10,4 @@ block content
 					li
 						span= moment(post.publishedAt).format('ll') 
 						span  &raquo; 
-						a(href='/posts/' + post.slug)= post.title
+						a(href='@' + post.author + '/' + post.slug)= post.title

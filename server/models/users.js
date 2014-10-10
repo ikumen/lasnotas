@@ -19,36 +19,30 @@
  *  Thong Nguyen <thong@gnoht.com>
  *
  */
-var express = require('express'),
-	router = express.Router(),
-	mongoose = require('mongoose'),
-	models = require('../models'),
-	utils = require('../../lib/utils');
+module.exports = function (schemaUtils) {
+	var mongoose = require('mongoose'),
+			utils = require('../../lib/utils');
 
-var author = 'thong'
+	var UserSchema = mongoose.Schema({
+		email: String,
+		name: { type: String, unique: true, required: true },
+		oauths: [{
+			provider: String,
+			identity: String,
+			token: String
+		}]
+	});
 
-router.get('/@:author', function (req, res, next) {
-	models.Post.find(
-		{ author: author, publishedAt: { '$ne': null }}, 
-		'id slug author publishedAt title',
-		{ sort: '-publishedAt -modifiedAt' }, 
-		function (err, posts) {
-			res.render('posts/index', {
-				posts: posts
-			})
-		})
-});
+	// @see models/index.js for it's use
+	schemaUtils.normalizeModel(UserSchema);
 
-router.get('/@:author/**', function (req, res, next) {
-	var author = req.params.author
-	var slug = req.params[0]
-	models.Post.findOne(
-		{ author: author, slug: slug }, 
-		function (err, post) {
-			res.render('posts/post', {
-				post: post
-			})
-		})
-})
+	// create our User model
+	var User = mongoose.model('User', UserSchema);
+ 
+ 	User.findOneAndUpdate({ name: 'thong' }, { email: 'test@mail.com', name: 'thong'},
+ 			{ upsert: true }, function (err, user) {
+ 		console.log("Creating user: ", user)
+ 	})
 
-module.exports = router;
+ 	return User;
+}
