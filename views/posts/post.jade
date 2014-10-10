@@ -5,8 +5,14 @@ block content
 		header
 			h1= post.title
 			div(class='post-meta')
-				span= moment(post.publishedAt).format('ll')
+				span
+					i(class='fa fa-calendar')
+					| 
+					= moment(post.publishedAt).format('ll')
+
 				span(class='tags')
+					i(class='fa fa-tags')
+					| 
 					each tag in post.tags
 						span(class='label tag')= tag
 

@@ -26,6 +26,7 @@ module.exports = function (schemaUtils) {
 	var UserSchema = mongoose.Schema({
 		email: String,
 		name: { type: String, unique: true, required: true },
+		fullName: String,
 		oauths: [{
 			provider: String,
 			identity: String,
