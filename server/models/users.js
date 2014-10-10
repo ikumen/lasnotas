@@ -42,7 +42,7 @@ module.exports = function (schemaUtils) {
  
  	User.findOneAndUpdate({ name: 'thong' }, { email: 'test@mail.com', name: 'thong'},
  			{ upsert: true }, function (err, user) {
- 		console.log("Creating user: ", user)
+ 		//console.log("Creating user: ", user)
  	})
 
  	return User;
