@@ -1,0 +1,135 @@
+body {
+	font-size: 14px;
+}
+h1 {
+	font-size: 170%;
+}
+h2 {
+	font-size: 150%;
+}
+h3 {
+	font-size: 140%;
+}
+h4 {
+	font-size: 130%;
+}
+h5 {
+	font-size: 120%;
+}
+h6 {
+	font-size: 110%;
+}
+
+.header {
+	text-align: center;
+	padding-bottom: 10px;
+	border-bottom: 1px solid #eee;
+	
+}
+.header .nav a {
+	margin: 2px 5px;
+	text-decoration: none;
+}
+.header .nav {
+	display: none;
+}
+.header .title a {
+	font-size: 180%;
+	font-weight: 500;
+	text-decoration: none;
+	color: #444;
+}
+.header .title a:hover {
+	color: #888;
+}
+.header i {
+	color: #aaa;
+}
+.header .subtitle {
+	opacity: .8;
+}
+
+
+/* for Post */
+ul.posts span {
+	font-family: Monaco, "Courier New", monospace;
+	font-size: small;
+}
+
+.post-stats {
+	font-size: 80%;
+	padding: 0 2px;
+	color: #aaa;
+}
+.post-stats > span {
+	margin-bottom: 2px;
+}
+.post, .posts {
+	background-color: #fff;
+	margin: 20px 0 40px 0;
+	padding: 0px;
+}
+.post.edit-mode {
+	height: 80vh;
+	overflow: auto;
+	margin: 0px;
+	padding: 0 10px;
+}
+.post-title {
+	padding-bottom: 10px;
+	margin-bottom: 0px;
+}
+.post-meta {
+	opacity: .6;
+	margin-bottom: 20px;
+}
+.post-preview-btn {
+	float: right; 
+	position: absolute; 
+	right: 20px; 
+	top: 10px; 
+	z-index: 10;
+}
+/* Post images */
+.img-thumbnail {
+	padding: 8px;
+	border: none;
+	max-width: 280px !important;
+}
+
+
+/* Post tags */
+.tags {
+	margin-left: 20px;
+}
+.tag {
+	background-color: #eee;
+	color: #4d4d4d;
+	margin-left: 1px;
+}
+.post-footer {
+  margin-top: 40px;
+
+}
+/* apply hl style to annotations */
+.hljs-annotation {
+  color: #888;
+  font-style: italic;
+}
+
+@media (min-width: 768px) {
+	body {
+		font-size: 16px !important;
+	}
+	.header { 
+		text-align: left; 
+	}
+	.header .nav {
+		display: block;
+	}
+	.header .title a { 
+		font-size: 210%; 
+	}
+}
+
+

@@ -1,0 +1,13 @@
+extends ../layouts/posts
+
+block content
+	article
+		header
+			h1 Posts
+		section
+			ul(class='list-unstyled posts')
+				each post in posts
+					li
+						span= moment(post.publishedAt).format('ll') 
+						span  &raquo; 
+						a(href='/posts/' + post.slug)= post.title
