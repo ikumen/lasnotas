@@ -14,7 +14,11 @@ block content
 					i(class='fa fa-tags')
 					| 
 					each tag in post.tags
-						span(class='label tag')= tag
+						span(class='label label-success tag')= tag
 
 		section
 			!= post.content
+
+	div(class='post-footer')
+		a(href='/@thong')
+			i(class='fa fa-arrow-left')  back home

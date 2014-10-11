@@ -12,14 +12,19 @@ html(lang='en')
 				div(class='col-xs-24 col-sm-22 col-md-20 col-lg-16')
 					div(class='header')
 						span(class='nav hidden-xs pull-right')
-							a(href='/') About 
+							a(href='/') About
 							a(href='/') Notes
-							a(href='/signout')
+							a(href='/signout') Signout
+						span(class='visible-xs-block nav pull-right')
+							a(href='/' class='btn btn-xs btn-primary' title='Notes')
+								i(class='fa fa-file-text')
+							a(href='/signout' class='btn btn-xs btn-info' title='Sign Out')
+								i(class='fa fa-sign-out')
 						span(class='title')
 							a(href='/posts' class='special-font') Random Bits
 								i(class='fa fa-random')
 							br/
-							span(class='subtitle text-left') From a Father, Developer, DIY Enthusiast
+							span(class='hidden-xs subtitle text-left') From a Father, Developer, DIY Enthusiast
 				div(class='hidden-xs col-sm-1 col-md-2 col-lg-4')
 
 			div(class='row content')

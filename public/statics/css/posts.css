@@ -25,21 +25,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .header {
-	text-align: center;
 	padding-bottom: 10px;
 	border-bottom: 1px solid #eee;
 	margin-bottom: 5px;
 }
 .header .nav a {
-	margin: 2px 5px;
-	text-decoration: none;
+	margin-top: 2px;
+	margin-left: 10px;
+	/*text-decoration: none;*/
 	font-size: 90%;
 }
 .header .nav {
 	display: none;
 }
+.header .nav .btn {
+	padding: 0 10px;
+	opacity: .6;
+}
 .header .title a {
-	font-size: 170%;
+	font-size: 120%;
 	font-weight: 500;
 	text-decoration: none;
 	color: #444;
@@ -47,7 +51,7 @@ h1, h2, h3, h4, h5, h6 {
 .header .title a:hover {
 	color: #888;
 }
-.header i {
+.header .title i {
 	font-size: 90%;
 	margin-left: 10px;
 	color: #62c462;
@@ -121,7 +125,8 @@ ul.posts span {
 .tag {
 	background-color: #eee;
 	color: #4d4d4d;
-	margin-left: 1px;
+	font-weight: 500;
+	margin-left: 3px;
 }
 .post-footer {
   margin-top: 40px;
@@ -141,6 +146,7 @@ ul.posts span {
 		text-align: left; 
 	}
 	.header .nav {
+		font-size: 90%;
 		display: block;
 	}
 	.header .title a { 
