@@ -35,6 +35,12 @@ h1, h2, h3, h4, h5, h6 {
 	height: 90vh;
 }
 
+.footer {
+	font-size: 90%;
+	opacity: .7;
+	margin-bottom: 10px;
+}
+
 .ace_editor {
 	margin: 0;
 	height: 90vh;
@@ -50,6 +56,11 @@ h1, h2, h3, h4, h5, h6 {
 .editor-nav .logo a{
 	text-decoration: none;
 }
+.editor-nav .logo .title {
+	font-weight: 500;
+	font-size: 110%;
+}
+
 .editor-nav {
 	margin: 5px 0;
 	text-align: left;
@@ -69,7 +80,6 @@ h1, h2, h3, h4, h5, h6 {
 	background-color: #fff;
 	margin: 20px 0 40px 0;
 	padding: 0px;
-	font-size: 18px !important;
 }
 .post-title {
 	padding-bottom: 10px;
