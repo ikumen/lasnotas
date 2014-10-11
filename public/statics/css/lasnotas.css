@@ -1,6 +1,43 @@
+body {
+	background-color: #eee;
+}
+
+h1 {
+	font-size: 170%;
+}
+h2 {
+	font-size: 150%;
+}
+h3 {
+	font-size: 140%;
+}
+h4 {
+	font-size: 130%;
+}
+h5 {
+	font-size: 120%;
+}
+h6 {
+	font-size: 110%;
+}
+h1, h2, h3, h4, h5, h6 {
+	opacity: .8;
+}
+
+/* helpers */
+.spacer {
+	margin: 0 5px;
+}
+
+.preview {
+	background-color: #fff;
+	padding: 5px 10px;
+	height: 90vh;
+}
+
 .ace_editor {
 	margin: 0;
-	height: 80vh;
+	height: 90vh;
 }
 
 .ul-hover > li {
@@ -9,6 +46,56 @@
 .ul-hover > li:hover {
   background-color: #f5f5f5;  
 }
+
+.editor-nav .logo a{
+	text-decoration: none;
+}
+.editor-nav {
+	margin: 5px 0;
+	text-align: left;
+}
+.editor-nav-btns {
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+}
+.editor-nav-btns .btn {
+	/*padding: 1px 5px; original */
+	padding: 1px 10px;
+}
+
+
+.post, .posts {
+	background-color: #fff;
+	margin: 20px 0 40px 0;
+	padding: 0px;
+	font-size: 18px !important;
+}
+.post-title {
+	padding-bottom: 10px;
+	margin-bottom: 0px;
+}
+.post-meta {
+	opacity: .6;
+	font-size: 90%;
+	margin-bottom: 30px;
+}
+.tags {
+	margin-left: 20px;
+}
+.tag {
+	background-color: #eee;
+	color: #4d4d4d;
+	font-weight: 500;
+	margin-left: 3px;
+}
+/* apply hl style to annotations */
+.hljs-annotation {
+  color: #888;
+  font-style: italic;
+}
+
+
 
 /* alert */
 .alert {

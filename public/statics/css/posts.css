@@ -142,6 +142,9 @@ ul.posts span {
 	body {
 		font-size: 18px !important;
 	}
+	.footer {
+		font-size: 80%;
+	}
 	.header { 
 		text-align: left; 
 	}
