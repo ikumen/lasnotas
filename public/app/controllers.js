@@ -59,7 +59,6 @@ angular.module('lasnotas')
 	console.info("Starting editorCtrl");
 
 	$scope.note = {}	// note we're editing
-	$scope.post = {}	// a converted note, available for previewing	
 
 	/**
 	 * Helper for loading the initial Note and setting it to scope. First check 
@@ -166,10 +165,26 @@ angular.module('lasnotas')
 		})
 	}
 
-	$scope.convertNote = function (note) {
-		noteConverter.convert(note, function (err, post) {
-			$scope.post = post;
-			$scope.note.title = (post.title || '');
+	$scope.convertNote = function (note, callback) {
+		noteConverter.convert(note.content, function (err, post) {
+			$scope.note.posting = post.content;
+
+			// get ready to parse the note for a title
+			var content = note.content || ''
+			// first check if we have # heading (can be #-######)
+			var regResults = /^#{1,6}(.*)/.exec(content.trim())
+			$scope.note.title = (regResults && regResults.length > 1) ?
+				regResults[1].trim() : null;
+
+			// if no heading was found, lets take snippet of first sentence up to 60 chars	
+			if(!$scope.note.title && post.content) {
+				var text = angular.element(post.content).text().substring(0, 60);
+				$scope.note.title = text.substring(0, text.lastIndexOf(' '))
+			}
+				
+			if(callback && typeof callback === 'function') {
+				callback(post)
+			}
 		})
 	}
 
@@ -178,7 +193,6 @@ angular.module('lasnotas')
 			noteService.remove({ id: note.id }, function (resp) {
 				var successMsg = "Note '" + (note.title || note.id) + "' has been deleted!";
 				if(callback && (typeof callback === 'function')) {
-					console.log("remove with callback, note.id=resp.note.id:", note.id, resp.note.id)
 					callback(resp.note);
 					$scope.successAlert(successMsg)				
 					if(note.id === $routeParams.id)

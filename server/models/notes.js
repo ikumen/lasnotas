@@ -21,14 +21,19 @@
  */
 module.exports = function(schemaUtils) {
 	var mongoose = require('mongoose'),
-		utils = require('../../lib/utils');
+			converter = require('../../lib/note-converters/md-to-html'),
+			utils = require('../../lib/utils');
 
 	var NoteSchema = mongoose.Schema({
 		author: { type: String, default: 'thong' },
-		content: String,
+		content: String, 
 		title: String,
 		publishedAt: Date,
-		modifiedAt: { type: Date, default: Date.now }
+		modifiedAt: { type: Date, default: Date.now },
+		post: {
+			slug: String,
+			content: String
+		}
 	})
 
 	// @see models/index.js for it's use 
@@ -36,21 +41,35 @@ module.exports = function(schemaUtils) {
 
 	/**
 	 * Handles upserting note, and on successful upsert, notifies any
-	 * listeners of with. see /server/utils.js for Subject/Listner info
+	 * listeners. 
+	 *
+	 * @see /server/utils.js for Subject/Listner info
 	 */
 	NoteSchema.static('upsertAndNotify', function (note, opts, callback) {
 		if(utils.isUndefined(callback) && utils.isFunction(opts)) {
 			callback = opts; // shift and normalize argument positions
 			opts = {}; 
 		}
+
+		if(note.title) {
+			note.post = {
+				slug: (note.title
+					.replace(/\s+/g, '_') // whitespace to _
+					.replace(/\W/g,'')		// remove non word chars
+					.replace(/_/g, '-')		// replace _ with -
+					.toLowerCase()) + '-' + note.id.substring(0, 8),
+				//content: converter(note)
+			}
+		}
+
 		var _Note = this
 		opts.upsert = true; // enable upserting		
+
 		this.findByIdAndUpdate(note.id, note.toObject(), opts, function (err, upserted) {
 			// check if upsert was success and notifiy listeners
 			if(!err && !utils.isUndefined(upserted)) {
 				_Note.notify(upserted);
-			}
-				
+			}				
 			// send back err/upserted doc
 			callback(err, upserted);
 		});

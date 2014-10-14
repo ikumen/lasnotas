@@ -44,12 +44,10 @@ router.get('/:id', function (req, res, next) {
 	// test if valid ObjectId
 	if(models.utils.isObjectId(id)) {
 		models.Note.findById(id, function (err, found) {
-			if(err)
-				return next(err);
-			else if(!found) 
-				return next(); //404 
-			else {
+			if(found) {
 				res.status(200).send({ note: found })	
+			} else {
+				return next(err);
 			}
 		});
 	}
@@ -91,11 +89,7 @@ router.delete('/:id', function (req, res, next) {
 	var id = req.params.id
 	if(models.utils.isObjectId(id)) {
 		models.Note.findById(id, function (err, found) {
-			if(err) 
-				return next(err);
-			else if(!found) 
-				return next();
-			else {
+			if(found) {
 				found.remove(function (err) {
 					if(err) 
 						return next(err);
@@ -103,6 +97,8 @@ router.delete('/:id', function (req, res, next) {
 						res.status(200).send({ note: found })			
 					}
 				})
+			} else {
+				return next(err);
 			}
 		})
 	} else 

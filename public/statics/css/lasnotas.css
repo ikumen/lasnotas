@@ -24,6 +24,49 @@ h1, h2, h3, h4, h5, h6 {
 	opacity: .8;
 }
 
+
+/* test -------*/
+.ace_text-input {
+	opacity: 1;
+}
+.editor-wrapper {
+	background-color: red;
+}
+#editor {
+	background-color: #fff;
+	padding: 0 5px;
+	outline: 0;
+	border: 0;
+	height: 90vh;
+	overflow: auto;
+}
+
+input {
+	outline: 0;
+	border: 0;
+	font-size: 180%;
+	font-weight: 500;
+	width: 100%;
+	margin-bottom: 10px;
+}
+::-webkit-input-placeholder {
+   color: #ddd;
+}
+:-moz-placeholder { /* Firefox 18- */
+   color: #ddd;
+}
+::-moz-placeholder {  /* Firefox 19+ */
+   color: #ddd;
+}
+:-ms-input-placeholder {  
+   color: #ddd;
+}
+input:focus::-webkit-input-placeholder { color:transparent; }
+input:focus:-moz-placeholder { color:transparent; } /* FF 4-18 */
+input:focus::-moz-placeholder { color:transparent; }
+/* test -------*/
+
+
 /* helpers */
 .spacer {
 	margin: 0 5px;
@@ -87,7 +130,6 @@ h1, h2, h3, h4, h5, h6 {
 }
 .post-meta {
 	opacity: .6;
-	font-size: 90%;
 	margin-bottom: 30px;
 }
 .tags {
@@ -96,7 +138,7 @@ h1, h2, h3, h4, h5, h6 {
 .tag {
 	background-color: #eee;
 	color: #4d4d4d;
-	font-weight: 500;
+	font-weight: 400;
 	margin-left: 3px;
 }
 /* apply hl style to annotations */

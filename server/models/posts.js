@@ -40,20 +40,22 @@ module.exports = function (schemaUtils) {
 	// create our Post model
 	var Post = mongoose.model('Post', PostSchema);
 	
-	// Post inherits Listener capabilities
+	// Post is a listener to Note upsert
 	utils.inherit(Post, new utils.Listener(function (note) {
+		// after Note upsert, we upsert a corresponding Post
 		converter(note, function(err, converted) {
 			var post = new Post(converted);
 			if(post.publishedAt && post.title) {
-				post.slug = post.publishedAt.replace(/-/g, '/') + '/' +
+				post.slug = 
 					(post.title
 						.replace(/\s+/g, '_') // whitespace to _
 						.replace(/\W/g,'')		// remove non word chars
 						.replace(/_/g, '-')		// replace _ with -
 						.toLowerCase()
-					)
+					) + '-' +
+					note.id.substring(0, 8)
 			}
-			console.log(post)
+
 			post.id = note.id // Posts are tied to Notes
 			Post.findByIdAndUpdate(post.id, post.toObject(), 
 					{ upsert: true }, function (err, saved) {

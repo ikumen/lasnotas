@@ -1,16 +1,13 @@
 var utils = {
 	// some constants
 	NEW_NOTE_ID: null,
-	NEW_NOTE_CONTENT: '---\ntitle:\ndate:\ntags:\n---\n',
+	NEW_NOTE_CONTENT: '',
 	NEW_NOTE_TITLE: '',
+	NEW_NOTE_PUBLISHEDAT: new Date(),
 	NOTE_ID: '541763d53002b5c27b2e755a',
+	NOTE_PUBLISHEDAT: new Date(),
 	NOTE_TITLE: 'How to test angular applications',
-	NOTE_CONTENT: '---\n' +
-		'title: How to test angular applications\n' +
-		'date: 2012-01-23\n' +
-		'tags: javascript, nodejs, angular\n---\n' +
-		'# Heading 1\n' +
-		'_emphasized text_\n'
+	NOTE_CONTENT: '# Heading 1\n_emphasized text_\n'
 }
 
 utils.createNote = function (params) {

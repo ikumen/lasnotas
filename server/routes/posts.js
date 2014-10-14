@@ -41,13 +41,19 @@ router.get('/@:author', function (req, res, next) {
 
 router.get('/@:author/**', function (req, res, next) {
 	var author = req.params.author
-	var slug = req.params[0]
+	var slugs = (req.params[0] || '').split('-');
+	var timestamp = slugs[slugs.length-1]
+	console.log("timestamp=", timestamp)
 	models.Post.findOne(
-		{ author: author, slug: slug }, 
+		{ author: author, slug: { $regex: timestamp + "$" } }, 
 		function (err, post) {
-			res.render('posts/post', {
-				post: post
-			})
+			if(post) {
+				res.render('posts/post', {
+					post: post
+				})
+			} else {
+				next(err); // handles both 404 and error
+			}
 		})
 })
 
