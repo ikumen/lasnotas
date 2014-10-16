@@ -75,7 +75,8 @@ input:focus::-moz-placeholder { color:transparent; }
 .preview {
 	background-color: #fff;
 	padding: 5px 10px;
-	height: 90vh;
+	height: 50vh;
+	overflow: auto;
 }
 
 .footer {
@@ -86,7 +87,7 @@ input:focus::-moz-placeholder { color:transparent; }
 
 .ace_editor {
 	margin: 0;
-	height: 90vh;
+	height: 50vh;
 }
 
 .ul-hover > li {

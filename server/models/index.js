@@ -75,6 +75,7 @@
 			schema.virtual('createdAt').get(function () {
 				return this._id.getTimestamp();
 			})
+			
 			return schema;
 		}
 	}
@@ -93,6 +94,16 @@
 			model.postCreate(models)
 		}
 	}
+
+	var TestSchema = mongoose.Schema({
+		name: String,
+		modifiedAt: { type: Date, default: Date.now }
+	})
+
+	var Test = mongoose.model('Test', TestSchema);
+
+	Test.create(new Test({ name: 'thong' }))
+
 
 	module.exports = models;
 

@@ -55,9 +55,207 @@ angular.module('lasnotas')
  * Returns service responsible for interacting with Note api 
  */
 .factory('noteService', ['$resource', function ($resource) {
-	return $resource('/api/notes/:id', {}, { 
-		'query': { isArray: false }
+	return $resource('/api/notes/:id', { id: '@id' }, { 
+		'query': { isArray: false },
+		'publish': {method: 'POST', url: '/api/notes/:id/publish' }
 	});
+}])
+
+/**
+ * Provides Note service for instantiating a new Note. Note instances
+ * come with life-cycle management features (delegate to underlying 
+ * $resource provider). 
+ */
+.service('Note', ['noteService', 'noteConverter', 'appUtils', '$interval',
+		function (noteService, noteConverter, appUtils, $interval) {
+
+	/* 
+	 * Post are published content of a Note. The Post here exists only 
+	 * to support live previewing feature in the editor. As Note is being
+	 * edited (changed), it's contents are converted into a Post and bind
+	 * to preview view. 
+	 * 
+	 * enumerable is set to false for post.content because server will 
+	 * handle real job of converting a Note content during publishing
+	 * process.
+	 */
+	function Post (post) {
+		var _content, _date;
+
+		if(post) {
+			_content = post.content || null;
+			_date = post.date || null;
+		}
+
+		Object.defineProperties(this, {
+			'content': {
+				get: function () { return _content },
+				set: function (val) { _content = val },
+				enumerable: false 
+			},
+			'date': {
+				get: function () { return _date },
+				set: function (val) { _date = val },
+				enumerable: true
+			}
+		})
+	}
+
+	//function Note (note, editor, opts) {
+	function Note (note, opts) {	
+		note = (note || {}); 
+
+		this.id = (note.id || null)
+		this.title = (note.title || null)
+		this.publishedAt = (note.publishedAt || null)
+		this.post = new Post(note.post)
+
+		var _origContent = '',
+				_content = ''
+				//_editor = editor;
+
+		Object.defineProperties(this, {
+			'isDirty': {
+				get: function () { 
+					return (_content !== _origContent); 
+					//return (_editor.getValue() !== _origContent)
+				},
+				set: function (v) { 
+					if(!v) { _origContent = _content; }
+					//if(!v) { _origContent = _editor.getValue() }
+				},
+				enumerable: false
+			},
+			'content': {
+				get: function () { 
+					return _content 
+					//return _editor.getValue()
+				},
+				set: function (val) {
+					// set the content
+					_content = val;
+					//_editor.setValue(val)
+					
+					// side affects of setting content
+					// 1) convert content to a post (this is used for live preview)
+					this.post.content = noteConverter(val);
+					// 2) extract title from our content, first look for headings
+					var regResults = /^#{1,6}(.*)/.exec(val.trim())
+					if(regResults && regResults.length > 1)
+						this.title = regResults[1].trim();
+					// 3) extract title, if no headings, grab the first couple of words
+					else if(val) {
+						var text = angular.element(this.post.content).text().substring(0, 60);
+						this.title = (text.substring(0, text.lastIndexOf(' ')) || text)
+					}
+				},
+				enumerable: true
+			},
+			'createdAt': {
+				value: note.createdAt,
+				writable: true,
+				enumerable: false
+			},
+			'modifiedAt': {
+				value: note.modifiedAt,
+				writable: true,
+				enumerable: false
+			}
+		})
+
+		// after we've defined the hooked setter/getter for content, 
+		// lets set it if passed in note has any
+		if(note.content) {
+			this.content = _origContent = note.content.trim();
+		}
+
+		var _autosave = {}
+		// configure opts
+		if(opts && opts.autosave) {
+			_autosave = {
+				interval: opts.autosave.interval || 30000, // 30secs
+				onsuccess: opts.autosave.onsuccess || function (obj) { console.log(obj) },
+				onerror: opts.autosave.onerror || function (obj) { console.log(obj); }
+			}
+
+			var _note = this;
+			$interval(function () {
+					if(_note.isDirty) {
+						if((_content || '').trim().length === 0) {
+							console.log(_content)
+							_autosave.onerror("Nothing to save!")
+						}
+						else {
+							_note.$save(
+								function (resp) {
+									_autosave.onsuccess(resp)
+								}, 
+								function (errResp) {
+									_autosave.onerror(errResp);
+							}); // end $save
+						}
+					}
+				}, 
+				_autosave.interval, 
+				false
+			);
+		}
+	}
+
+
+	/**
+	 * Saves the passed in instance
+	 */
+	Note.save = function (toSave, callback, errCallback) {
+		if((toSave.content || '').trim().length === 0 || !toSave.isDirty)
+			errCallback('Nothing to save!')
+		else 
+			noteService.save(toSave, callback, errCallback);	
+	}
+
+	/**
+	 * Saves the instance
+	 */
+	Note.prototype.$save = function (callback, errCallback) {
+		var _note = this; 
+		Note.save(this, 
+			function (resp, headers) {
+				if(resp.note) {
+					var saved = resp.note;
+					if(saved.createdAt)
+						_note.createdAt = saved.createdAt;
+					if(saved.modifiedAt)
+						_note.modifiedAt = saved.modifiedAt;
+					if(saved.publishedAt)
+						_note.publishedAt = saved.publishedAt;
+					if(saved.content) {
+						_note.content = saved.content;
+					}
+					if(saved.title)
+						_note.title = saved.title;
+					_note.isDirty = false;
+				}
+				callback(resp, headers)
+			}, 
+			errCallback
+		);
+	}
+
+	Note.remove = noteService.remove;
+	Note.get = noteService.get
+
+	Note.publish = function (toPublish, callback, errCallback) {
+		noteService.publish({ id: toPublish.id, 
+			post: { date: toPublish.post.date }}, callback, errCallback
+		);
+	}
+
+	Note.unpublish = function (toUnpublish, callback, errCallback) {
+		noteService.publish({ id: toUnpublish.id }, callback, errCallback);
+	}
+
+	return Note;
+
 }])
 
 /**
@@ -65,6 +263,6 @@ angular.module('lasnotas')
  */
 .factory('noteTemplates', [function () {
 	return {
-		emptyNote: '---\ntitle:\ndate:\ntags:\n---\n'
+		emptyNote: ''
 	}
 }])

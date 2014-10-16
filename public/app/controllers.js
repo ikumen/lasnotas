@@ -43,22 +43,22 @@ angular.module('lasnotas')
 			}
 		}, 500);
 	});
-
 }])
 
 
 /**
  * Manages editor interactions (e.g. initializing editor, saving, opening files)
  */
-.controller('editorCtrl', ['$controller', '$scope', '$routeParams', '$location', '$modal', 'noteService', 'appUtils', 'noteTemplates', 'noteConverter',
-			function ($controller, $scope, $routeParams, $location, $modal, noteService, appUtils, noteTemplates, noteConverter) {	
+.controller('editorCtrl', ['$controller', '$scope', '$routeParams', '$location', '$modal', 'Note', 'appUtils', 'noteTemplates',
+			function ($controller, $scope, $routeParams, $location, $modal, Note, appUtils, noteTemplates) {	
 
 	/* inherit baseCtrl functionality */
 	angular.extend(this, $controller('baseCtrl', { $scope: $scope }))			
 
 	console.info("Starting editorCtrl");
 
-	$scope.note = {}	// note we're editing
+	// note we're editing
+	//$scope.note = new Note()	
 
 	/**
 	 * Helper for loading the initial Note and setting it to scope. First check 
@@ -70,10 +70,9 @@ angular.module('lasnotas')
 	function initNote (callback) {
 		// 1) load existing Note based on path variable id
 		if(angular.isDefined($routeParams.id)) {
-			noteService.get({ id: $routeParams.id }, function (resp, header) {
+			Note.get({ id: $routeParams.id }, function (resp, header) {
 				$scope.setNote($scope, resp.note, callback);
 			}, function (errResp) {
-				//console.log(errResp)
 				// unable to load the existing note, load a new one
 				$scope.openNewNote();
 			});
@@ -102,15 +101,10 @@ angular.module('lasnotas')
 		if(angular.isUndefined(callback) && angular.isFunction(note)) {
 			callback = note;
 		}
-		note = (note || {})
+
 		// creates from copy of given note or defaults
-		scope.note = {
-			createdAt: (note.createdAt || null),
-			modifiedAt: (note.modifiedAt || null),
-			id: (note.id || null),
-			title: (note.title || null),
-			content: (note.content || noteTemplates.emptyNote)
-		}
+		//scope.note = new Note(note, $scope.editor, { autosave: { interval: 10000 } });
+		scope.note = new Note(note, { autosave: { interval: 10000 } });
 
 		if(angular.isFunction(callback)) {
 			callback(scope.note);
@@ -132,59 +126,35 @@ angular.module('lasnotas')
 				$scope.editor.setValue(note.content);
 				$scope.editor.clearSelection();
 				$scope.editor.focus();
-				// manually convert a note here to start so we have a post/preview
-				$scope.convertNote(note);
 			})
 		}
 	}
 
-	$scope.handleError = function (err) {
-		//console.log("error: ", err)
-		$scope.openNewNote();
+	$scope.handleError = function (err, redirect) {
+		console.log("error: ", err)
+		if(redirect) {
+			$scope.openNewNote();
+		}
 	}
 
 	$scope.editorChanged = function (v) {
 		$scope.note.content = $scope.editor.getValue();
-		$scope.convertNote($scope.note);
 	}
 
 	$scope.saveNote = function (toSave) {
-		noteService.save(toSave, function (resp) {
+		toSave.$save(function (resp) {
 			var successMsg = "'" + (resp.note.title || resp.note.id) + "' successfully saved!";
 			if(!$routeParams.id) {
 				$scope.successAlert(successMsg, true);
 				$location.path('/' + resp.note.id)
 			} else {
-				$scope.setNote($scope, resp.note, function (note) {
-					// 
-				});
+				// $scope.setNote($scope, resp.note, function (note) {
+				// 	// 
+				// });
 				$scope.successAlert(successMsg);
 			}
 		}, function(errResp) {
-			handleError(errResp.data)
-		})
-	}
-
-	$scope.convertNote = function (note, callback) {
-		noteConverter.convert(note.content, function (err, post) {
-			$scope.note.posting = post.content;
-
-			// get ready to parse the note for a title
-			var content = note.content || ''
-			// first check if we have # heading (can be #-######)
-			var regResults = /^#{1,6}(.*)/.exec(content.trim())
-			$scope.note.title = (regResults && regResults.length > 1) ?
-				regResults[1].trim() : null;
-
-			// if no heading was found, lets take snippet of first sentence up to 60 chars	
-			if(!$scope.note.title && post.content) {
-				var text = angular.element(post.content).text().substring(0, 60);
-				$scope.note.title = text.substring(0, text.lastIndexOf(' '))
-			}
-				
-			if(callback && typeof callback === 'function') {
-				callback(post)
-			}
+			$scope.handleError(errResp)
 		})
 	}
 
@@ -206,39 +176,39 @@ angular.module('lasnotas')
 		}
 	}
 
-	$scope.showNotesModal = function () {
-		noteService.query(function (resp) {
-			var removeNote = $scope.removeNote
-			if(resp) {
-				var modalInstance = $modal.open({
-					templateUrl: '/app/partials/modal.html',
-					controller: function ($scope, $modalInstance, notes) {
-						$scope.notes = notes;
-						$scope.openNote = function (note) {
-							$modalInstance.close(note.id)
+	// $scope.showNotesModal = function () {
+	// 	noteService.query(function (resp) {
+	// 		var removeNote = $scope.removeNote
+	// 		if(resp) {
+	// 			var modalInstance = $modal.open({
+	// 				templateUrl: '/app/partials/modal.html',
+	// 				controller: function ($scope, $modalInstance, notes) {
+	// 					$scope.notes = notes;
+	// 					$scope.openNote = function (note) {
+	// 						$modalInstance.close(note.id)
 							
-						}
+	// 					}
 
-						$scope.deleteNote = function (note) {
-							removeNote(note, function (removed) {
-								$scope.notes.splice($scope.notes.indexOf(note), 1);
-							})
-						}
+	// 					$scope.deleteNote = function (note) {
+	// 						removeNote(note, function (removed) {
+	// 							$scope.notes.splice($scope.notes.indexOf(note), 1);
+	// 						})
+	// 					}
 
-					},
-					size: 'md',
-					resolve: {
-						notes: function () { return resp.notes }
-					}
-				});
+	// 				},
+	// 				size: 'md',
+	// 				resolve: {
+	// 					notes: function () { return resp.notes }
+	// 				}
+	// 			});
 
-				modalInstance.result.then(function (noteId) {
-					if(noteId) {
-						$location.path('/' + noteId)
-					}
-				});
-			} 
-		});
-	}
+	// 			modalInstance.result.then(function (noteId) {
+	// 				if(noteId) {
+	// 					$location.path('/' + noteId)
+	// 				}
+	// 			});
+	// 		} 
+	// 	});
+	// }
 	
 }])

@@ -43,7 +43,7 @@ router.get('/:id', function (req, res, next) {
 
 	// test if valid ObjectId
 	if(models.utils.isObjectId(id)) {
-		models.Note.findById(id, function (err, found) {
+		models.Note.findById(id, 'id modifiedAt createdAt publishedAt title content post.date', function (err, found) {
 			if(found) {
 				res.status(200).send({ note: found })	
 			} else {
@@ -69,11 +69,12 @@ function handleUpsert(req, res, next) {
 		title: req.body.title 
 	});
 
-	models.Note.upsertAndNotify(note, function (err, saved) {
+	models.Note.upsertAndNotify(note, {}, function (err, saved) {
 		if(err || !saved) {
 			return next(err); // handles 500 and 404
 		} else {
-			res.status(200).send({ note: note.toJSON() })
+			console.log(saved)
+			res.status(200).send({ note: saved.toJSON() })
 		}
 	}); 
 }
@@ -83,6 +84,23 @@ router.post('/', handleUpsert);
 
 /* Updates Note with given id and params */
 router.post('/:id', handleUpsert);
+
+router.post('/:id/publish', function (req, res, next) {
+	var toPublish = {
+		id: req.params.id,
+		post: { date: req.body.post.date }
+	}
+
+	if(models.utils.isObjectId(toPublish.id)) {
+		models.Note.publish(toPublish, function (err, published) {
+			if(err || !published) {
+				return next(err);
+			} else {
+				res.status(200).send({ published: published })
+			}
+		})
+	}
+})
 
 /* Removes Note with given id */
 router.delete('/:id', function (req, res, next) {

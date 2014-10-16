@@ -69,7 +69,7 @@ module.exports = function (schemaUtils) {
 		models.Note.addListener(Post)
 	})
 
-
+	Post.create(new Post())
 
 	return Post;
 }
