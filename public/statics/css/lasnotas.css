@@ -1,5 +1,5 @@
 body {
-	background-color: #eee;
+	background-color: #fff;
 }
 
 h1 {
@@ -25,20 +25,67 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 
-/* test -------*/
-.ace_text-input {
-	opacity: 1;
+/* helpers */
+.spacer {
+	margin: 0 5px;
+}
+
+.preview {
+	background-color: #fff;
+	padding: 5px 10px;
+	height: 88vh;
+	overflow: auto;
+}
+
+.footer {
+	font-size: 90%;
+	opacity: .7;
+	margin-top: 5px;
+	margin-bottom: 10px;
+	border-top: solid 1px #ddd;
+}
+
+.ace_editor {
+	margin: 0;
+	height: 100%;
+}
+
+.ul-hover > li {
+  padding: 2px 5px;
+}
+.ul-hover > li:hover {
+  background-color: #f5f5f5;  
+}
+
+.editor-nav .logo a{
+	text-decoration: none;
+}
+.editor-nav .logo .title {
+	font-weight: 500;
+	font-size: 110%;
+}
+
+.editor-nav {
+	margin-top: 5px;
+	text-align: left;
+	padding-bottom: 10px;
+	border-bottom: solid 1px #f0f0f0;
+}
+.editor-nav-btns {
+	position: relative;
+	display: inline-block;
+	vertical-align: middle;
+}
+.editor-nav-btns .btn {
+	/*padding: 1px 5px; original */
+	padding: 1px 10px;
 }
 .editor-wrapper {
-	background-color: red;
-}
-#editor {
+	height: 88vh;
 	background-color: #fff;
-	padding: 0 5px;
-	outline: 0;
-	border: 0;
-	height: 90vh;
-	overflow: auto;
+	padding-top: 20px;
+	padding-left: 5px;
+	border-left: solid 1px #ddd;
 }
 .editor-nav .publish, .dropdown-menu li, li a {
 	cursor: pointer;
@@ -62,86 +109,10 @@ h1, h2, h3, h4, h5, h6 {
 	color: #999;
 	font-size: 90%;
 }
-input {
-	outline: 0;
-	border: 0;
-	font-size: 180%;
-	font-weight: 500;
-	width: 100%;
-	margin-bottom: 10px;
-}
-::-webkit-input-placeholder {
-   color: #ddd;
-}
-:-moz-placeholder { /* Firefox 18- */
-   color: #ddd;
-}
-::-moz-placeholder {  /* Firefox 19+ */
-   color: #ddd;
-}
-:-ms-input-placeholder {  
-   color: #ddd;
-}
-input:focus::-webkit-input-placeholder { color:transparent; }
-input:focus:-moz-placeholder { color:transparent; } /* FF 4-18 */
-input:focus::-moz-placeholder { color:transparent; }
-/* test -------*/
-
-
-/* helpers */
-.spacer {
-	margin: 0 5px;
-}
-
-.preview {
-	background-color: #fff;
-	padding: 5px 10px;
-	height: 50vh;
-	overflow: auto;
-}
-
-.footer {
-	font-size: 90%;
-	opacity: .7;
-	margin-bottom: 10px;
-}
-
-.ace_editor {
-	margin: 0;
-	height: 50vh;
-}
-
-.ul-hover > li {
-  padding: 2px 5px;
-}
-.ul-hover > li:hover {
-  background-color: #f5f5f5;  
-}
-
-.editor-nav .logo a{
-	text-decoration: none;
-}
-.editor-nav .logo .title {
-	font-weight: 500;
-	font-size: 110%;
-}
-
-.editor-nav {
-	margin: 5px 0;
-	text-align: left;
-}
-.editor-nav-btns {
-	position: relative;
-	display: inline-block;
-	vertical-align: middle;
-}
-.editor-nav-btns .btn {
-	/*padding: 1px 5px; original */
-	padding: 1px 10px;
-}
 
 
 .post, .posts {
+	font-weight: 300;
 	background-color: #fff;
 	margin: 20px 0 40px 0;
 	padding: 0px;

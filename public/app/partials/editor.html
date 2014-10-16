@@ -73,19 +73,16 @@
 		</article>
 	</div>
 	<div class="col-xs-24 col-sm-24 col-md-12 col-lg-12">
-		<div ui-ace="{
-			useWrapMode: true,
-			showGutter: false,
-			theme: 'textmate',
-			mode: 'markdown',
-			onLoad: editorLoaded,
-			onChange: editorChanged
-		}"></div>
-	</div>
-</div>
-<div class="row">
-	<div class="col-xs-24 col-sm-24 col-md-12">
-		{{note}}
+		<div class="editor-wrapper">
+			<div ui-ace="{
+				useWrapMode: true,
+				showGutter: false,
+				theme: 'textmate',
+				mode: 'markdown',
+				onLoad: editorLoaded,
+				onChange: editorChanged
+			}"></div>
+		</div>
 	</div>
 </div>
 </div>

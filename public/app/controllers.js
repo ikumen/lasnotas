@@ -164,7 +164,7 @@ angular.module('lasnotas')
 
 	$scope.publishNote = function (note) {
 		if(!note.id || note.content.length === 0) {
-			$scope.errorAlert("Hey, there's nothing to publish!")
+			$scope.alert("Hey, there's nothing to publish!")
 		} else {
 			if(note.publishedAt) {
 				Note.unpublish(note, function (resp) {
@@ -185,12 +185,12 @@ angular.module('lasnotas')
 				var successMsg = "Note '" + noteId + "' has been deleted!";
 				if(callback && (typeof callback === 'function')) {
 					callback(resp.note);
-					$scope.successAlert(successMsg)				
+					$scope.alert(successMsg)				
 					if(note.id === $routeParams.id)
 						$scope.openNewNote();
 				}
 				else {
-					$scope.successAlert(successMsg, true)				
+					$scope.alert(successMsg, true)				
 					$scope.openNewNote();
 				}
 			})
