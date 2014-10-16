@@ -7,33 +7,62 @@
 	</div>
 </div>
 <div class="row">
-	<div class="col-xs-24 col-sm-24 col-md-12">
+	<div class="col-xs-24 col-sm-24 col-md-24 col-lg-24">
 		<div class="editor-nav">
-<!-- 			<span class="logo">
+			<span class="logo">
 				<a href="/@thong">
 					&nbsp; <i class="fa fa-lg fa-file-text"></i>
 					<span class="hidden-xs title">lasnotas</span>
 				</a>
 			</span>
-			<span class="spacer"></span>
-			<div class="editor-nav-btns">
-				<button data-ng-click="openNewNote()" class='btn btn-xs btn-info'>
-					<i class="fa fa-plus"></i> <span class="hidden-xs">New</span></button>
-				<button data-ng-click="showNotesModal()" class='btn btn-xs btn-info'>
-					<i class="fa fa-folder-open-o"></i> <span class="hidden-xs">Open</span></button>
-				<button data-ng-click="saveNote(note)" class='btn btn-xs btn-success'>
-					<i class="fa fa-save"></i> <span class="hidden-xs">Save</span></button>
+			<span class="status">
+				<span class="label" ng-class="{'label-info': !note.isDirty, 'label-warning': note.isDirty }">
+					{{ note.isDirty ? 'Draft' : 'Saved' }}
+				</span> 
+			</span>
+			<div class="editor-nav-btns pull-right">
+				<span class="publish" title="Toggle Publish" ng-click="publishNote(note)">
+					<span ng-show="note.publishedAt">
+					  {{note.publishedAt | date : 'MMM dd, yyyy h:mm a' }} 
+					</span>
+					<span ng-show="!note.publishedAt">
+						{{ note.modifiedAt ? 'Publish Note' : 'Nothing to publish yet' }}
+					</span> 	
+					<i class="fa fa-lg" ng-class="{'fa-toggle-on': note.publishedAt, 'fa-toggle-off': !note.publishedAt}"></i>
+				</span>
 				<span class="spacer"></span>
-				<button data-ng-click="removeNote(note)" class="btn btn-xs btn-warning">
-					<i class="fa fa-trash"></i> <span class="hidden-xs">Delete</span></button>
- -->			</div>
+				<div class="btn-group">
+		      <button type="button" class="btn btn-sm btn-default dropdown-toggle" 
+		      			data-toggle="dropdown">
+		        <!-- <span class="caret"></span> -->
+		        <i class="fa fa-bars"></i>
+		        <span class="sr-only">Toggle Dropdown</span>
+		      </button>
+		      <ul class="dropdown-menu dropdown-menu-right" role="menu">
+		      	<li><a data-ng-click="openNewNote()">
+		      		<i class="fa fa-plus"></i> Start a new Note</a></li>
+		        <li><a data-ng-click="showNotesModal()">
+		        	<i class="fa fa-folder-open-o"></i> Open existing Note</a></li>
+		        <li class="divider"></li>
+		        <li><a data-ng-click="removeNote(note)">
+		        	<i class="fa fa-trash"></i> Delete current Note</a></li>
+		      </ul>
+		    </div>
+				<span class="spacer"></span>
+				<button class="btn btn-sm btn-default">
+					<i class="fa fa-user"></i></button>
+			</div>
 		</div>
 	</div>
 	<div class="hidden-xs hidden-sm col-md-12">
 	</div>
 </div>
 <div class="row">
-	<div class="col-xs-24 col-sm-24 col-md-12">
+	<div class="hidden-xs hidden-sm col-md-12 col-lg-12 preview">
+		<article class="post" x-ng-bind-html="note.post.content">
+		</article>
+	</div>
+	<div class="col-xs-24 col-sm-24 col-md-12 col-lg-12">
 		<div ui-ace="{
 			useWrapMode: true,
 			showGutter: false,
@@ -42,11 +71,6 @@
 			onLoad: editorLoaded,
 			onChange: editorChanged
 		}"></div>
-	</div>
-	<div class="hidden-xs hidden-sm col-md-12 preview">
-		<button ng-click="saveNote(note)">save</button> isDirty: {{ note.isDirty }}
-		<article class="post" x-ng-bind-html="note.post.content">
-		</article>
 	</div>
 </div>
 <div class="row">

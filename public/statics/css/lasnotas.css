@@ -40,7 +40,28 @@ h1, h2, h3, h4, h5, h6 {
 	height: 90vh;
 	overflow: auto;
 }
+.editor-nav .publish, .dropdown-menu li, li a {
+	cursor: pointer;
+}
+.editor-nav > .status .label {
+	opacity: .4;
+	font-weight: normal;
+}
+.editor-nav .fa-toggle-on {
+	color: #5cb85c;
+}
+.editor-nav .fa-toggle-off {
+	color: #888;
+}
+.editor-nav .dropdown-menu a {
+	font-size: 14px;
+	color: #777;
+}
 
+.editor-nav .publish span {
+	color: #999;
+	font-size: 90%;
+}
 input {
 	outline: 0;
 	border: 0;

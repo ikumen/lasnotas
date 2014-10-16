@@ -158,10 +158,28 @@ angular.module('lasnotas')
 		})
 	}
 
+	$scope.publishNote = function (note) {
+		if(!note.id || note.content.length === 0) {
+			$scope.errorAlert("Hey, there's nothing to publish!")
+		} else {
+			if(note.publishedAt) {
+				console.log("calling unpublish")
+				Note.unpublish(note, function (resp) {
+					console.log("in callback from unpublish")
+				})
+			} else {
+				Note.publish(note, function (resp) {
+					console.log("in callback from publish")
+				})
+			}
+		}
+	}
+
 	$scope.removeNote = function (note, callback) {
-		if(note.id && window.confirm('Remove "' + note.id + '"')) {
-			noteService.remove({ id: note.id }, function (resp) {
-				var successMsg = "Note '" + (note.title || note.id) + "' has been deleted!";
+		var noteId = (note.title || note.id)
+		if(note.id && window.confirm('Remove "' + noteId + '"')) {
+			Note.remove({ id: note.id }, function (resp) {
+				var successMsg = "Note '" + noteId + "' has been deleted!";
 				if(callback && (typeof callback === 'function')) {
 					callback(resp.note);
 					$scope.successAlert(successMsg)				
@@ -176,39 +194,39 @@ angular.module('lasnotas')
 		}
 	}
 
-	// $scope.showNotesModal = function () {
-	// 	noteService.query(function (resp) {
-	// 		var removeNote = $scope.removeNote
-	// 		if(resp) {
-	// 			var modalInstance = $modal.open({
-	// 				templateUrl: '/app/partials/modal.html',
-	// 				controller: function ($scope, $modalInstance, notes) {
-	// 					$scope.notes = notes;
-	// 					$scope.openNote = function (note) {
-	// 						$modalInstance.close(note.id)
+	$scope.showNotesModal = function () {
+		Note.query(function (resp) {
+			var removeNote = $scope.removeNote
+			if(resp) {
+				var modalInstance = $modal.open({
+					templateUrl: '/app/partials/modal.html',
+					controller: function ($scope, $modalInstance, notes) {
+						$scope.notes = notes;
+						$scope.openNote = function (note) {
+							$modalInstance.close(note.id)
 							
-	// 					}
+						}
 
-	// 					$scope.deleteNote = function (note) {
-	// 						removeNote(note, function (removed) {
-	// 							$scope.notes.splice($scope.notes.indexOf(note), 1);
-	// 						})
-	// 					}
+						$scope.deleteNote = function (note) {
+							removeNote(note, function (removed) {
+								$scope.notes.splice($scope.notes.indexOf(note), 1);
+							})
+						}
 
-	// 				},
-	// 				size: 'md',
-	// 				resolve: {
-	// 					notes: function () { return resp.notes }
-	// 				}
-	// 			});
+					},
+					size: 'md',
+					resolve: {
+						notes: function () { return resp.notes }
+					}
+				});
 
-	// 			modalInstance.result.then(function (noteId) {
-	// 				if(noteId) {
-	// 					$location.path('/' + noteId)
-	// 				}
-	// 			});
-	// 		} 
-	// 	});
-	// }
+				modalInstance.result.then(function (noteId) {
+					if(noteId) {
+						$location.path('/' + noteId)
+					}
+				});
+			} 
+		});
+	}
 	
 }])

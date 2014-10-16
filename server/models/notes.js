@@ -93,7 +93,10 @@ module.exports = function(schemaUtils) {
 	 * Handles unpublishing a Note. Simply removes the `publishedAt` date.
 	 */
 	NoteSchema.static('unpublish', function (toUnpublish, callback) {
-		this.findByIdAndUpdate(toUnpublish.id, { publishedAt: null },
+		var opts = {
+			select: '-post.content -post.slug -content -title -modifiedAt'
+		} 
+		this.findByIdAndUpdate(toUnpublish.id, { publishedAt: null }, opts,
 			function (err, unpublished) {
 				callback(err, unpublished);
 			})
@@ -111,7 +114,10 @@ module.exports = function(schemaUtils) {
 	 */
 	NoteSchema.static('publish', function (toPublish, callback) {
 		// this is masked by inner closure, give it a ref so it's visible
-		var _Note = this; 
+		var _Note = this;
+		var opts = {
+			select: '-post.content -post.slug -content -title -modifiedAt'
+		} 
 
 		// first find the Note we're trying to publish
 		this.findById(toPublish.id, function (err, note) {
@@ -137,7 +143,7 @@ module.exports = function(schemaUtils) {
 						'$currentDate': {
 								publishedAt: true,
 								modifiedAt: true },
-						post: post },
+						post: post }, opts,
 					function (err, published) {
 						callback(err, published)
 					}

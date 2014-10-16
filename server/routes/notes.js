@@ -96,11 +96,32 @@ router.post('/:id/publish', function (req, res, next) {
 			if(err || !published) {
 				return next(err);
 			} else {
-				res.status(200).send({ published: published })
+				res.status(200).send({ note: published })
 			}
 		})
+	} else {
+		next(); // treat as 404
 	}
 })
+
+router.post('/:id/unpublish', function (req, res, next) {
+	var toUnpublish = {
+		id: req.params.id
+	}
+
+	if(models.utils.isObjectId(toUnpublish.id)) {
+		models.Note.unpublish(toUnpublish, function (err, unpublished) {
+			if(err || !unpublished) {
+				return next(err);
+			} else {
+				res.status(200).send({ note: unpublished })
+			}
+		})
+	} else {
+		next(); // treat as 404
+	}
+})
+
 
 /* Removes Note with given id */
 router.delete('/:id', function (req, res, next) {

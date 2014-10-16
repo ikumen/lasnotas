@@ -57,7 +57,8 @@ angular.module('lasnotas')
 .factory('noteService', ['$resource', function ($resource) {
 	return $resource('/api/notes/:id', { id: '@id' }, { 
 		'query': { isArray: false },
-		'publish': {method: 'POST', url: '/api/notes/:id/publish' }
+		'publish': {method: 'POST', url: '/api/notes/:id/publish' },
+		'unpublish': {method: 'POST', url: '/api/notes/:id/unpublish' }
 	});
 }])
 
@@ -222,17 +223,12 @@ angular.module('lasnotas')
 			function (resp, headers) {
 				if(resp.note) {
 					var saved = resp.note;
-					if(saved.createdAt)
-						_note.createdAt = saved.createdAt;
-					if(saved.modifiedAt)
-						_note.modifiedAt = saved.modifiedAt;
-					if(saved.publishedAt)
-						_note.publishedAt = saved.publishedAt;
-					if(saved.content) {
-						_note.content = saved.content;
-					}
-					if(saved.title)
-						_note.title = saved.title;
+					_note.id = saved.id;
+					_note.createdAt = saved.createdAt;
+					_note.modifiedAt = saved.modifiedAt;
+					_note.publishedAt = saved.publishedAt;
+					_note.content = saved.content;
+					_note.title = saved.title;
 					_note.isDirty = false;
 				}
 				callback(resp, headers)
@@ -243,15 +239,22 @@ angular.module('lasnotas')
 
 	Note.remove = noteService.remove;
 	Note.get = noteService.get
+	Note.query = noteService.query
 
 	Note.publish = function (toPublish, callback, errCallback) {
 		noteService.publish({ id: toPublish.id, 
-			post: { date: toPublish.post.date }}, callback, errCallback
+			post: { date: toPublish.post.date }}, function (resp, headers) {
+				toPublish.publishedAt = resp.note.publishedAt
+				callback(resp, headers)
+			}, errCallback
 		);
 	}
 
 	Note.unpublish = function (toUnpublish, callback, errCallback) {
-		noteService.publish({ id: toUnpublish.id }, callback, errCallback);
+		noteService.unpublish({ id: toUnpublish.id }, function (resp, headers) {
+				toUnpublish.publishedAt = null;
+				callback(resp, headers)
+		}, errCallback);
 	}
 
 	return Note;
