@@ -30,6 +30,10 @@ angular.module('lasnotas')
 		$scope.addAlert({ type: 'alert-danger', msg: msg }, surviveRedirect);
 	}
 
+	$scope.alert = function (msg, surviveRedirect) {
+		$scope.addAlert({ type: 'alert-warning', msg: msg }, surviveRedirect);
+	}
+
 	$scope.successAlert = function (msg, surviveRedirect) {
 		$scope.addAlert({ type: 'alert-success', msg: msg }, surviveRedirect);	
 	}
@@ -163,13 +167,12 @@ angular.module('lasnotas')
 			$scope.errorAlert("Hey, there's nothing to publish!")
 		} else {
 			if(note.publishedAt) {
-				console.log("calling unpublish")
 				Note.unpublish(note, function (resp) {
-					console.log("in callback from unpublish")
+					$scope.alert("'" + note.title + "' has been unpublished.")
 				})
 			} else {
 				Note.publish(note, function (resp) {
-					console.log("in callback from publish")
+					$scope.successAlert("'" + note.title + "' has been published.")
 				})
 			}
 		}

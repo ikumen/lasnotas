@@ -3,7 +3,7 @@
     <li ng-repeat="note in notes">
       <a x-ng-click="openNote(note)">{{note.title || note.id }}</a>
       <span class="pull-right">
-        <a data-ng-click="deleteNote(note)">delete</a>
+        <a data-ng-click="deleteNote(note)"><i class="fa fa-trash"></i> <span class="hidden-xs">Delete</span></a>
       </span>
     </li>
   </ul>

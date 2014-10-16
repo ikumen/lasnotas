@@ -28,10 +28,10 @@ var express = require('express'),
 var author = 'thong'
 
 router.get('/@:author', function (req, res, next) {
-	models.Post.find(
+	models.Note.find(
 		{ author: author, publishedAt: { '$ne': null }}, 
-		'id slug author publishedAt title',
-		{ sort: '-publishedAt -modifiedAt' }, 
+		'id author publishedAt title post',
+		{ sort: '-post.date -publishedAt -modifiedAt' }, 
 		function (err, posts) {
 			res.render('posts/index', {
 				posts: posts
@@ -43,9 +43,9 @@ router.get('/@:author/**', function (req, res, next) {
 	var author = req.params.author
 	var slugs = (req.params[0] || '').split('-');
 	var timestamp = slugs[slugs.length-1]
-	console.log("timestamp=", timestamp)
-	models.Post.findOne(
-		{ author: author, slug: { $regex: timestamp + "$" } }, 
+	console.log("inside findone post: ", timestamp)
+	models.Note.findOne(
+		{ author: author, 'post.slug': { $regex: timestamp + "$" } }, 
 		function (err, post) {
 			if(post) {
 				res.render('posts/post', {

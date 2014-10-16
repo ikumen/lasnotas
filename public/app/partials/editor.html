@@ -17,18 +17,18 @@
 			</span>
 			<span class="status">
 				<span class="label" ng-class="{'label-info': !note.isDirty, 'label-warning': note.isDirty }">
-					{{ note.isDirty ? 'Draft' : 'Saved' }}
+					{{ note.id ? (note.isDirty ? 'Draft' : 'Saved') : 'New' }}
 				</span> 
 			</span>
 			<div class="editor-nav-btns pull-right">
-				<span class="publish" title="Toggle Publish" ng-click="publishNote(note)">
+				<span class="publish" ng-click="publishNote(note)">
 					<span ng-show="note.publishedAt">
-					  {{note.publishedAt | date : 'MMM dd, yyyy h:mm a' }} 
+					  {{note.publishedAt | date : 'MMM dd, yyyy' }} 
 					</span>
 					<span ng-show="!note.publishedAt">
 						{{ note.modifiedAt ? 'Publish Note' : 'Nothing to publish yet' }}
 					</span> 	
-					<i class="fa fa-lg" ng-class="{'fa-toggle-on': note.publishedAt, 'fa-toggle-off': !note.publishedAt}"></i>
+					<i class="fa fa-lg" ng-class="{'fa-toggle-on': note.publishedAt, 'fa-toggle-off': !note.publishedAt}" title="Toggle to Publish/Unpublish" ></i>
 				</span>
 				<span class="spacer"></span>
 				<div class="btn-group">
@@ -36,7 +36,7 @@
 		      			data-toggle="dropdown">
 		        <!-- <span class="caret"></span> -->
 		        <i class="fa fa-bars"></i>
-		        <span class="sr-only">Toggle Dropdown</span>
+		        <span class="sr-only">Show Editing Menu</span>
 		      </button>
 		      <ul class="dropdown-menu dropdown-menu-right" role="menu">
 		      	<li><a data-ng-click="openNewNote()">
@@ -49,8 +49,18 @@
 		      </ul>
 		    </div>
 				<span class="spacer"></span>
-				<button class="btn btn-sm btn-default">
-					<i class="fa fa-user"></i></button>
+				<div class="btn-group">
+		      <button type="button" class="btn btn-sm btn-default dropdown-toggle" 
+		      			data-toggle="dropdown">
+		        <i class="fa fa-user"></i>
+		        <span class="sr-only">Show Profile</span>
+		      </button>
+		      <ul class="dropdown-menu dropdown-menu-right" role="menu">
+		        <li class="divider"></li>
+		        <li><a href="/signout">
+		        	<i class="fa fa-sign-out"></i> Sign out</a></li>
+		      </ul>
+		    </div>
 			</div>
 		</div>
 	</div>

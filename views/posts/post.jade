@@ -1,23 +1,9 @@
-extends ../layouts/posts
+extends ../layouts/post
 
 block content
 	article(class='post')
-		header
-			h1= post.title
-			div(class='post-meta')
-				span
-					i(class='fa fa-calendar')
-					| 
-					= moment(post.publishedAt).format('ll')
-
-				span(class='tags')
-					i(class='fa fa-tags')
-					| 
-					each tag in post.tags
-						span(class='label label-success tag')= tag
-
 		section
-			!= post.content
+			!= post.post.content
 
 	div(class='post-footer')
 		a(href='/@thong')

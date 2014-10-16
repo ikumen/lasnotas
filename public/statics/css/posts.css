@@ -1,5 +1,13 @@
 body {
-	font-weight: 400;
+	font-weight: 300;
+}
+.container {
+	padding-left: 10px;
+	padding-right: 10px;
+}
+
+pre > code {
+	font-size: 90%;
 }
 
 h1 {
@@ -58,12 +66,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 .header .subtitle {
 	opacity: .7;
-	font-size: 90%;
+	font-size: 85%;
 }
 
 .footer {
-	font-size: 90%;
-	opacity: .7;
 	margin: 40px 0;
 	padding-top: 10px;
 	border-top: 1px solid #eee;
@@ -74,7 +80,16 @@ ul.posts span {
 	font-family: Monaco, "Courier New", monospace;
 	font-size: small;
 }
-
+.footer, .post-footer, .post-header {
+	font-size: 90%;
+	color: #aaa;
+}
+.footer a, .post-footer a, .post-header a {
+	text-decoration: none;
+}
+.post > section > h1 {
+	margin-bottom: 20px;
+}
 .post-stats {
 	font-size: 80%;
 	padding: 0 2px;
@@ -153,7 +168,7 @@ ul.posts span {
 		display: block;
 	}
 	.header .title a { 
-		font-size: 200%; 
+		font-size: 160%; 
 	}
 }
 

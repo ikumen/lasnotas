@@ -3,11 +3,10 @@ extends ../layouts/posts
 block content
 	article
 		header
-			h1 Posts
 		section
 			ul(class='list-unstyled posts')
 				each post in posts
 					li
 						span= moment(post.publishedAt).format('MMM DD, YYYY') 
 						span  &raquo; 
-						a(href='/@' + post.author + '/' + post.slug)= post.title
+						a(href='/@' + post.author + '/' + post.post.slug)= post.title
