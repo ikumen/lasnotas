@@ -30,8 +30,12 @@ module.exports = function (app) {
 	// app.get('/profile', isLoggedIn);
 
 	/* Loads notes editor */
-	app.get('/', function (req, res) {
+	app.get('/notes', function (req, res) {
 		res.render('notes/index');	
+	});
+
+	app.get('/', function (req, res) {
+		res.render('index')
 	})
 
 	app.use('/api/notes', noteRoutes);

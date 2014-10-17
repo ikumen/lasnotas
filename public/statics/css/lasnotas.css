@@ -1,5 +1,9 @@
 body {
-	background-color: #fff;
+	background-color: #eee;
+}
+
+.fa-lg {
+	font-size: 1.6em;
 }
 
 h1 {
@@ -24,7 +28,6 @@ h1, h2, h3, h4, h5, h6 {
 	opacity: .8;
 }
 
-
 /* helpers */
 .spacer {
 	margin: 0 5px;
@@ -35,19 +38,21 @@ h1, h2, h3, h4, h5, h6 {
 	padding: 5px 10px;
 	height: 88vh;
 	overflow: auto;
+	border-right: solid 2px #ddd;
 }
 
 .footer {
 	font-size: 90%;
 	opacity: .7;
-	margin-top: 5px;
+	margin-top: 0px;
+	padding-top: 10px;
 	margin-bottom: 10px;
 	border-top: solid 1px #ddd;
 }
 
 .ace_editor {
 	margin: 0;
-	height: 100%;
+	height: 88vh;
 }
 
 .ul-hover > li {
@@ -59,6 +64,9 @@ h1, h2, h3, h4, h5, h6 {
 
 .editor-nav .logo a{
 	text-decoration: none;
+	border-right: 1px solid #ccc;
+	padding-right: 5px;
+	margin-right: 10px;
 }
 .editor-nav .logo .title {
 	font-weight: 500;
@@ -68,7 +76,7 @@ h1, h2, h3, h4, h5, h6 {
 .editor-nav {
 	margin-top: 5px;
 	text-align: left;
-	padding-bottom: 10px;
+	padding-bottom: 5px;
 	border-bottom: solid 1px #f0f0f0;
 }
 .editor-nav-btns {
@@ -80,19 +88,12 @@ h1, h2, h3, h4, h5, h6 {
 	/*padding: 1px 5px; original */
 	padding: 1px 10px;
 }
-.editor-wrapper {
-	height: 88vh;
-	background-color: #fff;
-	padding-top: 20px;
-	padding-left: 5px;
-	border-left: solid 1px #ddd;
-}
 .editor-nav .publish, .dropdown-menu li, li a {
 	cursor: pointer;
 }
-.editor-nav > .status .label {
-	opacity: .4;
-	font-weight: normal;
+.editor-nav > .status {
+	color: #999;
+	font-size: 85%;
 }
 .editor-nav .fa-toggle-on {
 	color: #5cb85c;
@@ -107,7 +108,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .editor-nav .publish span {
 	color: #999;
-	font-size: 90%;
+	font-size: 85%;
 }
 
 
@@ -134,13 +135,26 @@ h1, h2, h3, h4, h5, h6 {
 	font-weight: 400;
 	margin-left: 3px;
 }
+.img-thumbnail {
+	padding: 8px;
+	border: none;
+	max-width: 280px !important;
+}
 /* apply hl style to annotations */
 .hljs-annotation {
   color: #888;
   font-style: italic;
 }
-
-
+pre > code {
+	font-size: 90%;
+}
+blockquote {
+  border-left: 3px solid #ccc;
+	margin: 20px 20px 20px;
+	font-style: italic;
+	font-size: 95%;
+	font-weight: 300;
+}
 
 /* alert */
 .alert {

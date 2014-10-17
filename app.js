@@ -27,9 +27,6 @@ var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
 
 var models = require('./server/models/index');
-// var routes = require('./server/routes/index');
-// var notes = require('./server/routes/notes');
-// var postRoutes = require('./server/routes/posts');
 
 var app = express();
 
@@ -42,7 +39,7 @@ app.set('view engine', 'jade');
 app.locals.moment = require('moment')
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));

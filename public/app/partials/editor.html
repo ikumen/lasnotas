@@ -12,27 +12,25 @@
 			<span class="logo">
 				<a href="/@thong">
 					&nbsp; <i class="fa fa-lg fa-file-text"></i>
-					<span class="hidden-xs title">lasnotas</span>
+					<span class="hidden-xs title"></span>
 				</a>
 			</span>
 			<span class="status">
-				<span class="label" ng-class="{'label-info': !note.isDirty, 'label-warning': note.isDirty }">
-					{{ note.id ? (note.isDirty ? 'Draft' : 'Saved') : 'New' }}
-				</span> 
+					{{ note.id ? (note.isDirty ? 'Draft' : 'Saved at ' + (note.modifiedAt | date : 'medium')) : 'New' }}
 			</span>
 			<div class="editor-nav-btns pull-right">
 				<span class="publish" ng-click="publishNote(note)">
 					<span ng-show="note.publishedAt">
-					  {{note.publishedAt | date : 'MMM dd, yyyy' }} 
+						{{note.publishedAt | date : 'MMM dd, yyyy' }} 
 					</span>
 					<span ng-show="!note.publishedAt">
-						{{ note.modifiedAt ? 'Publish Note' : 'Nothing to publish yet' }}
+						{{ note.modifiedAt ? 'Publish' : 'Nothing to publish' }}
 					</span> 	
 					<i class="fa fa-lg" ng-class="{'fa-toggle-on': note.publishedAt, 'fa-toggle-off': !note.publishedAt}" title="Toggle to Publish/Unpublish" ></i>
 				</span>
 				<span class="spacer"></span>
 				<div class="btn-group">
-		      <button type="button" class="btn btn-sm btn-default dropdown-toggle" 
+		      <button type="button" class="btn btn-sm btn-info dropdown-toggle" 
 		      			data-toggle="dropdown">
 		        <!-- <span class="caret"></span> -->
 		        <i class="fa fa-bars"></i>
@@ -40,7 +38,7 @@
 		      </button>
 		      <ul class="dropdown-menu dropdown-menu-right" role="menu">
 		      	<li><a data-ng-click="openNewNote()">
-		      		<i class="fa fa-plus"></i> Start a new Note</a></li>
+		      		<i class="fa fa-plus"></i> &nbsp;Start a new Note</a></li>
 		        <li><a data-ng-click="showNotesModal()">
 		        	<i class="fa fa-folder-open-o"></i> Open existing Note</a></li>
 		        <li class="divider"></li>
@@ -50,7 +48,7 @@
 		    </div>
 				<span class="spacer"></span>
 				<div class="btn-group">
-		      <button type="button" class="btn btn-sm btn-default dropdown-toggle" 
+		      <button type="button" class="btn btn-sm btn-info dropdown-toggle" 
 		      			data-toggle="dropdown">
 		        <i class="fa fa-user"></i>
 		        <span class="sr-only">Show Profile</span>
@@ -67,22 +65,20 @@
 	<div class="hidden-xs hidden-sm col-md-12">
 	</div>
 </div>
-<div class="row">
+<div class="row" style="background-color: #fff">
 	<div class="hidden-xs hidden-sm col-md-12 col-lg-12 preview">
 		<article class="post" x-ng-bind-html="note.post.content">
 		</article>
 	</div>
 	<div class="col-xs-24 col-sm-24 col-md-12 col-lg-12">
-		<div class="editor-wrapper">
-			<div ui-ace="{
-				useWrapMode: true,
-				showGutter: false,
-				theme: 'textmate',
-				mode: 'markdown',
-				onLoad: editorLoaded,
-				onChange: editorChanged
-			}"></div>
-		</div>
+		<div ui-ace="{
+			useWrapMode: true,
+			showGutter: false,
+			theme: 'textmate',
+			mode: 'markdown',
+			onLoad: editorLoaded,
+			onChange: editorChanged
+		}"></div>
 	</div>
 </div>
 </div>

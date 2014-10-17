@@ -111,8 +111,8 @@ angular.module('lasnotas')
 		this.publishedAt = (note.publishedAt || null)
 		this.post = new Post(note.post)
 
-		var _origContent = '',
-				_content = ''
+		var _origContent = '\n',
+				_content = '\n'
 				//_editor = editor;
 
 		Object.defineProperties(this, {
@@ -167,7 +167,7 @@ angular.module('lasnotas')
 		// after we've defined the hooked setter/getter for content, 
 		// lets set it if passed in note has any
 		if(note.content) {
-			this.content = _origContent = note.content.trim();
+			this.content = _origContent = '\n' + note.content.trim();
 		}
 
 		var _autosave = {}

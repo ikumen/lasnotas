@@ -125,10 +125,13 @@ angular.module('lasnotas')
 	$scope.editorLoaded = function (editor) {
 		if(!$scope.editor) {
 			$scope.editor = editor;
+			editor.setShowPrintMargin(false);
+			editor.setHighlightActiveLine(false);
 			initNote(function (note) {
 				// editor starts off blank, lets add some content
 				$scope.editor.setValue(note.content);
 				$scope.editor.clearSelection();
+				$scope.editor.navigateTo(0,0);
 				$scope.editor.focus();
 			})
 		}
