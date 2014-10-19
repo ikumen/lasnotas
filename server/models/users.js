@@ -25,7 +25,7 @@ module.exports = function (schemaUtils) {
 
 	var UserSchema = mongoose.Schema({
 		email: String,
-		name: { type: String, unique: true, required: true },
+		name: { type: String, unique: true },
 		fullName: String,
 		oauths: [{
 			provider: String,
@@ -40,10 +40,5 @@ module.exports = function (schemaUtils) {
 	// create our User model
 	var User = mongoose.model('User', UserSchema);
  
- 	User.findOneAndUpdate({ name: 'thong' }, { email: 'test@mail.com', name: 'thong'},
- 			{ upsert: true }, function (err, user) {
- 		//console.log("Creating user: ", user)
- 	})
-
  	return User;
 }

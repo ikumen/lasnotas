@@ -54,7 +54,7 @@ angular.module('lasnotas')
 /**
  * Returns service responsible for interacting with Note api 
  */
-.factory('noteService', ['$resource', function ($resource) {
+.factory('NoteService', ['$resource', function ($resource) {
 	return $resource('/api/notes/:id', { id: '@id' }, { 
 		'query': { isArray: false },
 		'publish': {method: 'POST', url: '/api/notes/:id/publish' },
@@ -67,8 +67,8 @@ angular.module('lasnotas')
  * come with life-cycle management features (delegate to underlying 
  * $resource provider). 
  */
-.service('Note', ['noteService', 'noteConverter', 'appUtils', '$interval',
-		function (noteService, noteConverter, appUtils, $interval) {
+.service('Note', ['NoteService', 'noteConverter', 'appUtils', '$interval',
+		function (NoteService, noteConverter, appUtils, $interval) {
 
 	/* 
 	 * Post are published content of a Note. The Post here exists only 
@@ -211,7 +211,7 @@ angular.module('lasnotas')
 		if((toSave.content || '').trim().length === 0 || !toSave.isDirty)
 			errCallback('Nothing to save!')
 		else 
-			noteService.save(toSave, callback, errCallback);	
+			NoteService.save(toSave, callback, errCallback);	
 	}
 
 	/**
@@ -230,19 +230,21 @@ angular.module('lasnotas')
 					_note.content = saved.content;
 					_note.title = saved.title;
 					_note.isDirty = false;
+					callback(resp.note)
+				} else {
+					callback({})
 				}
-				callback(resp, headers)
 			}, 
 			errCallback
 		);
 	}
 
-	Note.remove = noteService.remove;
-	Note.get = noteService.get
-	Note.query = noteService.query
+	Note.remove = NoteService.remove;
+	Note.get = NoteService.get
+	Note.query = NoteService.query
 
 	Note.publish = function (toPublish, callback, errCallback) {
-		noteService.publish({ id: toPublish.id, 
+		NoteService.publish({ id: toPublish.id, 
 			post: { date: toPublish.post.date }}, function (resp, headers) {
 				toPublish.publishedAt = resp.note.publishedAt
 				callback(resp, headers)
@@ -251,7 +253,7 @@ angular.module('lasnotas')
 	}
 
 	Note.unpublish = function (toUnpublish, callback, errCallback) {
-		noteService.unpublish({ id: toUnpublish.id }, function (resp, headers) {
+		NoteService.unpublish({ id: toUnpublish.id }, function (resp, headers) {
 				toUnpublish.publishedAt = null;
 				callback(resp, headers)
 		}, errCallback);
@@ -261,11 +263,18 @@ angular.module('lasnotas')
 
 }])
 
-/**
- * 
- */
-.factory('noteTemplates', [function () {
-	return {
-		emptyNote: ''
-	}
+
+.factory('UserService', ['$resource', function ($resource) {
+	return $resource('/api/users/:id', { id: '@id' });
 }])
+
+.service('AuthService', ['$window', 'UserService', function ($window, UserService) {
+	return {
+		currentUserName: function () {
+			return _currentUserName_;
+		}
+	}
+}]) 
+
+
+

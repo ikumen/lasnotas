@@ -15,15 +15,15 @@
 					<span class="hidden-xs title"></span>
 				</a>
 			</span>
-			<span class="status">
-					{{ note.id ? (note.isDirty ? 'Draft' : 'Saved at ' + (note.modifiedAt | date : 'medium')) : 'New' }}
-			</span>
+			<span class="visible-xs-inline status">{{ noteStatus(note) }}</span>
+			<span class="hidden-xs status">{{ noteStatus(note, 'l') }}</span>
 			<div class="editor-nav-btns pull-right">
 				<span class="publish" ng-click="publishNote(note)">
-					<span ng-show="note.publishedAt">
+					<span class="status" ng-show="note.publishedAt">
+						<span class="hidden-xs"><a href="/{{currentUserName}}">Published</a> on </span>
 						{{note.publishedAt | date : 'MMM dd, yyyy' }} 
 					</span>
-					<span ng-show="!note.publishedAt">
+					<span class="status" ng-show="!note.publishedAt">
 						{{ note.modifiedAt ? 'Publish' : 'Nothing to publish' }}
 					</span> 	
 					<i class="fa fa-lg" ng-class="{'fa-toggle-on': note.publishedAt, 'fa-toggle-off': !note.publishedAt}" title="Toggle to Publish/Unpublish" ></i>

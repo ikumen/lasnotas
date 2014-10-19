@@ -29,3 +29,20 @@ angular.module('lasnotas', [
 		}
 	}
 })
+
+/* Hack $location.path to make not reloading optional */
+.run(['$route', '$rootScope', '$location',
+	function ($route, $rootScope, $location) {
+		var origPathFn = $location.path;
+		$location.path = function (path, preventReload) {
+			if(preventReload === true) {
+				var lastRoute = $route.current;
+				var unload = $rootScope.$on('$locationChangeSuccess', function() {
+					$route.current = lastRoute;
+					unload();
+				})
+			}
+			return origPathFn.apply($location, [path])
+		}
+}])
+

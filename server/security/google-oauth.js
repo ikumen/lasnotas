@@ -1,4 +1,4 @@
-module.exports = function (config, passport, User) {
+module.exports = function (config, passport, models) {
 
 	var mongoose = require('mongoose');
 	/* Invite is very specific to authentication context so we're defining it here.
@@ -24,7 +24,7 @@ module.exports = function (config, passport, User) {
 		Invite.findOne({ email: user.email }, function (err, invite) {
 			if(!err) { // no problems looking up invite
 				if(invite) { // yeah we have invite
-					User.create(user, function (createErr, createdUser) {
+					models.User.create(user, function (createErr, createdUser) {
 						return callback(createErr, createdUser)
 					});
 				} else {
@@ -49,11 +49,15 @@ module.exports = function (config, passport, User) {
 			// force synchronous processing
 			process.nextTick(function() {
 				// find the user with given email
-				User.findOne({ 'oauths.identity': profile.id }, function (err, user) {
+				models.User.findOne({ 'oauths.identity': profile.id }, function (err, user) {
 					// authenticated but doesn't exists in our system, try to register 
 					if(!err && !user) {
+						var id = models.utils.objectId()
 						registerUser({
-								email: profile.emails[0].value
+								_id: id
+								, email: profile.emails[0].value
+								, name: id.toString()
+								, realName: (profile.displayName || null)
 								, oauths: [{
 									provider: 'google'
 									, identity: profile.id

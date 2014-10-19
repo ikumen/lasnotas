@@ -5,9 +5,10 @@ angular.module('lasnotas')
 /**
  * Base controller with some common functionality (e.g, alert messages)
  */
-.controller('baseCtrl', ['$scope', '$routeParams', '$timeout', 'flashService',
-			function ($scope, $routeParams, $timeout, flashService) {
+.controller('baseCtrl', ['$scope', '$routeParams', '$timeout', 'flashService', 'AuthService',
+			function ($scope, $routeParams, $timeout, flashService, AuthService) {
 
+	$scope.currentUserName = AuthService.currentUserName();
 	$scope.alerts = [];
 
 	// handles closing/removing current alert
@@ -47,19 +48,22 @@ angular.module('lasnotas')
 			}
 		}, 500);
 	});
+
+	$scope.$on()
 }])
 
 
 /**
  * Manages editor interactions (e.g. initializing editor, saving, opening files)
  */
-.controller('editorCtrl', ['$controller', '$scope', '$routeParams', '$location', '$modal', 'Note', 'appUtils', 'noteTemplates',
-			function ($controller, $scope, $routeParams, $location, $modal, Note, appUtils, noteTemplates) {	
+.controller('editorCtrl', ['$controller', '$scope', '$routeParams', '$location', '$filter', '$modal', 'Note', 'appUtils',
+			function ($controller, $scope, $routeParams, $location, $filter, $modal, Note, appUtils) {	
 
 	/* inherit baseCtrl functionality */
 	angular.extend(this, $controller('baseCtrl', { $scope: $scope }))			
 
 	console.info("Starting editorCtrl");
+	console.log($routeParams.id)
 
 	// note we're editing
 	//$scope.note = new Note()	
@@ -108,7 +112,19 @@ angular.module('lasnotas')
 
 		// creates from copy of given note or defaults
 		//scope.note = new Note(note, $scope.editor, { autosave: { interval: 10000 } });
-		scope.note = new Note(note, { autosave: { interval: 10000 } });
+		scope.note = new Note(note, { 
+			autosave: { 
+				interval: 10000,
+				onsuccess: function (note) {
+					var idParam = ($routeParams.id || 'new')
+					console.log('inside onsuccess callback')
+					if(note.id && idParam === 'new') {
+						console.log('updating hash')
+						$location.path('/' + note.id, true)
+					}
+				}
+			}
+		});
 
 		if(angular.isFunction(callback)) {
 			callback(scope.note);
@@ -117,6 +133,19 @@ angular.module('lasnotas')
 		}
 	}
 
+	/**
+	 * Gets the Note status, which can be:
+	 * 	New
+	 *	Draft
+	 *	Saved - use optional format argument to return long or short version of this status
+	 *		short: "Saved", long: "Saved on Oct 16, 2014 11:55:27 PM"
+	 */ 
+	$scope.noteStatus = function (note, format) {
+		return ((note && note.id) ? (
+				note.isDirty ? 'Draft' : ( 'Saved' +
+					((format && format === 'l') ? (' on ' + $filter('date')(note.modifiedAt, 'medium')) : '')
+			)) : 'New')
+	}
 
 	/**
 	 * Handles editor "onLoad" event. We're given the editor on this event,

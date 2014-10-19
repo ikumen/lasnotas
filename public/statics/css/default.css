@@ -1,0 +1,73 @@
+html,
+body {
+    width: 100%;
+    height: 95%;
+    color: #666;
+}
+
+a, a:hover {
+	text-decoration: none;
+}
+
+.text-vertical-center {
+    display: table-cell;
+    text-align: center;
+    vertical-align: top;
+    background-color: #fff;
+    padding-top: 50px;
+}
+
+.text-vertical-center h1 {
+    margin: 0;
+    padding: 0;
+    font-size: 2em;
+    line-height: 2em;
+}
+h2 {
+	font-size: 1.6em;
+}
+
+.logo {
+    color: #428bca;
+}
+
+/* error message */
+.error {
+    display: table;
+    position: relative;
+    width: 100%;
+    height: 80%;
+}
+.error.msg {
+    width: 80%;
+    padding: 15px 10px;
+}
+
+/* Header */
+
+.header {
+    display: table;
+    position: relative;
+    width: 100%;
+    height: 100%;
+}
+
+/* About */
+
+.about-editor {
+	background-color: #DEEFFF;
+   padding: 30px 0 40px 0;
+}
+.about-posts {
+	background-color: #eee;
+	padding: 40px 0;
+}
+.about-lasnotas {
+	background-color: #fff;
+	padding: 40px 0;
+}
+
+/* Footer */
+.footer {
+    margin-bottom: 20px;
+}

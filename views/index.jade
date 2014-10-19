@@ -1,32 +1,24 @@
-doctype html
-html(lang='en' data-ng-app="lasnotas")
-	head
-		title= title
-		link(rel='stylesheet', href='/lib/bootstrap/bootstrap.min.css')
-		link(rel='stylesheet', href='/lib/animate.css/animate.min.css')
-		link(rel='stylesheet', href='/lib/fontawesome/css/font-awesome.min.css')
-		link(rel='stylesheet', href='/statics/css/about.css')
-	body
+extends ./layouts/default
+
+block content
 		header(id="top" class="header")
-			div(class="text-vertical-center" style="background-color: #eee;")
+			div(class="text-vertical-center")
 				h1(class="logo")
 					i(class="fa fa-file-text")  lasnotas
 				p(class="lead")
 					| Simple <a href="http://en.wikipedia.org/wiki/Markdown">Markdown</a> driven blogging 
 				p
-					a(href="/signin/google" class="btn btn-success")
-						i(class="fa fa-lg fa-google-plus")
-						|   Sign in with Google
+					include ./partials/signin
 
-		section(id="editor" class="about-editor")
+		section(class="about-editor")
 			div(class="container")
 				div(class="row")
 					div(class="hidden-xs col-sm-1 col-md-2 col-lg-2")
 					div(class="col-xs-24 col-sm-22 col-md-20 col-lg-20")
 						p(class="lead text-center")
-							|Learn more about lasnotas
+							| <a href="#editor">Learn more</a> about lasnotas
 						br
-						h1(class="text-muted text-center")
+						h1(id="editor" class="text-muted text-center")
 							|Easy Editing
 						p(class="lead")
 							|No more funky WYSIWYG or overly complicated word processing editors. <b>lasnotas</b> only understands <strong>Markdown</strong>. Preview your work as you type&mdash;it's right there. 
@@ -45,6 +37,8 @@ html(lang='en' data-ng-app="lasnotas")
 							|No more complicated workflows&mdash;your work is automatically saved for you. When you're ready to publish, it's one simple toggle to publish and unpublish.
 						p
 							img(src="/statics/img/lasnotas-post.png" class="img-responsive")
+						br
+						br
 
 		section(id="about" class="about-lasnotas")
 			div(class="container")
@@ -58,18 +52,11 @@ html(lang='en' data-ng-app="lasnotas")
 						p(class="lead")
 						p(class="lead text-center")
 							br
-							br
 							<a href="#top" class="btn btn-info">Back Home</a>
 							br
+							br
+							br
 
 					div(class="hidden-xs col-sm-1 col-md-2 col-lg-2")
 
-		section(id="about" class="about-lasnotas")
-			div(class="container")
-				div(class="row")
-					div(class="hidden-xs col-sm-1 col-md-2 col-lg-2")
-					div(class="col-xs-24 col-sm-22 col-md-20 col-lg-20 footer")
-						hr
-						&copy; 2014 Thong Nguyen 
-					div(class="hidden-xs col-sm-1 col-md-2 col-lg-2")
-
+		include ./partials/default-footer
