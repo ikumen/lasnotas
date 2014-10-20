@@ -20,6 +20,20 @@ angular.module('lasnotas')
 	return lasnotasUtils;
 })
 
+.factory('securityInterceptor', ['$q', '$window',
+		function ($q, $window) {
+	return {
+		'responseError' : function (resp) {
+			if(resp.status === 401) 
+				$window.location.href = '/notes';
+			return $q.reject(resp);
+		},
+		'response' : function (resp) {
+			return resp;
+		}
+	}		
+}])
+
 /**
  * Manages flash objects between route changes
  */

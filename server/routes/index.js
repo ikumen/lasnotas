@@ -58,12 +58,12 @@
 	/* Handler for all of current user's posts */
 	app.get('/@:author', function (req, res, next) {
 		var author = req.params.author
-
 		models.Note.find(
 			{ author: author, publishedAt: { '$ne': null }}, 
 			'id author publishedAt title post',
 			{ sort: '-post.date -publishedAt -modifiedAt' }, 
 			function (err, posts) {
+			console.log(posts)
 				res.render('posts/index', {
 					posts: posts
 				})

@@ -10,7 +10,10 @@ angular.module('lasnotas', [
 ])
 
 /* Configure this modules routes */
-.config(['$routeProvider', function ($routeProvider) {
+.config(['$routeProvider', '$locationProvider', '$httpProvider',
+		function ($routeProvider, $locationProvider, $httpProvider) {
+	$httpProvider.interceptors.push('securityInterceptor');
+
 	$routeProvider.when('/', { templateUrl: '/app/partials/editor.html', controller: 'editorCtrl' });
 	$routeProvider.when('/new', { templateUrl: '/app/partials/editor.html', controller: 'editorCtrl' });
 	$routeProvider.when('/:id', { templateUrl: '/app/partials/editor.html', controller: 'editorCtrl' });

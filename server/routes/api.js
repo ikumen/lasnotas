@@ -28,7 +28,7 @@
 		utils = require('../../lib/utils');
 
 	/* Secure the following routes */
-	app.use(['/notes/**', '/users/**'], 
+	app.use(['/notes', '/notes/**', '/users/**'], 
 		secUtils.isAuthenticated);
 
 	/* Get the current authenticated User in session */
