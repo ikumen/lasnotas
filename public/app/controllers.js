@@ -5,11 +5,15 @@ angular.module('lasnotas')
 /**
  * Base controller with some common functionality (e.g, alert messages)
  */
-.controller('baseCtrl', ['$scope', '$routeParams', '$timeout', 'flashService', 'AuthService',
-			function ($scope, $routeParams, $timeout, flashService, AuthService) {
+.controller('baseCtrl', ['$scope', '$routeParams', '$timeout', 'flashService', 'AuthService', 'UserService',
+			function ($scope, $routeParams, $timeout, flashService, AuthService, UserService) {
 
-	$scope.currentUserName = AuthService.currentUserName();
 	$scope.alerts = [];
+
+	// load user
+	AuthService.currentUser(function (user) {
+		$scope.user = user;
+	})
 
 	// handles closing/removing current alert
 	$scope.closeAlert = function (index) {
@@ -63,8 +67,6 @@ angular.module('lasnotas')
 	angular.extend(this, $controller('baseCtrl', { $scope: $scope }))			
 
 	console.info("Starting editorCtrl");
-	console.log($routeParams.id)
-
 	// note we're editing
 	//$scope.note = new Note()	
 
@@ -145,6 +147,16 @@ angular.module('lasnotas')
 				note.isDirty ? 'Draft' : ( 'Saved' +
 					((format && format === 'l') ? (' on ' + $filter('date')(note.modifiedAt, 'medium')) : '')
 			)) : 'New')
+	}
+
+	$scope.isPublished = function (note) {
+		console.log(note)
+		return (note.publishedAt !== null &&
+			(typeof note.publishedAt !== 'undefined')) 
+	}
+
+	$scope.hasUnpublishedChanges = function (note) {
+		return $scope.isPublished(note) && note.publishedAt !== note.modifiedAt
 	}
 
 	/**

@@ -1,4 +1,4 @@
-- var userName = (user.name || user.id)
+- var userName = (user ? (user.name || user.id) : '')
 
 doctype html
 html(lang='en' data-ng-app="lasnotas")
@@ -20,8 +20,5 @@ html(lang='en' data-ng-app="lasnotas")
 					a(href='/@#{userName}') Thong Nguyen
 					span(class='pull-right')
 						| <a href="/#about">About</a> this <a href="http://en.wikipedia.org/wiki/MEAN">MEAN</a>-ingful app
-
-		script(type='text/javascript')
-			| var _currentUserName_ = '@#{userName}'
 
 		include ../partials/app-scripts

@@ -1,3 +1,24 @@
+/*
+ *  Markdown driven blog publishing system by Thong Nguyen (lasnotas)
+ *  Copyright (C) 2014 Thong Nguyen
+ *
+ *  This program is free software; you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation; either version 2 of the License, or
+ *  (at your option) any later version.
+ *
+ *  This program is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License along
+ *  with this program; if not, write to the Free Software Foundation, Inc.,
+ *  51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ *
+ *  Thong Nguyen <thong@gnoht.com>
+ *
+ */
 (function () {
 	var express = require('express');
 	var app = module.exports = express();
@@ -5,18 +26,21 @@
 	var secUtils = require('../security/utils'),
 			models = require('../models');
 
+	// TODO: after refactoring routes to use separate express instance
+	// we need to re initialize with locals
+	app.locals.moment = require('moment')
 
 	/* Secure the following routes */
-	//app.use(['/notes'], secUtils.isAuthenticated);
-	app.use(['/notes'], function (req, res, next) {
-		models.User.findById('5441792b162a992548b2772a', function (err, user) {
-			req.user = user;
-			console.log(req.sessionID)
-			console.log(req.user)
-			console.log('-----------------')
-			return next();
-		})
-	})
+	app.use(['/notes'], secUtils.isAuthenticated);
+	// app.use(['/notes'], function (req, res, next) {
+	// 	models.User.findById('5441792b162a992548b2772a', function (err, user) {
+	// 		req.user = user;
+	// 		console.log(req.sessionID)
+	// 		console.log(req.user)
+	// 		console.log('-----------------')
+	// 		return next();
+	// 	})
+	// })
 
 	/* Handler for /notes route */
 	app.get('/notes', function (req, res, next) {
@@ -33,6 +57,8 @@
 
 	/* Handler for all of current user's posts */
 	app.get('/@:author', function (req, res, next) {
+		var author = req.params.author
+
 		models.Note.find(
 			{ author: author, publishedAt: { '$ne': null }}, 
 			'id author publishedAt title post',

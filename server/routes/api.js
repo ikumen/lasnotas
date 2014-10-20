@@ -28,7 +28,23 @@
 		utils = require('../../lib/utils');
 
 	/* Secure the following routes */
-//	app.use(['/notes/**'], secUtils.isAuthenticated);
+	app.use(['/notes/**', '/users/**'], 
+		secUtils.isAuthenticated);
+
+	/* Get the current authenticated User in session */
+	app.get('/users/@current', function (req, res, next) {
+		var currentUser = req.user
+		if(!currentUser) {
+			//TODO: boilerplate
+			var err = new Error('Unauthorized')
+			err.status = 401;
+			return next(err);
+		} else {
+			res.status(200).send({ user: {
+				name: currentUser.name
+			}});
+		}
+	});
 
 	/* Get all Notes for the current logged in User */
 	app.get('/notes', function (req, res, next) {
@@ -69,6 +85,7 @@
 		
 		var note = new models.Note({
 			id: id,
+			author: req.user.name,
 			content: req.body.content,
 			title: req.body.title 
 		});

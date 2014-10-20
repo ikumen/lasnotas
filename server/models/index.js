@@ -81,7 +81,6 @@
 	}
 
 	var models = {
-		Post: require('./posts')(schemaUtils),
 		Note: require('./notes')(schemaUtils),
 		User: require('./users')(schemaUtils),
 		utils: schemaUtils
@@ -94,16 +93,6 @@
 			model.postCreate(models)
 		}
 	}
-
-	var TestSchema = mongoose.Schema({
-		name: String,
-		modifiedAt: { type: Date, default: Date.now }
-	})
-
-	var Test = mongoose.model('Test', TestSchema);
-
-	Test.create(new Test({ name: 'thong' }))
-
 
 	module.exports = models;
 

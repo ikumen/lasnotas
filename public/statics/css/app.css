@@ -88,7 +88,7 @@ h1, h2, h3, h4, h5, h6 {
 	/*padding: 1px 5px; original */
 	padding: 1px 10px;
 }
-.editor-nav .publish, .dropdown-menu li, li a {
+.editor-nav .publish > i, .dropdown-menu li, li a {
 	cursor: pointer;
 }
 .editor-nav .status {
@@ -100,6 +100,9 @@ h1, h2, h3, h4, h5, h6 {
 }
 .editor-nav .fa-toggle-off {
 	color: #888;
+}
+.unpublished-changes {
+	color: #f0ad4e !important;
 }
 .editor-nav .dropdown-menu a {
 	font-size: 14px;

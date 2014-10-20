@@ -160,7 +160,7 @@ angular.module('lasnotas')
 			'modifiedAt': {
 				value: note.modifiedAt,
 				writable: true,
-				enumerable: false
+				enumerable: true
 			}
 		})
 
@@ -222,6 +222,8 @@ angular.module('lasnotas')
 		Note.save(this, 
 			function (resp, headers) {
 				if(resp.note) {
+					console.log("save just called")
+					console.log("old modifiedAt: ", _note.modifiedAt)
 					var saved = resp.note;
 					_note.id = saved.id;
 					_note.createdAt = saved.createdAt;
@@ -231,6 +233,7 @@ angular.module('lasnotas')
 					_note.title = saved.title;
 					_note.isDirty = false;
 					callback(resp.note)
+					console.log("new modifiedAt note, saved: ", _note.modifiedAt, saved.modifiedAt)
 				} else {
 					callback({})
 				}
@@ -246,7 +249,9 @@ angular.module('lasnotas')
 	Note.publish = function (toPublish, callback, errCallback) {
 		NoteService.publish({ id: toPublish.id, 
 			post: { date: toPublish.post.date }}, function (resp, headers) {
-				toPublish.publishedAt = resp.note.publishedAt
+				var note = resp.note;
+				toPublish.publishedAt = note.publishedAt
+				toPublish.modifiedAt = note.modifiedAt
 				callback(resp, headers)
 			}, errCallback
 		);
@@ -265,13 +270,23 @@ angular.module('lasnotas')
 
 
 .factory('UserService', ['$resource', function ($resource) {
-	return $resource('/api/users/:id', { id: '@id' });
+	return $resource('/api/users/:id', { id: '@id' }, {
+		'current': {  method: 'GET', url: '/api/users/@current', isArray: false}
+	});
 }])
 
-.service('AuthService', ['$window', 'UserService', function ($window, UserService) {
+.factory('AuthService', ['UserService', 'appUtils', function (UserService, appUtils) {
+	var currentUser = {}
 	return {
-		currentUserName: function () {
-			return _currentUserName_;
+		currentUser: function (callback) {
+			if(currentUser.name) {
+				callback(currentUser);
+			} else {
+				UserService.current(function (resp, headers) {
+					currentUser = resp.user
+					callback(currentUser);					
+				})
+			}
 		}
 	}
 }]) 

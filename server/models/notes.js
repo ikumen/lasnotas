@@ -62,14 +62,12 @@ module.exports = function(schemaUtils) {
 			select: '-post.content -post.slug'
 		}
 
-		// upstream are expected to pass valid note param
-		var toSave = {
-			content: note.content,
-			author: note.author,
-			title: note.title
-		}
-
-		this.findByIdAndUpdate(note.id, toSave, opts, callback);
+		this.findByIdAndUpdate(note.id, {
+				'$currentDate': { modifiedAt: true },
+				title: note.title,
+				content: note.content,
+				author: note.author
+			}, opts, callback);
 	})
 
 	/**
@@ -79,11 +77,11 @@ module.exports = function(schemaUtils) {
 	 * @see /server/utils.js for Subject/Listner info
 	 */
 	NoteSchema.static('upsertAndNotify', function (note, opts, callback) {
-		var _Note = this
+		var self = this
 		this.upsert(note, opts, function (err, upserted) {
 			// check if upsert was success and notifiy listeners
 			if(!err && upserted)
-				_Note.notify(upserted)
+				self.notify(upserted)
 			// send back err/upserted doc
 			callback(err, upserted)
 		})
@@ -114,9 +112,9 @@ module.exports = function(schemaUtils) {
 	 */
 	NoteSchema.static('publish', function (toPublish, callback) {
 		// this is masked by inner closure, give it a ref so it's visible
-		var _Note = this;
+		var self = this;
 		var opts = {
-			select: '-post.content -post.slug -content -title -modifiedAt'
+			select: '-post.content -post.slug -content -title'
 		} 
 
 		// first find the Note we're trying to publish
@@ -139,7 +137,7 @@ module.exports = function(schemaUtils) {
 				}
 
 				// published
-				_Note.findByIdAndUpdate(note.id, {
+				self.findByIdAndUpdate(note.id, {
 						'$currentDate': {
 								publishedAt: true,
 								modifiedAt: true },
@@ -159,18 +157,6 @@ module.exports = function(schemaUtils) {
 
 	// let Note inherit Subject functionality
 	utils.inherit(Note, new utils.Subject());
-
-	 // Note.create(new Note({ content: '_kelly_'}, true), function (err, upserted) {
-	 // 		console.log("err, upserted: ", err, upserted)
-	 // })
-
-	 // Note.findById('543eb82c17dec2241897a5e7', 'post id ', {lean : true}, function (err, note) {
-	 // 	console.log('------ ', note);
-	 // })
-
-	// Note.publish({ id: '543eb82c17dec2241897a5e7' }, function (err, published) {
-	// 	console.log('----- done publishing')
-	// })
 
 	return Note;
 }

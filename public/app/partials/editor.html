@@ -10,7 +10,7 @@
 	<div class="col-xs-24 col-sm-24 col-md-24 col-lg-24">
 		<div class="editor-nav">
 			<span class="logo">
-				<a href="/@thong">
+				<a href="/@{{user.name}}">
 					&nbsp; <i class="fa fa-lg fa-file-text"></i>
 					<span class="hidden-xs title"></span>
 				</a>
@@ -18,15 +18,21 @@
 			<span class="visible-xs-inline status">{{ noteStatus(note) }}</span>
 			<span class="hidden-xs status">{{ noteStatus(note, 'l') }}</span>
 			<div class="editor-nav-btns pull-right">
-				<span class="publish" ng-click="publishNote(note)">
+				<span class="publish">
 					<span class="status" ng-show="note.publishedAt">
-						<span class="hidden-xs"><a href="/{{currentUserName}}">Published</a> on </span>
+						<span class="hidden-xs"><a href="/@{{user.name}}">Published</a> on </span>
 						{{note.publishedAt | date : 'MMM dd, yyyy' }} 
 					</span>
 					<span class="status" ng-show="!note.publishedAt">
 						{{ note.modifiedAt ? 'Publish' : 'Nothing to publish' }}
 					</span> 	
-					<i class="fa fa-lg" ng-class="{'fa-toggle-on': note.publishedAt, 'fa-toggle-off': !note.publishedAt}" title="Toggle to Publish/Unpublish" ></i>
+					<i class="fa fa-lg" ng-click="publishNote(note)" title="Toggle to publish/unpublish"
+						ng-class="{
+							'fa-toggle-on': note.publishedAt, 
+							'fa-toggle-off': !note.publishedAt,
+							'unpublished-changes': (note.publishedAt && note.publishedAt != note.modifiedAt)
+						}">
+					</i>
 				</span>
 				<span class="spacer"></span>
 				<div class="btn-group">
