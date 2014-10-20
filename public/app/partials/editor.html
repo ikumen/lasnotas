@@ -27,8 +27,7 @@
 						{{ note.modifiedAt ? 'Publish' : 'Nothing to publish' }}
 					</span> 	
 					<i class="fa fa-lg" ng-click="publishNote(note)" title="Toggle to publish/unpublish"
-						ng-class="{
-							'fa-toggle-on': note.publishedAt, 
+						ng-class="{'fa-toggle-on': note.publishedAt, 
 							'fa-toggle-off': !note.publishedAt,
 							'unpublished-changes': (note.publishedAt && note.publishedAt != note.modifiedAt)
 						}">
