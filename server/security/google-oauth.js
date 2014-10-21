@@ -52,12 +52,18 @@ module.exports = function (config, passport, models) {
 				models.User.findOne({ 'oauths.identity': profile.id }, function (err, user) {
 					// authenticated but doesn't exists in our system, try to register 
 					if(!err && !user) {
+						console.log(profile)
 						var id = models.utils.objectId()
 						registerUser({
 								_id: id
 								, email: profile.emails[0].value
+<<<<<<< HEAD
 								, name: id.toString()
 								, fullName: (profile.displayName || id.toString())
+=======
+								, name: null
+								, fullName: (profile.displayName || null)
+>>>>>>> signup example
 								, oauths: [{
 									provider: 'google'
 									, identity: profile.id
