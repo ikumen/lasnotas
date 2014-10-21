@@ -3,7 +3,13 @@
 		/* Helper for securing a route */
 		isAuthenticated: function (req, res, next) {
 			if(req.isAuthenticated()) {
-				return next();
+				if(req.user && req.user.name) {
+					return next();
+				} else {
+					return res.render('signup', {
+						user: req.user
+					});
+				}
 			}
 			else {
 				if(/^\/api/.test(req.url)) {
