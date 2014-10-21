@@ -23,6 +23,8 @@ module.exports = function (schemaUtils) {
 	var mongoose = require('mongoose'),
 			utils = require('../../lib/utils');
 
+	var reservedNames = ['current', 'lasnotas', 'thong', 'ikumen', 'lucia', 'kelly']
+
 	var UserSchema = mongoose.Schema({
 		email: String,
 		name: { type: String, unique: true },
@@ -36,6 +38,47 @@ module.exports = function (schemaUtils) {
 
 	// @see models/index.js for it's use
 	schemaUtils.normalizeModel(UserSchema);
+
+	function isReservedName (name) {
+		for(var i=0; i < reservedNames.length; i++) {
+			if(reservedNames[i] === name)
+				return true;
+		}
+		return false;
+	}
+
+	UserSchema.static('isNameAvailable', function (name, callback) {
+		var self = this;
+		if(!isReservedName(name)) {
+			self.count({ name: name }, function (err, count) {
+				callback(err, count === 0);
+			})
+		} else {
+			callback(null, false);
+		}
+	});
+
+	/** Updates user profile. */
+	UserSchema.static('updateProfile', function (profile, callback) {
+		// remove special chars and convert to slug form
+		profile.name = utils.normalizeName(profile.name);
+
+		var self = this;
+		this.isNameAvailable(profile.name, function (err, avail) {
+			if(err || !avail) 
+				callback(err);
+			
+			else {
+				self.findByIdAndUpdate(profile.id, { 
+						name: profile.name,
+						fullName: profile.fullName
+					}, function (err, updated) {
+						callback(err, updated)
+				})
+			}
+		})
+	})
+
 
 	// create our User model
 	var User = mongoose.model('User', UserSchema);

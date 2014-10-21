@@ -5,7 +5,7 @@ module.exports = {
 	}
 	, security: {
 		registration: {
-			invites: [ 'thong@gnoht.com' ]
+			invites: [ 'thong@gnoht.com', 'gnohtnguyen@gmail.com' ]
 		}
 		, oauth: {
 			google: {

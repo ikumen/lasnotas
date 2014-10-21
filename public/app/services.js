@@ -236,8 +236,6 @@ angular.module('lasnotas')
 		Note.save(this, 
 			function (resp, headers) {
 				if(resp.note) {
-					console.log("save just called")
-					console.log("old modifiedAt: ", _note.modifiedAt)
 					var saved = resp.note;
 					_note.id = saved.id;
 					_note.createdAt = saved.createdAt;
@@ -282,28 +280,99 @@ angular.module('lasnotas')
 
 }])
 
+.service('User', ['$resource', function ($resource) {
+	
+	var userResource = $resource('/api/users/:id', { id: '@id' }, {
+			'current': {  method: 'GET', url: '/api/users/@current', isArray: false},
+			'isNameAvailable': {  method: 'GET', url: '/api/users/@:name/avail', isArray: false},
+			'update': {  method: 'PUT', url: '/api/users/:id', isArray: false}
+		});
 
-.factory('UserService', ['$resource', function ($resource) {
-	return $resource('/api/users/:id', { id: '@id' }, {
-		'current': {  method: 'GET', url: '/api/users/@current', isArray: false}
-	});
+	function User (user) {
+		this.name = user.name
+		this.id = user.id
+		this.fullName = user.fullName
+	}
+
+	User.current = function (callback) {
+		userResource.current(function (resp, headers) {
+			callback(new User(resp.user));
+		});
+	}
+
+	User.isNameAvailable = function (name, callback) {
+		userResource.isNameAvailable({ name: name }, 
+			function(resp, headers) {
+				callback(resp.avail)
+		});
+	}
+
+	User.prototype.$update = function (update, callback) {
+		var self = this;
+		userResource.update({ id: update.id }, update, 
+			function (resp, headers) {
+				var user = resp.user
+				if(user) {
+					self.name = user.name,
+					self.fullName = user.fullName
+				}
+				callback(user)
+		})
+	}
+
+	return User;
+
 }])
 
-.factory('AuthService', ['UserService', 'appUtils', function (UserService, appUtils) {
-	var currentUser = {}
-	return {
-		currentUser: function (callback) {
-			if(currentUser.name) {
-				callback(currentUser);
-			} else {
-				UserService.current(function (resp, headers) {
-					currentUser = resp.user
-					callback(currentUser);					
-				})
+
+.factory('UserService', ['$resource', function ($resource) {
+
+
+	var currentUser = null;
+	
+	function setCurrentUser(user) {
+		if(user) {
+			currentUser = {
+				name: user.name,
+				id: user.id,
+				fullName: user.fullName
 			}
 		}
 	}
-}]) 
 
+	var resource = $resource('/api/users/:id', { id: '@id' }, {
+		'current': {  method: 'GET', url: '/api/users/@current', isArray: false},
+		'isNameAvailable': {  method: 'GET', url: '/api/users/@:name/avail', isArray: false},
+		'update': {  method: 'PUT', url: '/api/users/:id', isArray: false}
+	});
 
+	// load initial currentUser
+	resource.current(function (resp, headers) {
+		setCurrentUser(resp.user);
+	});
+
+	var userService = {
+		isNameAvailable: resource.isNameAvailable,
+		update: function (user, callback) {
+			resource.update({ id: user.id }, user, 
+				function (resp, headers) {
+					setCurrentUser(resp.user);
+			})
+		},
+		current: function (callback) {
+			var user
+			if(callback) {
+				resource.current(function(resp, headers) {
+					setCurrentUser(resp.user)
+					callback(resp.user)
+				});
+			} else {
+				return user;
+			}
+		}
+	}
+
+	return userService;
+
+}])
 

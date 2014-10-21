@@ -28,7 +28,7 @@
 		utils = require('../../lib/utils');
 
 	/* Secure the following routes */
-	app.use(['/notes', '/notes/**', '/users/**'], 
+	app.use(['/notes', '/notes/**', '/users', '/users/**'], 
 		secUtils.isAuthenticated);
 
 	/* Get the current authenticated User in session */
@@ -36,15 +36,62 @@
 		var currentUser = req.user
 		if(!currentUser) {
 			//TODO: boilerplate
-			var err = new Error('Unauthorized')
-			err.status = 401;
-			return next(err);
+			var error = new Error('Unauthorized');
+			error.status = 401;
+			return next(error);
 		} else {
-			res.status(200).send({ user: {
-				name: currentUser.name
+			res.status(200).send({ user: {				
+				name: currentUser.name,
+				fullName: currentUser.fullName,
+				id: currentUser.id
 			}});
 		}
 	});
+
+	app.get('/users/@:name/avail', function (req, res, next) {
+		var name = utils.normalizeName(req.params.name);
+
+		models.User.isNameAvailable(name, function (err, avail) {
+			if(err) {
+				return next(err);
+			} else {
+				res.status(200).send({ avail: avail });
+			}
+		})
+	})
+
+	app.put('/users/:id', function (req, res, next) {
+		var userId = req.user.id;
+		var profile = {
+			id: (req.params.id || null),
+			name: req.body.name,
+			fullName: req.body.fullName
+		}
+
+		console.log("userid, profile: ", userId, profile)
+
+		// check if request is made by owner of this account
+		if(!profile.id || (profile.id.trim() !== userId)) {
+			var error = new Error('Unauthorized');
+			error.status = 401;
+			return next(error);
+		}
+
+		// make sure we have both a name and fullname
+		else if(userId && profile.name && profile.fullName) {
+			models.User.updateProfile(profile, 
+				function (err, user) {
+					res.status(200).send({ user: {
+						name: user.name,
+						id: userId,
+						fullName: user.fullName
+					}})
+			});
+		}
+		else {
+			return next();
+		}
+	})
 
 	/* Get all Notes for the current logged in User */
 	app.get('/notes', function (req, res, next) {
@@ -82,10 +129,11 @@
 		if(id && !models.utils.isObjectId(id)) {
 			return next(); // 404
 		}
-		
+
 		var note = new models.Note({
 			id: id,
 			author: req.user.name,
+			authorFullName: req.user.fullName,
 			content: req.body.content,
 			title: req.body.title 
 		});

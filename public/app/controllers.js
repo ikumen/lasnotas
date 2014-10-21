@@ -5,13 +5,13 @@ angular.module('lasnotas')
 /**
  * Base controller with some common functionality (e.g, alert messages)
  */
-.controller('baseCtrl', ['$scope', '$routeParams', '$timeout', 'flashService', 'AuthService', 'UserService',
-			function ($scope, $routeParams, $timeout, flashService, AuthService, UserService) {
+.controller('baseCtrl', ['$scope', '$routeParams', '$timeout', 'flashService', 'User',
+			function ($scope, $routeParams, $timeout, flashService, User) {
 
 	$scope.alerts = [];
 
 	// load user
-	AuthService.currentUser(function (user) {
+	User.current(function (user) {
 		$scope.user = user;
 	})
 
@@ -60,15 +60,13 @@ angular.module('lasnotas')
 /**
  * Manages editor interactions (e.g. initializing editor, saving, opening files)
  */
-.controller('editorCtrl', ['$controller', '$scope', '$routeParams', '$location', '$filter', '$modal', 'Note', 'appUtils',
-			function ($controller, $scope, $routeParams, $location, $filter, $modal, Note, appUtils) {	
+.controller('editorCtrl', ['$controller', '$scope', '$routeParams', '$location', '$filter', '$modal', 'Note', 'appUtils', 'User', 'UserService',
+			function ($controller, $scope, $routeParams, $location, $filter, $modal, Note, appUtils, User, UserService) {	
 
 	/* inherit baseCtrl functionality */
 	angular.extend(this, $controller('baseCtrl', { $scope: $scope }))			
 
 	console.info("Starting editorCtrl");
-	// note we're editing
-	//$scope.note = new Note()	
 
 	/**
 	 * Helper for loading the initial Note and setting it to scope. First check 
@@ -119,9 +117,7 @@ angular.module('lasnotas')
 				interval: 10000,
 				onsuccess: function (note) {
 					var idParam = ($routeParams.id || 'new')
-					console.log('inside onsuccess callback')
 					if(note.id && idParam === 'new') {
-						console.log('updating hash')
 						$location.path('/' + note.id, true)
 					}
 				}
@@ -150,7 +146,6 @@ angular.module('lasnotas')
 	}
 
 	$scope.isPublished = function (note) {
-		console.log(note)
 		return (note.publishedAt !== null &&
 			(typeof note.publishedAt !== 'undefined')) 
 	}
@@ -189,23 +184,6 @@ angular.module('lasnotas')
 		$scope.note.content = $scope.editor.getValue();
 	}
 
-	$scope.saveNote = function (toSave) {
-		toSave.$save(function (resp) {
-			var successMsg = "'" + (resp.note.title || resp.note.id) + "' successfully saved!";
-			if(!$routeParams.id) {
-				$scope.successAlert(successMsg, true);
-				$location.path('/' + resp.note.id)
-			} else {
-				// $scope.setNote($scope, resp.note, function (note) {
-				// 	// 
-				// });
-				$scope.successAlert(successMsg);
-			}
-		}, function(errResp) {
-			$scope.handleError(errResp)
-		})
-	}
-
 	$scope.publishNote = function (note) {
 		if(!note.id || note.content.length === 0) {
 			$scope.alert("Hey, there's nothing to publish!")
@@ -241,6 +219,47 @@ angular.module('lasnotas')
 		}
 	}
 
+	/* Manage profile modal */
+	$scope.showProfileModal = function () {
+		var parentScope = $scope
+		var modalInstance = $modal.open({
+			templateUrl: '/app/partials/profile.html',
+			controller: function ($scope, $modalInstance, user) {
+				$scope.user = user
+				$scope.saveProfile = function (user) {
+					User.isNameAvailable({ name: user.name }, function (avail) {
+						if(avail) {
+							parentScope.user.$update(user, function (updated) {
+								if(updated) {
+									$scope.user = {
+										name: updated.name,
+										id: updated.id,
+										fullName: updated.fullName
+									}
+									parentScope.successAlert('Your profile has been updated!');
+								}
+							})
+						} else {
+							parentScope.errorAlert("'" + user.name + 
+									"' is unavailable, please try another!");
+						}
+					});
+				}
+			},
+			size: 'md',
+			resolve: {
+				user: function() { 
+					return new User({
+						name: parentScope.user.name, 
+						id: parentScope.user.id,  
+						fullName: parentScope.user.fullName
+					})
+				}
+			}
+		});
+	}
+
+	/* Manage open notes modal */
 	$scope.showNotesModal = function () {
 		Note.query(function (resp) {
 			var removeNote = $scope.removeNote
@@ -251,7 +270,6 @@ angular.module('lasnotas')
 						$scope.notes = notes;
 						$scope.openNote = function (note) {
 							$modalInstance.close(note.id)
-							
 						}
 
 						$scope.deleteNote = function (note) {

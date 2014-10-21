@@ -1,10 +1,8 @@
-- var userName = (user ? (user.name || user.id) : '')
-
 doctype html
 html(lang='en' data-ng-app="lasnotas")
 	head
 		title= title
-		link(rel='stylesheet', href='/lib/bootstrap/bootstrap.min.css')
+		link(rel='stylesheet', href='/lib/bootstrap/css/bootstrap.min.css')
 		link(rel='stylesheet', href='/lib/animate.css/animate.min.css')
 		link(rel='stylesheet', href='/lib/fontawesome/css/font-awesome.min.css')
 		link(rel="stylesheet" href="/lib/highlight.js/styles/github.css")
@@ -17,7 +15,7 @@ html(lang='en' data-ng-app="lasnotas")
 			div(class="row")
 				div(class="col-xs-24 footer")
 					| &copy; 2014 
-					a(href='/@#{userName}') Thong Nguyen
+					a(href='/@thong') Thong Nguyen
 					span(class='pull-right')
 						| <a href="/#about">About</a> this <a href="http://en.wikipedia.org/wiki/MEAN">MEAN</a>-ingful app
 

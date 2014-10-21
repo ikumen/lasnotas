@@ -25,7 +25,8 @@ module.exports = function(schemaUtils) {
 			utils = require('../../lib/utils');
 
 	var NoteSchema = mongoose.Schema({
-		author: { type: String, default: 'thong' },
+		author: { type: String },
+		authorFullName: { type: String },
 		content: String, 
 		title: String,
 		publishedAt: Date,
@@ -61,12 +62,13 @@ module.exports = function(schemaUtils) {
 			upsert: true,
 			select: '-post.content -post.slug'
 		}
-
+		console.log("in static upsert: ", note)
 		this.findByIdAndUpdate(note.id, {
 				'$currentDate': { modifiedAt: true },
 				title: note.title,
 				content: note.content,
-				author: note.author
+				author: note.author,
+				authorFullName: note.authorFullName
 			}, opts, callback);
 	})
 

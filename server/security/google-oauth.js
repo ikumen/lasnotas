@@ -57,7 +57,7 @@ module.exports = function (config, passport, models) {
 								_id: id
 								, email: profile.emails[0].value
 								, name: id.toString()
-								, realName: (profile.displayName || null)
+								, fullName: (profile.displayName || id.toString())
 								, oauths: [{
 									provider: 'google'
 									, identity: profile.id
