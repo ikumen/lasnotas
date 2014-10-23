@@ -25,7 +25,7 @@ angular.module('lasnotas')
 	return {
 		'responseError' : function (resp) {
 			if(resp.status === 401) 
-				$window.location.href = '/notes';
+				$window.location.href = '/notessdf';
 			return $q.reject(resp);
 		},
 		'response' : function (resp) {
@@ -74,31 +74,271 @@ angular.module('lasnotas')
 		'publish': {method: 'POST', url: '/api/notes/:id/publish' },
 		'unpublish': {method: 'POST', url: '/api/notes/:id/unpublish' }
 	});
+
 }])
 
-/**
- * Provides Note service for instantiating a new Note. Note instances
- * come with life-cycle management features (delegate to underlying 
- * $resource provider). 
- */
-.service('Note', ['NoteService', 'noteConverter', 'appUtils', '$interval',
-		function (NoteService, noteConverter, appUtils, $interval) {
+.factory('Editor', ['$interval', 'NoteService', 'Note', 'appUtils', 
+		function ($interval, NoteService, Note, appUtils) {
 
-	/* 
-	 * Post are published content of a Note. The Post here exists only 
-	 * to support live previewing feature in the editor. As Note is being
-	 * edited (changed), it's contents are converted into a Post and bind
-	 * to preview view. 
-	 * 
-	 * enumerable is set to false for post.content because server will 
-	 * handle real job of converting a Note content during publishing
-	 * process.
-	 */
+	var $editor;		// external editor we've wrapped
+	var $note;			// note currently opened in editor
+	var $autosave;
+	var $configured = false;
+	var $emitter = {
+		'configured': [],			// when a new note is saved
+		'saved': [],			// when an existing note is saved
+		'opened': [],				// when a new/existing note is opened
+		'published': [],	
+		'unpublished': [],
+		'removed': []
+	}
+
+	function Autosave (editor, opts) {
+		var editor = editor;
+		opts = (opts || { enabled: true })	// autosave is enabled by default
+
+		var delay = (opts.delay || 10000); 	// 10 second default
+		var onSuccess = (opts.onSuccess || appUtils.noOpt);
+		var onError = (opts.onError || appUtils.noOpt);
+		var intPromises = [];
+		var enabled = ((typeof opts.enabled === 'undefined') || opts.enabled)
+
+		return {
+			cancel: function () {
+				for(var i=0; i < intPromises.length; i++) {
+					$interval.cancel(intPromises.splice(i, 1)[0]);
+				}
+			},
+
+			start: function () {
+				if(!enabled)
+					return;
+
+				this.cancel();
+				var intPromise = $interval(
+					function () { 
+						if($note && $note.isDirty) {
+							//console.log("autosave: saving note ...");
+							editor.saveNote(onSuccess, onError) 
+						} else {
+							//console.log('autosave: nothing to save!')
+						}
+					}, 
+					delay, false
+				);
+				// saved the interval promise
+				intPromises.push(intPromise)
+			},
+		}
+	}
+
+	var editorService = {
+		on: function (state, fn) {
+			if(typeof fn === 'function') {
+				for(var s in $emitter) {
+					if(s === state && $emitter[s].indexOf(fn) === -1) {
+						$emitter[s].push(fn);
+						break;
+					}
+				}
+			}
+			return this;
+		},
+
+		emit: function () {
+			var args = Array.prototype.slice.call(arguments);
+			var state = args.shift()
+			for(var i=0; i < $emitter[state].length; i++) {
+				$emitter[state][i].apply(this, args)
+			}
+		},
+		
+		contentChange: function () {
+			$note.content = $editor.getValue();
+		},
+
+		config: function (editor, opts, callback) {
+			if(!editor || arguments.length !== 2)
+				throw new Error('config not called with enough arguments!')
+
+			$editor = editor;
+			$editor.setShowPrintMargin(false);
+			$editor.setHighlightActiveLine(false);
+			$autosave = new Autosave(this, opts.autosave);
+
+			if(callback) {
+				callback(this);
+			} else {
+				return this;
+			}
+		},
+
+		done: function () {
+			$configured = true;
+			this.emit('configured', this)
+		},
+
+		isConfigured: function() { return $configured },
+
+		emptyNote: function () {
+			return new Note();
+		},
+	
+		focus: function() {
+			$editor.clearSelection();
+			$editor.navigateTo(0,0);
+			$editor.focus();
+		},
+
+		openNote: function (id, callback) {
+			if(typeof id === 'function') {
+				callback = id;
+				id = null;
+			}
+
+			var self = this;
+
+			function done (note) {
+				//console.info("Opened note: ", note);
+				$autosave.cancel();
+				$note = note;
+				$editor.setValue($note.content)
+				self.emit('opened', $note);
+				$autosave.start();
+				if(callback) {
+					callback($note);
+				}
+			}
+
+			if(appUtils.isObjectId(id)) {
+				NoteService.get({ id: id}, function (resp, headers) {
+					done(new Note(resp.note));
+				}, function (err) {
+					done(self.emptyNote());
+				})
+			} else {
+				done(self.emptyNote());
+			}
+		},
+
+		openNewNote: function (callback) { 
+			this.openNote(null, callback); 
+		},
+
+		getNote: function () {
+			return $note;
+		},
+
+		listNotes: function (callback) {
+			NoteService.query(
+				function (resp, headers){
+					callback(resp.notes);
+				}, 
+				function (errResp){})
+		},
+
+		saveNote: function (note, callback) {
+			var self = this
+			NoteService.save({id: $note.id}, $note, 
+				function (resp, headers) {
+					var saved = resp.note
+					$note.id = $note.id || saved.id;
+					$note.modifiedAt = saved.modifiedAt;
+					$note.createdAt = saved.createdAt;
+					$note.publishedAt = saved.publishedAt;
+					$note.title = saved.title;
+					// this will reset Note._origContent to Note._content
+					$note.isDirty = false;
+					callback($note);
+					self.emit('saved', $note);
+				}, 
+				callback 
+			);
+		},
+
+		removeNote: function (note, callback, errCallback) {
+			var toRemove = { id: note.id, title: (note.title || note.id) }
+
+			function done () {
+				// not using self, since when in modal scope "this" is undefined
+				editorService.openNewNote();
+				editorService.emit('removed', toRemove)
+				if(callback) {
+					callback(toRemove)
+				}
+			}
+
+			if(toRemove.id) {
+				NoteService.remove({ id: toRemove.id }, 
+					function (resp, headers) {
+						done()
+					},
+					errCallback);
+			} else {
+				done()
+			}
+		},
+
+		canPublishNote: function () {
+			return !(!$note.id || !$note.publishedAt && $note.isEmpty());
+		},
+
+		canRemoveNote: function () {
+			return ($note.id || !$note.isEmpty());
+		},
+
+		pubUnpubNote: function () {
+			var self = this;
+			if(self.canPublishNote()) {
+				if($note.publishedAt) 
+					self.unpublishNote();
+				else
+					self.publishNote();
+			}
+		},
+
+		publishNote: function () {
+			var self = this;
+			NoteService.publish(
+				{ id: $note.id, post: { date: $note.post.date }}, 
+				function (resp, headers) {
+					$note.publishedAt = resp.note.publishedAt
+					$note.modifiedAt = resp.note.modifiedAt
+					self.emit('published', $note);
+				}, 
+				function () {
+					//error
+				}
+			);
+		},
+
+		unpublishNote: function () {
+			var self = this;
+			NoteService.unpublish(
+				{ id: $note.id }, 
+				function (resp, headers) {
+					$note.publishedAt = null;
+					self.emit('unpublished', $note);
+				}, 
+				function () {
+					//error
+				}
+			);
+		}
+	}
+
+	return editorService;
+
+}])
+
+.service('Note', ['noteConverter', 
+		function (noteConverter) {
+
 	function Post (post) {
-		var _content, _date;
+		var _content = "", _date;
 
 		if(post) {
-			_content = post.content || null;
+			_content = post.content || "";
 			_date = post.date || null;
 		}
 
@@ -106,7 +346,7 @@ angular.module('lasnotas')
 			'content': {
 				get: function () { return _content },
 				set: function (val) { _content = val },
-				enumerable: false 
+				enumerable: true 
 			},
 			'date': {
 				get: function () { return _date },
@@ -116,41 +356,33 @@ angular.module('lasnotas')
 		})
 	}
 
-	//function Note (note, editor, opts) {
-	function Note (note, opts) {	
+	function Note (note) {	
 		note = (note || {}); 
-
 		this.id = (note.id || null)
 		this.title = (note.title || null)
 		this.publishedAt = (note.publishedAt || null)
 		this.post = new Post(note.post)
 
-		var _origContent = '\n',
-				_content = '\n'
-				//_editor = editor;
-
+		var _origContent = '';
+		var _content = '';
+		
 		Object.defineProperties(this, {
 			'isDirty': {
 				get: function () { 
 					return (_content !== _origContent); 
-					//return (_editor.getValue() !== _origContent)
 				},
 				set: function (v) { 
 					if(!v) { _origContent = _content; }
-					//if(!v) { _origContent = _editor.getValue() }
 				},
 				enumerable: false
 			},
 			'content': {
 				get: function () { 
 					return _content 
-					//return _editor.getValue()
 				},
 				set: function (val) {
 					// set the content
 					_content = val;
-					//_editor.setValue(val)
-					
 					// side affects of setting content
 					// 1) convert content to a post (this is used for live preview)
 					this.post.content = noteConverter(val);
@@ -169,7 +401,7 @@ angular.module('lasnotas')
 			'createdAt': {
 				value: note.createdAt,
 				writable: true,
-				enumerable: false
+				enumerable: true
 			},
 			'modifiedAt': {
 				value: note.modifiedAt,
@@ -181,99 +413,18 @@ angular.module('lasnotas')
 		// after we've defined the hooked setter/getter for content, 
 		// lets set it if passed in note has any
 		if(note.content) {
-			this.content = _origContent = '\n' + note.content.trim();
-		}
-
-		var _autosave = {}
-		// configure opts
-		if(opts && opts.autosave) {
-			_autosave = {
-				interval: opts.autosave.interval || 30000, // 30secs
-				onsuccess: opts.autosave.onsuccess || function (obj) { console.log(obj) },
-				onerror: opts.autosave.onerror || function (obj) { console.log(obj); }
-			}
-
-			var _note = this;
-			$interval(function () {
-					if(_note.isDirty) {
-						if((_content || '').trim().length === 0) {
-							console.log(_content)
-							_autosave.onerror("Nothing to save!")
-						}
-						else {
-							_note.$save(
-								function (resp) {
-									_autosave.onsuccess(resp)
-								}, 
-								function (errResp) {
-									_autosave.onerror(errResp);
-							}); // end $save
-						}
-					}
-				}, 
-				_autosave.interval, 
-				false
-			);
+			var content = note.content.trim();
+			this.content = content;
+			_origContent = content;
 		}
 	}
 
-
-	/**
-	 * Saves the passed in instance
-	 */
-	Note.save = function (toSave, callback, errCallback) {
-		if((toSave.content || '').trim().length === 0 || !toSave.isDirty)
-			errCallback('Nothing to save!')
-		else 
-			NoteService.save(toSave, callback, errCallback);	
+	Note.prototype.isEmpty = function () {
+		return ((this.content || '').trim().length === 0);
 	}
 
-	/**
-	 * Saves the instance
-	 */
-	Note.prototype.$save = function (callback, errCallback) {
-		var _note = this; 
-		Note.save(this, 
-			function (resp, headers) {
-				if(resp.note) {
-					var saved = resp.note;
-					_note.id = saved.id;
-					_note.createdAt = saved.createdAt;
-					_note.modifiedAt = saved.modifiedAt;
-					_note.publishedAt = saved.publishedAt;
-					_note.content = saved.content;
-					_note.title = saved.title;
-					_note.isDirty = false;
-					callback(resp.note)
-					console.log("new modifiedAt note, saved: ", _note.modifiedAt, saved.modifiedAt)
-				} else {
-					callback({})
-				}
-			}, 
-			errCallback
-		);
-	}
-
-	Note.remove = NoteService.remove;
-	Note.get = NoteService.get
-	Note.query = NoteService.query
-
-	Note.publish = function (toPublish, callback, errCallback) {
-		NoteService.publish({ id: toPublish.id, 
-			post: { date: toPublish.post.date }}, function (resp, headers) {
-				var note = resp.note;
-				toPublish.publishedAt = note.publishedAt
-				toPublish.modifiedAt = note.modifiedAt
-				callback(resp, headers)
-			}, errCallback
-		);
-	}
-
-	Note.unpublish = function (toUnpublish, callback, errCallback) {
-		NoteService.unpublish({ id: toUnpublish.id }, function (resp, headers) {
-				toUnpublish.publishedAt = null;
-				callback(resp, headers)
-		}, errCallback);
+	Note.prototype.isNew = function () {
+		return (this.isEmpty() && !this.id)
 	}
 
 	return Note;
@@ -300,8 +451,8 @@ angular.module('lasnotas')
 		});
 	}
 
-	User.isNameAvailable = function (name, callback) {
-		userResource.isNameAvailable({ name: name }, 
+	User.isNameAvailable = function (user, callback) {
+		userResource.isNameAvailable({ name: user.name }, 
 			function(resp, headers) {
 				callback(resp.avail)
 		});
@@ -323,56 +474,45 @@ angular.module('lasnotas')
 	return User;
 
 }])
+// .factory('location', [
+//     '$location',
+//     '$route',
+//     '$rootScope',
+//     function ($location, $route, $rootScope) {
+//         var page_route = $route.current;
 
+//         $location.skipReload = function () {
+//             //var lastRoute = $route.current;
+//             var unbind = $rootScope.$on('$locationChangeSuccess', function () {
+//                 $route.current = page_route;
+//                 unbind();
+//             });
+//             return $location;
+//         };
 
-.factory('UserService', ['$resource', function ($resource) {
+//         if ($location.intercept) {
+//             throw '$location.intercept is already defined';
+//         }
 
+//         $location.intercept = function(url_pattern, load_url) {
 
-	var currentUser = null;
-	
-	function setCurrentUser(user) {
-		if(user) {
-			currentUser = {
-				name: user.name,
-				id: user.id,
-				fullName: user.fullName
-			}
-		}
-	}
+//             function parse_path() {
+//                 var match = $location.path().match(url_pattern)
+//                 if (match) {
+//                     match.shift();
+//                     return match;
+//                 }
+//             }
 
-	var resource = $resource('/api/users/:id', { id: '@id' }, {
-		'current': {  method: 'GET', url: '/api/users/@current', isArray: false},
-		'isNameAvailable': {  method: 'GET', url: '/api/users/@:name/avail', isArray: false},
-		'update': {  method: 'PUT', url: '/api/users/:id', isArray: false}
-	});
+//             var unbind = $rootScope.$on("$locationChangeSuccess", function() {
+//                 var matched = parse_path();
+//                 if (!matched || load_url(matched) === false) {
+//                   return unbind();
+//                 }
+//                 $route.current = page_route;
+//             });
+//         };
 
-	// load initial currentUser
-	resource.current(function (resp, headers) {
-		setCurrentUser(resp.user);
-	});
-
-	var userService = {
-		isNameAvailable: resource.isNameAvailable,
-		update: function (user, callback) {
-			resource.update({ id: user.id }, user, 
-				function (resp, headers) {
-					setCurrentUser(resp.user);
-			})
-		},
-		current: function (callback) {
-			var user
-			if(callback) {
-				resource.current(function(resp, headers) {
-					setCurrentUser(resp.user)
-					callback(resp.user)
-				});
-			} else {
-				return user;
-			}
-		}
-	}
-
-	return userService;
-
-}])
-
+//         return $location;
+//     }
+// ])

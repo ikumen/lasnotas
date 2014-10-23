@@ -2,10 +2,6 @@ body {
 	background-color: #eee;
 }
 
-.fa-lg {
-	font-size: 1.6em;
-}
-
 .form-group label {
 	color: #666;
 	font-weight: normal;
@@ -104,11 +100,12 @@ h1, h2, h3, h4, h5, h6 {
 	color: #999;
 	font-size: 85%;
 }
+.editor-nav .fa-toggle-on, .editor-nav .fa-toggle-off {
+	color: #888;
+	font-size: 1.6em;
+}
 .editor-nav .fa-toggle-on {
 	color: #5cb85c;
-}
-.editor-nav .fa-toggle-off {
-	color: #888;
 }
 .unpublished-changes {
 	color: #f0ad4e !important;

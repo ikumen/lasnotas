@@ -5,15 +5,10 @@ angular.module('lasnotas')
 /**
  * Base controller with some common functionality (e.g, alert messages)
  */
-.controller('baseCtrl', ['$scope', '$routeParams', '$timeout', 'flashService', 'User',
-			function ($scope, $routeParams, $timeout, flashService, User) {
+.controller('baseCtrl', ['$scope', '$routeParams', '$timeout', 'flashService', '$route',
+			function ($scope, $routeParams, $timeout, flashService, $route) {
 
 	$scope.alerts = [];
-
-	// load user
-	User.current(function (user) {
-		$scope.user = user;
-	})
 
 	// handles closing/removing current alert
 	$scope.closeAlert = function (index) {
@@ -53,82 +48,40 @@ angular.module('lasnotas')
 		}, 500);
 	});
 
-	$scope.$on()
 }])
 
 
 /**
  * Manages editor interactions (e.g. initializing editor, saving, opening files)
  */
-.controller('editorCtrl', ['$controller', '$scope', '$routeParams', '$location', '$filter', '$modal', 'Note', 'appUtils', 'User', 'UserService',
-			function ($controller, $scope, $routeParams, $location, $filter, $modal, Note, appUtils, User, UserService) {	
+.controller('editorCtrl', ['$controller', '$route', '$scope', '$routeParams', '$location', '$filter', '$modal', 'Editor', 'appUtils', 'User',
+			function ($controller, $route, $scope, $routeParams, $location, $filter, $modal, Editor, appUtils, User) {	
 
 	/* inherit baseCtrl functionality */
-	angular.extend(this, $controller('baseCtrl', { $scope: $scope }))			
+	angular.extend(this, $controller('baseCtrl', { $scope: $scope, $routeParams: $routeParams }))			
 
-	console.info("Starting editorCtrl");
+	//console.info("Start editorCtrl ..")
 
-	/**
-	 * Helper for loading the initial Note and setting it to scope. First check 
-	 * to see if we have a Note id in path variable and load it, then delegate
-	 * to setNote() to normal the return Note and set it to scope. If this is 
-	 * a request for a brand new Note, then simply call setNote without any Note
-	 * params and it will create an empty one to put into scope.
-	 */
-	function initNote (callback) {
-		// 1) load existing Note based on path variable id
-		if(angular.isDefined($routeParams.id)) {
-			Note.get({ id: $routeParams.id }, function (resp, header) {
-				$scope.setNote($scope, resp.note, callback);
-			}, function (errResp) {
-				// unable to load the existing note, load a new one
-				$scope.openNewNote();
-			});
-		} else {
-			// 2) create a new Note (default action for setNote)
-			$scope.setNote($scope, callback);
-		}
-	}
+	var lastRoute = $route.current;
+	var notesPattern = /^\//;
+	$scope.$on('$locationChangeSuccess', function (event) {
+		//console.log('current: %s %s', $route.current.$$route.originalPath, $route.current.params.id)
+    if($route.current && notesPattern.test($route.current.$$route.originalPath) &&
+    		notesPattern.test(lastRoute.$$route.originalPath)) {
+	    if($scope.note.id !== $route.current.params.id) {
+		    Editor.openNote($route.current.params.id)
+	    }
+	    $route.current = lastRoute;
+	  }
+	});
+
+	// load user
+	User.current(function (user) {
+		$scope.user = user;
+	})
 
 	$scope.openNewNote = function() {
-		$location.path('/new')
-	}
-
-	/**
-	 * Helper for normalizing Note data from any given source. The normalized
-	 * note is then made available to the given scope. The function is overloaded
-	 * to create a new Note if no source Note was given.
-	 * 
-	 * setNote(scope [, note] [, callback])
-	 *
-	 * @param scope where to set the normalized note
-	 * @param note optional note to normalize, otherwise create a new Note
-	 * @param callback optional callback(note), otherwise return the Note
-	 */
-	$scope.setNote = function(scope, note, callback) {
-		if(angular.isUndefined(callback) && angular.isFunction(note)) {
-			callback = note;
-		}
-
-		// creates from copy of given note or defaults
-		//scope.note = new Note(note, $scope.editor, { autosave: { interval: 10000 } });
-		scope.note = new Note(note, { 
-			autosave: { 
-				interval: 10000,
-				onsuccess: function (note) {
-					var idParam = ($routeParams.id || 'new')
-					if(note.id && idParam === 'new') {
-						$location.path('/' + note.id, true)
-					}
-				}
-			}
-		});
-
-		if(angular.isFunction(callback)) {
-			callback(scope.note);
-		} else {
-			return scope.note;
-		}
+		$location.path('/new');
 	}
 
 	/**
@@ -154,23 +107,56 @@ angular.module('lasnotas')
 		return $scope.isPublished(note) && note.publishedAt !== note.modifiedAt
 	}
 
+	function getNoteTitleOrId (note) {
+		return (note.title || note.id);
+	}
+
+	function getNoteIdParam() {
+		return (typeof $routeParams.id === 'undefined' ? null : $routeParams.id);
+	}
+
+	function loadNote() {
+		Editor.openNote(getNoteIdParam());
+	}
+
 	/**
 	 * Handles editor "onLoad" event. We're given the editor on this event,
 	 * which we set it to local scope and peform an additional initialization.
 	 */
-	$scope.editorLoaded = function (editor) {
-		if(!$scope.editor) {
-			$scope.editor = editor;
-			editor.setShowPrintMargin(false);
-			editor.setHighlightActiveLine(false);
-			initNote(function (note) {
-				// editor starts off blank, lets add some content
-				$scope.editor.setValue(note.content);
-				$scope.editor.clearSelection();
-				$scope.editor.navigateTo(0,0);
-				$scope.editor.focus();
+	$scope.editorLoaded = function (wrappedEditor) {
+		if(!Editor.isConfigured()) {
+			Editor.config(
+				wrappedEditor, {
+					autosave: {
+						enabled: true
+					}
 			})
+			.on('saved', function (note) {
+				$scope.note = note;
+				if(note.id !== getNoteIdParam()) {
+					$location.path('/notes/' + note.id);
+				}
+			})
+			.on('opened', function (note) {
+				$scope.note = note;
+				Editor.focus();
+			})
+			.on('published', function (note) {
+				$scope.successAlert("'" + getNoteTitleOrId(note) + "' published!");
+			})
+			.on('unpublished', function (note) {
+				$scope.alert("'" + getNoteTitleOrId(note) + "' unpublished!");
+			})
+			.on('removed', function (note) {
+				$scope.alert("'" + getNoteTitleOrId(note) + "' removed!");
+			})
+			.on('configured', function (editor) {
+				editor.openNote(getNoteIdParam());
+			})
+			.done();
 		}
+
+		$scope.editorContentChanged = Editor.contentChange;
 	}
 
 	$scope.handleError = function (err, redirect) {
@@ -180,46 +166,23 @@ angular.module('lasnotas')
 		}
 	}
 
-	$scope.editorChanged = function (v) {
-		$scope.note.content = $scope.editor.getValue();
-	}
-
-	$scope.publishNote = function (note) {
-		if(!note.id || note.content.length === 0) {
-			$scope.alert("Hey, there's nothing to publish!")
+	$scope.publishNote = function () {
+		if(!Editor.canPublishNote()) {
+			$scope.alert("Hey, there's nothing to publish!");
 		} else {
-			if(note.publishedAt) {
-				Note.unpublish(note, function (resp) {
-					$scope.alert("'" + note.title + "' has been unpublished.")
-				})
-			} else {
-				Note.publish(note, function (resp) {
-					$scope.successAlert("'" + note.title + "' has been published.")
-				})
-			}
+			Editor.pubUnpubNote();
 		}
 	}
 
 	$scope.removeNote = function (note, callback) {
-		var noteId = (note.title || note.id)
-		if(note.id && window.confirm('Remove "' + noteId + '"')) {
-			Note.remove({ id: note.id }, function (resp) {
-				var successMsg = "Note '" + noteId + "' has been deleted!";
-				if(callback && (typeof callback === 'function')) {
-					callback(resp.note);
-					$scope.alert(successMsg)				
-					if(note.id === $routeParams.id)
-						$scope.openNewNote();
-				}
-				else {
-					$scope.alert(successMsg, true)				
-					$scope.openNewNote();
-				}
-			})
+		var titleOrId = getNoteTitleOrId(note);
+		if(Editor.canRemoveNote() && window.confirm('Remove "' + titleOrId + '"')) {
+			Editor.removeNote(note)
 		}
 	}
 
-	/* Manage profile modal */
+	/*
+	 */
 	$scope.showProfileModal = function () {
 		var parentScope = $scope
 		var modalInstance = $modal.open({
@@ -259,11 +222,10 @@ angular.module('lasnotas')
 		});
 	}
 
-	/* Manage open notes modal */
 	$scope.showNotesModal = function () {
-		Note.query(function (resp) {
-			var removeNote = $scope.removeNote
-			if(resp) {
+		Editor.listNotes( function (notes) {
+			var removeNote = Editor.removeNote
+			if(notes) {
 				var modalInstance = $modal.open({
 					templateUrl: '/app/partials/modal.html',
 					controller: function ($scope, $modalInstance, notes) {
@@ -281,14 +243,12 @@ angular.module('lasnotas')
 					},
 					size: 'md',
 					resolve: {
-						notes: function () { return resp.notes }
+						notes: function () { return notes }
 					}
 				});
 
 				modalInstance.result.then(function (noteId) {
-					if(noteId) {
-						$location.path('/' + noteId)
-					}
+					$location.path('/' + noteId)
 				});
 			} 
 		});

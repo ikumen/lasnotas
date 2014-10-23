@@ -12,11 +12,13 @@ angular.module('lasnotas', [
 /* Configure this modules routes */
 .config(['$routeProvider', '$locationProvider', '$httpProvider',
 		function ($routeProvider, $locationProvider, $httpProvider) {
-	$httpProvider.interceptors.push('securityInterceptor');
 
-	$routeProvider.when('/', { templateUrl: '/app/partials/editor.html', controller: 'editorCtrl' });
-	$routeProvider.when('/new', { templateUrl: '/app/partials/editor.html', controller: 'editorCtrl' });
+	$httpProvider.interceptors.push('securityInterceptor');
+	//$locationProvider.html5Mode(true);
+
 	$routeProvider.when('/:id', { templateUrl: '/app/partials/editor.html', controller: 'editorCtrl' });
+	$routeProvider.when('/', { templateUrl: '/app/partials/editor.html', controller: 'editorCtrl' });
+
 }])
 
 /* Simply displays wrapped post variable in given template */
@@ -34,18 +36,36 @@ angular.module('lasnotas', [
 })
 
 /* Hack $location.path to make not reloading optional */
-.run(['$route', '$rootScope', '$location',
-	function ($route, $rootScope, $location) {
-		var origPathFn = $location.path;
-		$location.path = function (path, preventReload) {
-			if(preventReload === true) {
-				var lastRoute = $route.current;
-				var unload = $rootScope.$on('$locationChangeSuccess', function() {
-					$route.current = lastRoute;
-					unload();
-				})
-			}
-			return origPathFn.apply($location, [path])
-		}
-}])
+// .run(['$route', '$rootScope', '$location',
+// 	function ($route, $rootScope, $location) {
+// 		var origPathFn = $location.path;
+// 		$location.path = function (path, preventReload) {
 
+// 			var lastRoute = $route.current;
+// 			console.log("route.current:", $route.current)
+// 			console.log("lastRoute:", lastRoute)
+			
+// 			if(preventReload === true) {
+// 				var unload = $rootScope.$on('$locationChangeSuccess', function() {
+// 					$route.current = lastRoute;
+// 					unload();
+// 				})
+// 			}
+// 			return origPathFn.apply($location, [path])
+// 		}
+// }])
+// .run(['$route', '$rootScope', '$location',
+// 	function ($route, $rootScope, $location) {
+// 		var initial = true;
+// 		var notesPattern = /\/notes/;
+// 		$rootScope.$on('$locationChangeStart', function (event, next, last) {
+// 			if(!initial && notesPattern.test(next) && notesPattern.test(last)) {
+// 				event.preventDefault();
+// 			}
+// 			initial = false;
+// 			console.log("next=", next);
+// 			console.log("last=", last)
+// 			//event.preventDefault();
+// 		})
+
+// }])

@@ -20,7 +20,7 @@
 			<div class="editor-nav-btns pull-right">
 				<span class="publish">
 					<span class="status" ng-show="note.publishedAt">
-						<span class="hidden-xs"><a href="/@{{user.name}}">Published</a> on </span>
+						<span class="hidden-xs">Published on </span>
 						{{note.publishedAt | date : 'MMM dd, yyyy' }} 
 					</span>
 					<span class="status" ng-show="!note.publishedAt">
@@ -84,7 +84,7 @@
 			theme: 'textmate',
 			mode: 'markdown',
 			onLoad: editorLoaded,
-			onChange: editorChanged
+			onChange: editorContentChanged
 		}"></div>
 	</div>
 </div>

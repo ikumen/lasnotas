@@ -95,7 +95,7 @@
 
 	/* Get all Notes for the current logged in User */
 	app.get('/notes', function (req, res, next) {
-		models.Note.find({}, function (err, notes) {
+		models.Note.find({}, 'title id', function (err, notes) {
 			if(err) 
 				return next(err);
 			else {

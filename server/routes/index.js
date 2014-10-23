@@ -31,20 +31,10 @@
 	app.locals.moment = require('moment')
 
 	/* Secure the following routes */
-	app.use(['/notes'], secUtils.isAuthenticated);
-	// app.use(['/notes'], function (req, res, next) {
-	// 	models.User.findById('5441792b162a992548b2772a', function (err, user) {
-	// 		req.user = user;
-	// 		console.log(req.sessionID)
-	// 		console.log(req.user)
-	// 		console.log('-----------------')
-	// 		return next();
-	// 	})
-	// })
+	app.use(['/notes', '/notes/**'], secUtils.isAuthenticated);
 
 	/* Handler for /notes route */
-	app.get('/notes', function (req, res, next) {
-		console.log('inside /notes	')
+	app.get(['/notes', '/notes/**'], function (req, res, next) {
 		res.render('notes/index', {
 			user: req.user
 		});	

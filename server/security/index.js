@@ -35,7 +35,7 @@ module.exports = function (app, config) {
 	}));
 	
 	app.get('/signin/google/callback', passport.authenticate('google', {
-		successRedirect: '/notes/#/'
+		successRedirect: '/notes'
 		, failureRedirect: '/'
 	}));
 	
