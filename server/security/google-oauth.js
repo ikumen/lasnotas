@@ -57,13 +57,8 @@ module.exports = function (config, passport, models) {
 						registerUser({
 								_id: id
 								, email: profile.emails[0].value
-<<<<<<< HEAD
 								, name: id.toString()
 								, fullName: (profile.displayName || id.toString())
-=======
-								, name: null
-								, fullName: (profile.displayName || null)
->>>>>>> signup example
 								, oauths: [{
 									provider: 'google'
 									, identity: profile.id
