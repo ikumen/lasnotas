@@ -68,8 +68,6 @@
 			fullName: req.body.fullName
 		}
 
-		console.log("userid, profile: ", userId, profile)
-
 		// check if request is made by owner of this account
 		if(!profile.id || (profile.id.trim() !== userId)) {
 			var error = new Error('Unauthorized');
@@ -95,7 +93,8 @@
 
 	/* Get all Notes for the current logged in User */
 	app.get('/notes', function (req, res, next) {
-		models.Note.find({}, 'title id', function (err, notes) {
+		var user = req.user
+		models.Note.find({ userId: user.id }, 'title id', function (err, notes) {
 			if(err) 
 				return next(err);
 			else {
@@ -106,15 +105,18 @@
 
 	/* Get Note with given id for the current logged in User */
 	app.get('/notes/:id', function (req, res, next) {
+		var user = req.user
 		var id = req.params.id
 		// test if valid ObjectId
 		if(models.utils.isObjectId(id)) {
-			models.Note.findById(id, 'id modifiedAt createdAt publishedAt title content post.date', function (err, found) {
-				if(found) {
-					res.status(200).send({ note: found })	
-				} else {
-					return next(err);
-				}
+			models.Note.findOne({ _id: id, userId: user.id }, 
+				'id modifiedAt createdAt publishedAt title content post.date', 
+				function (err, found) {
+					if(found) {
+						res.status(200).send({ note: found })	
+					} else {
+						return next(err);
+					}
 			});
 		}
 		else {
@@ -124,6 +126,7 @@
 
 	/* Helper method for handling upsert request */
 	function handleUpsert(req, res, next) {
+		var user = req.user
 		var id = ((req.params.id || req.body.id) || null);
 		// either have no id (i.e new note), or valid ObjectId
 		if(id && !models.utils.isObjectId(id)) {
@@ -131,18 +134,17 @@
 		}
 
 		var note = new models.Note({
+			userId: user.id,
+			userFullName: user.fullName,
 			id: id,
-			author: req.user.name,
-			authorFullName: req.user.fullName,
 			content: req.body.content,
 			title: req.body.title 
 		});
 
-		models.Note.upsertAndNotify(note, {}, function (err, saved) {
+		models.Note.upsert(note, {}, function (err, saved) {
 			if(err || !saved) {
 				return next(err); // handles 500 and 404
 			} else {
-				console.log(saved)
 				res.status(200).send({ note: saved.toJSON() })
 			}
 		}); 
@@ -156,6 +158,7 @@
 
 	app.post('/notes/:id/publish', function (req, res, next) {
 		var toPublish = {
+			userId: req.user.id,
 			id: req.params.id,
 			post: { date: req.body.post.date }
 		}
@@ -175,6 +178,7 @@
 
 	app.post('/notes/:id/unpublish', function (req, res, next) {
 		var toUnpublish = {
+			userId: req.user.id,
 			id: req.params.id
 		}
 
@@ -194,23 +198,21 @@
 
 	/* Removes Note with given id */
 	app.delete('/notes/:id', function (req, res, next) {
+		var user = req.user
 		var id = req.params.id
 		if(models.utils.isObjectId(id)) {
-			models.Note.findById(id, function (err, found) {
-				if(found) {
-					found.remove(function (err) {
-						if(err) 
-							return next(err);
-						else {
-							res.status(200).send({ note: found })			
-						}
-					})
-				} else {
-					return next(err);
-				}
-			})
-		} else 
+			models.Note.findOneAndRemove({ _id: id, userId: user.id }, 
+				{ select: "id title" },
+				function (err, removed) {
+					if(removed) {
+						res.status(200).send({ note: removed })
+					} else {
+						return next(err)
+					}
+				})
+			} else 
 			return next();
-	})
+		}
+	)
 
 })()

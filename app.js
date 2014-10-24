@@ -69,7 +69,10 @@ app.use(function(req, res, next) {
 function handleError(error, req, res) {
     res.status(error.status || 500);
     res.format({
-        html: function() { res.render('error', error) }
+        html: function() { res.render('error', {
+            error: error,
+            user: req.user
+        })}
         , json: function() { res.send({ 'error': error}) }
     })
 }

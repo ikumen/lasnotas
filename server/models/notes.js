@@ -25,8 +25,9 @@ module.exports = function(schemaUtils) {
 			utils = require('../../lib/utils');
 
 	var NoteSchema = mongoose.Schema({
-		author: { type: String },
-		authorFullName: { type: String },
+		// references User _id
+		userId: String,
+		userFullName: String,
 		content: String, 
 		title: String,
 		publishedAt: Date,
@@ -62,32 +63,16 @@ module.exports = function(schemaUtils) {
 			upsert: true,
 			select: '-post.content -post.slug'
 		}
-		console.log("in static upsert: ", note)
-		this.findByIdAndUpdate(note.id, {
+		this.findOneAndUpdate({ 
+				userId: note.userId, 
+				_id: note.id, 
+			}, {
 				'$currentDate': { modifiedAt: true },
 				title: note.title,
 				content: note.content,
-				author: note.author,
-				authorFullName: note.authorFullName
+				userFullName: note.userFullName 
 			}, opts, callback);
 	})
-
-	/**
-	 * Handles upserting note, and on successful upsert, notifies any
-	 * listeners. 
-	 *
-	 * @see /server/utils.js for Subject/Listner info
-	 */
-	NoteSchema.static('upsertAndNotify', function (note, opts, callback) {
-		var self = this
-		this.upsert(note, opts, function (err, upserted) {
-			// check if upsert was success and notifiy listeners
-			if(!err && upserted)
-				self.notify(upserted)
-			// send back err/upserted doc
-			callback(err, upserted)
-		})
-	});
 
 	/**
 	 * Handles unpublishing a Note. Simply removes the `publishedAt` date.
@@ -96,10 +81,12 @@ module.exports = function(schemaUtils) {
 		var opts = {
 			select: '-post.content -post.slug -content -title -modifiedAt'
 		} 
-		this.findByIdAndUpdate(toUnpublish.id, { publishedAt: null }, opts,
-			function (err, unpublished) {
-				callback(err, unpublished);
-			})
+		this.findOneAndUpdate({ 
+				userId: toUnpublish.userId,
+				_id: toUnpublish.id 
+			}, {	
+				publishedAt: null 
+			}, opts, callback);
 	})
 
 
@@ -120,45 +107,39 @@ module.exports = function(schemaUtils) {
 		} 
 
 		// first find the Note we're trying to publish
-		this.findById(toPublish.id, function (err, note) {
-			if(!err && note) {
-				// create the post we're going to publish
-				var post = { 
-					// post date will be set explicitly if given in request
-					date: ((toPublish.post && toPublish.post.date) ? toPublish.post.date : 
-							// otherwise assign one if it's new post
-							(isEmptyPost(note.post) ? new Date() : note.post.date )),
-					// convert note markdown to post html
-					content: converter(note),
-					// build a slug from note title, and objectid
-					slug: ((note.title || '')
-						.replace(/\s+/g, '_') // whitespace to _
-						.replace(/\W/g,'')		// remove non word chars
-						.replace(/_/g, '-')		// replace _ with -
-						.toLowerCase()) + '-' + note.id.substring(0, 8) 
-				}
-
-				// published
-				self.findByIdAndUpdate(note.id, {
-						'$currentDate': {
-								publishedAt: true,
-								modifiedAt: true },
-						post: post }, opts,
-					function (err, published) {
-						callback(err, published)
+		this.findOne({ _id: toPublish.id, userId: toPublish.userId }, 
+			function (err, note) {
+				if(!err && note) {
+					// create the post we're going to publish
+					var post = { 
+						// post date will be set explicitly if given in request
+						date: ((toPublish.post && toPublish.post.date) ? toPublish.post.date : 
+								// otherwise assign one if it's new post
+								(isEmptyPost(note.post) ? new Date() : note.post.date )),
+						// convert note markdown to post html
+						content: converter(note),
+						// build a slug from note title, and objectid
+						slug: ((note.title || '')
+							.replace(/\s+/g, '_') // whitespace to _
+							.replace(/\W/g,'')		// remove non word chars
+							.replace(/_/g, '-')		// replace _ with -
+							.toLowerCase()) + '-' + note.id.substring(0, 8) 
 					}
-				)
-			} else {
-				callback(err, note);
-			}
-		})
+
+					// published
+					self.findByIdAndUpdate(note.id, {
+							'$currentDate': {
+									publishedAt: true,
+									modifiedAt: true },
+							post: post }, opts, callback)
+				} else {
+					callback(err, note);
+				}
+			})
 	})
 
 	// apply schema to Note class	
 	var Note = mongoose.model('Note', NoteSchema);
-
-	// let Note inherit Subject functionality
-	utils.inherit(Note, new utils.Subject());
 
 	return Note;
 }

@@ -3,29 +3,33 @@ extends ./layouts/default
 block content
 	div(class="container")
 		div(class="row")
-			div(class="hidden-xs col-sm-1 col-md-2 col-lg-2")
-			div(class="col-xs-24 col-sm-22 col-md-20 col-lg-20 footer")
+			div(class="hidden-xs col-sm-1 col-md-2 col-lg-3")
+			div(class="col-xs-24 col-sm-22 col-md-20 col-lg-18")
 				header(id="top" class="header")
 					div(class="text-vertical-center")
 						h1(class="logo")
+							br
 							i(class="fa fa-file-text")  lasnotas
 						p(class="lead")
 							if error.status === 401
-								| You'll need to sign in with one of the providers below to get started.
+								| Please sign in with one of the providers below to get started.
 							else if error.status === 404
 								| Hmm... the page you're looking for seems to be missing. It's probably on our end, but if you don't mind checking the url just to make sure.
 							else
-								| Oh no, you've caught us at a bad time&mdash;please try again later. 
+								| We're experiencing an issue with your request&mdash;please try again later. 
 						p
-							include ./partials/signin
+							if(!user)
+								include ./partials/signin
 							br
 							br
 							br
 							br
-							br
-							br
-							<!-- #{error} -->
+							| 
+							| <!--
+							| state: #{ error.status } 
+							| message: #{ error.message }
+							| -->
 
-			div(class="hidden-xs col-sm-1 col-md-2 col-lg-2")
+			div(class="hidden-xs col-sm-1 col-md-2 col-lg-3")
 
 	include ./partials/default-footer

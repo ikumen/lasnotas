@@ -9,18 +9,19 @@ html(lang='en')
 	body
 		div(class='container')
 			div(class='row')
-				div(class='hidden-xs col-sm-1 col-md-2 col-lg-4')
-				div(class='col-xs-24 col-sm-22 col-md-20 col-lg-16')
+				div(class='hidden-xs col-sm-1 col-md-1 col-lg-3')
+				div(class='col-xs-24 col-sm-22 col-md-22 col-lg-18')
 					span(class='post-header')
-						a(href='/@thong') Random Bits
-						|  | 
-						=moment(post.publishedAt).format('MMM DD, YYYY') 
-				div(class='hidden-xs col-sm-1 col-md-2 col-lg-4')
+						a(href='/@#{user.name}') Random Bits
+						small
+							|  | #{user.fullName} on 
+							=moment(post.publishedAt).format('MMM DD, YYYY') 
+				div(class='hidden-xs col-sm-1 col-md-1 col-lg-3')
 
 			div(class='row content')
-				div(class='hidden-xs col-sm-1 col-md-2 col-lg-4')
-				div(class='col-xs-24 col-sm-22 col-md-20 col-lg-16')
+				div(class='hidden-xs col-sm-1 col-md-1 col-lg-3')
+				div(class='col-xs-24 col-sm-22 col-md-22 col-lg-18')
 					block content
-				div(class='hidden-xs col-sm-1 col-md-2 col-lg-4')
+				div(class='hidden-xs col-sm-1 col-md-1 col-lg-3')
 		
 			include ../partials/posts-footer

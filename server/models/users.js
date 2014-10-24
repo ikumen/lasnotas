@@ -21,6 +21,7 @@
  */
 module.exports = function (schemaUtils) {
 	var mongoose = require('mongoose'),
+			Note = mongoose.model('Note'),
 			utils = require('../../lib/utils');
 
 	var reservedNames = ['current', 'lasnotas', 'thong', 'ikumen', 'lucia', 'kelly']
@@ -69,16 +70,25 @@ module.exports = function (schemaUtils) {
 				callback(err);
 			
 			else {
-				self.findByIdAndUpdate(profile.id, { 
-						name: profile.name,
-						fullName: profile.fullName
-					}, function (err, updated) {
-						callback(err, updated)
+				self.findById(profile.id, "id name fullName", 
+					function (err, user) {
+						// update the existing user
+						user.name = profile.name
+						user.fullName = profile.fullName
+
+						// save updates
+						user.save(function (err, updatedUser) {
+							callback(err, updatedUser);
+							Note.update({ userId: updatedUser.id }, 
+								{ userFullName: updatedUser.fullName }, { multi: true },
+								function (err, updatedNote) {
+									console.log(err, updatedNote)
+							});
+						})
 				})
 			}
 		})
 	})
-
 
 	// create our User model
 	var User = mongoose.model('User', UserSchema);

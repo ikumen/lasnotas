@@ -60,7 +60,7 @@ angular.module('lasnotas')
 	/* inherit baseCtrl functionality */
 	angular.extend(this, $controller('baseCtrl', { $scope: $scope, $routeParams: $routeParams }))			
 
-	//console.info("Start editorCtrl ..")
+	console.info("Start editorCtrl ..")
 
 	var lastRoute = $route.current;
 	var notesPattern = /^\//;
@@ -92,10 +92,9 @@ angular.module('lasnotas')
 	 *		short: "Saved", long: "Saved on Oct 16, 2014 11:55:27 PM"
 	 */ 
 	$scope.noteStatus = function (note, format) {
-		return ((note && note.id) ? (
-				note.isDirty ? 'Draft' : ( 'Saved' +
-					((format && format === 'l') ? (' on ' + $filter('date')(note.modifiedAt, 'medium')) : '')
-			)) : 'New')
+		return (!note || !note.id) ? 'New' :
+			( note.isDirty ? 'Draft' : 'Saved'  + ((format && format === 'l') ? 
+				(' on ' + $filter('date')(note.modifiedAt, 'medium')) : '')); 
 	}
 
 	$scope.isPublished = function (note) {
@@ -134,7 +133,7 @@ angular.module('lasnotas')
 			.on('saved', function (note) {
 				$scope.note = note;
 				if(note.id !== getNoteIdParam()) {
-					$location.path('/notes/' + note.id);
+					$location.path('/' + note.id);
 				}
 			})
 			.on('opened', function (note) {

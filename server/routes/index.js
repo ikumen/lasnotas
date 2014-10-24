@@ -42,41 +42,54 @@
 
 	/* Handle for 'home' route */
 	app.get('/', function (req, res) {
-		res.render('index')
+		res.render('index', {
+			user: req.user
+		})
 	})
 
 	/* Handler for all of current user's posts */
-	app.get('/@:author', function (req, res, next) {
-		var author = req.params.author
-		models.Note.find(
-			{ author: author, publishedAt: { '$ne': null }}, 
-			'id author publishedAt title post',
-			{ sort: '-post.date -publishedAt -modifiedAt' }, 
-			function (err, posts) {
-			console.log(posts)
-				res.render('posts/index', {
-					posts: posts
+	app.get('/@:username', function (req, res, next) {
+		var username = req.params.username
+		models.User.findOne({ name: username }, "id name fullName", function (err, user) {
+			if(user) {
+				models.Note.find({ userId: user.id, publishedAt: { '$ne': null }},
+					'id author publishedAt title post',
+					{ sort: '-post.date -publishedAt -modifiedAt' }, 
+					function (err, posts) {
+						res.render('posts/index', {
+							posts: posts,
+							user: user
+						})
 				})
-			})
+			} else {
+				return next(err);
+			}
+		})
 	});
 
 	/* Handler for a current user's post */
-	app.get('/@:author/**', function (req, res, next) {
-		var author = req.params.author
+	app.get('/@:username/**', function (req, res, next) {
+		var username = req.params.username
 		var slugs = (req.params[0] || '').split('-');
 		var timestamp = slugs[slugs.length-1]
 	
-		models.Note.findOne(
-			{ author: author, 'post.slug': { $regex: timestamp + "$" } }, 
-			function (err, post) {
-				if(post) {
-					res.render('posts/post', {
-						post: post
+		models.User.findOne({ name: username }, "id name fullName", function (err, user) {
+			if(user) {
+				models.Note.findOne({ userId: user.id , "post.slug": { $regex: timestamp + "$" }},
+					function (err, post) {
+						if(post) {
+							res.render('posts/post', {
+								post: post,
+								user: user
+							})
+						} else {
+							return next(err);
+						}
 					})
-				} else {
-					next(err); // handles both 404 and error
-				}
-			})
+			} else {
+				return next(err);
+			}
+		})
 	});
 
 
