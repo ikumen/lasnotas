@@ -32,6 +32,7 @@ var models = require('./server/models/index');
 var app = express();
 
 // load configs
+var appEnv = app.get('env');
 var config = require('./server/config');
 
 // view engine setup
@@ -47,10 +48,21 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-    secret: config.getProperty("security.session.secret") || "ketchupandmustard",
-    resave: true,
-    saveUninitialized: true
+secret: config.getProperty("security.session.secret") || "ketchupandmustard",
+	resave: true,
+	saveUninitialized: true
 }));
+
+var forceSsl = function (req, res, next) {
+	if (req.headers['x-forwarded-proto'] !== 'https') {
+		return res.redirect(['https://', req.get('Host'), req.url].join(''));
+	}
+	return next();
+};
+
+if(appEnv === 'production') {
+	app.use(forceSsl);
+}
 
 // load security
 var security = require('./server/security')(app, config);
