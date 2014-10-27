@@ -21,6 +21,7 @@
  */
 (function() {
 	var mongoose = require('mongoose'),
+		config = require('../config'),
 		utils = require('../../lib/utils');
 
 
@@ -32,7 +33,7 @@
 	}
 
 	// connect
-	mongoose.connect('mongodb://127.0.0.1/lasnotas', opts);
+	mongoose.connect(config.getProperty("mongolab.uri") || config.getProperty("mongodb.uri"), opts);
 
 	// some helpers
 	var schemaUtils = {

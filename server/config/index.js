@@ -53,8 +53,10 @@
 			path = (path || "").split(".");
 			if(path.length) {
 				prop = this[path[0]]
-				for(var i=1; i < path.length; i++)
-					prop = prop[path[i]];
+				if(prop) {
+					for(var i=1; i < path.length; i++)
+						prop = prop[path[i]];
+				}
 			}
 		}
 		return prop;

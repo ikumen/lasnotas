@@ -4,6 +4,10 @@
 		"viewsDir": "./server/views"
 	},
 
+	"mongodb": {
+		"uri": "mongodb://127.0.0.1/lasnotas" 
+	},
+
 	"user": {
 		"profile": {
 			"reservedNames": []
