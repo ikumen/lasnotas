@@ -63,11 +63,13 @@ module.exports = function(schemaUtils) {
 			upsert: true,
 			select: '-post.content -post.slug'
 		}
+
 		this.findOneAndUpdate({ 
 				userId: note.userId, 
 				_id: note.id, 
 			}, {
-				'$currentDate': { modifiedAt: true },
+				//'$currentDate': { modifiedAt: true },
+				modifiedAt: new Date(),
 				title: note.title,
 				content: note.content,
 				userFullName: note.userFullName 
@@ -125,12 +127,14 @@ module.exports = function(schemaUtils) {
 							.replace(/_/g, '-')		// replace _ with -
 							.toLowerCase()) + '-' + note.id.substring(0, 8) 
 					}
-
+					var now = new Date();
 					// published
 					self.findByIdAndUpdate(note.id, {
-							'$currentDate': {
-									publishedAt: true,
-									modifiedAt: true },
+							// '$currentDate': {
+							// 		publishedAt: true,
+							// 		modifiedAt: true },
+							publishedAt: now,
+							modifiedAt: now,
 							post: post }, opts, callback)
 				} else {
 					callback(err, note);
