@@ -15,6 +15,10 @@
 			"invites": []
 		},
 
+		"session": {
+			"secret": "ketchupandmustard"
+		},
+
 		"oauth": {
 			"google": {
 				"client": {
