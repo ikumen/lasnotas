@@ -22,9 +22,10 @@
 module.exports = function (schemaUtils) {
 	var mongoose = require('mongoose'),
 			Note = mongoose.model('Note'),
+			config = require('../config'),
 			utils = require('../../lib/utils');
 
-	var reservedNames = ['current', 'lasnotas', 'thong', 'ikumen', 'lucia', 'kelly']
+	var reservedNames = config.getProperties("user.profile.reservedNames");
 
 	var UserSchema = mongoose.Schema({
 		email: String,
@@ -82,7 +83,7 @@ module.exports = function (schemaUtils) {
 							Note.update({ userId: updatedUser.id }, 
 								{ userFullName: updatedUser.fullName }, { multi: true },
 								function (err, updatedNote) {
-									console.log(err, updatedNote)
+									//console.log(err, updatedNote)
 							});
 						})
 				})

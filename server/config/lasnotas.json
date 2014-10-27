@@ -1,0 +1,28 @@
+{
+	"server": {
+		"post": 8080,
+		"viewsDir": "./server/views"
+	},
+
+	"user": {
+		"profile": {
+			"reservedNames": []
+		} 
+	},
+
+	"security": {
+		"registration": {
+			"invites": []
+		},
+
+		"oauth": {
+			"google": {
+				"client": {
+					"id": "",
+					"secret": ""
+				},
+				"callback": "http://localhost:8080/signin/google/callback"
+			}
+		}
+	}
+}

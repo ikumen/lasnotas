@@ -29,7 +29,7 @@ module.exports = function (config, passport, models) {
 	var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 
 	/* Bootstrap some default invitations */
-	var invites = (config.security.registration.invites || []);
+	var invites = (config.getProperties("security.registration.invites") || []);
 	Invite.remove(function (err) {
 		for(var i=0; i < invites.length; i++) {
 			Invite.create({ email: invites[i] }, function(err, invite) {
@@ -49,7 +49,11 @@ module.exports = function (config, passport, models) {
 						return callback(createErr, createdUser)
 					});
 				} else {
-					err = { status: 401, message: 'Registration invite not found!' };
+					err = { 
+						status: 401, 
+						message: 'Registration invite not found!',
+						reason: 'security.missing.invite'
+					};
 				}
 			}
 			// not an else if, since we could have gotten 'missing invite error'
@@ -61,9 +65,9 @@ module.exports = function (config, passport, models) {
 
 	/* Google OAuth2 strategy for authentication */
 	passport.use(new GoogleStrategy({
-			clientID: config.security.oauth.google.clientID
-			, clientSecret: config.security.oauth.google.clientSecret
-			, callbackURL: config.security.oauth.google.callbackURL
+			clientID: config.getProperty("security.oauth.google.client.id")
+			, clientSecret: config.getProperty("security.oauth.google.client.secret")
+			, callbackURL: config.getProperty("security.oauth.google.callback")
 		},
 		// called if user has been authenticated by provider
 		function(token, refreshToken, profile, done) {
@@ -73,7 +77,6 @@ module.exports = function (config, passport, models) {
 				models.User.findOne({ 'oauths.identity': profile.id }, function (err, user) {
 					// authenticated but doesn't exists in our system, try to register 
 					if(!err && !user) {
-						console.log(profile)
 						var id = models.utils.objectId()
 						registerUser({
 								_id: id

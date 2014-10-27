@@ -86,9 +86,10 @@ if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
         console.log(err)
         var error = {
-            status: err.status
-            , message: err.message
-            , error: err
+            status: err.status,
+            reason: err.reason,
+            message: err.message,
+            error: err
         }
         handleError(error, req, res);
     });
@@ -98,9 +99,10 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
     var error = {
-        status: err.status
-        , message: err.message
-        , error: {}
+        status: err.status,
+        reason: err.reason,
+        message: err.message,
+        error: {}
     }
     handleError(error, req, res)
 });

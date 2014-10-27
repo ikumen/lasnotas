@@ -12,11 +12,14 @@ block content
 							i(class="fa fa-file-text")  lasnotas
 						p(class="lead")
 							if error.status === 401
-								| Please sign in with one of the providers below to get started.
+								if error.reason === 'security.missing.invite'
+									| Sorry, sign up is only open to friends and family at the moment. Please email thong at gnoht dot com for an invite.
+								else	
+									| Please sign in with one of the providers below to get started.
 							else if error.status === 404
 								| Hmm... the page you're looking for seems to be missing. It's probably on our end, but if you don't mind checking the url just to make sure.
 							else
-								| We're experiencing an issue with your request&mdash;please try again later. 
+								| We're experiencing an issue with your request, please try again later. 
 						p
 							if(!user)
 								include ./partials/signin
@@ -26,8 +29,9 @@ block content
 							br
 							| 
 							| <!--
-							| state: #{ error.status } 
+							| status: #{ error.status } 
 							| message: #{ error.message }
+							| reason: #{ error.reason }
 							| -->
 
 			div(class="hidden-xs col-sm-1 col-md-2 col-lg-3")
