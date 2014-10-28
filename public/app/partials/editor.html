@@ -18,21 +18,38 @@
 			<span class="visible-xs-inline status">{{ noteStatus(note) }}</span>
 			<span class="hidden-xs status">{{ noteStatus(note, 'l') }}</span>
 			<div class="editor-nav-btns pull-right">
-				<span class="publish">
-					<span class="status" ng-show="note.publishedAt">
-						<span class="hidden-xs">Published on </span>
-						{{note.publishedAt | date : 'MMM dd, yyyy' }} 
-					</span>
-					<span class="status" ng-show="!note.publishedAt">
-						{{ note.modifiedAt ? 'Publish' : 'Nothing to publish' }}
-					</span> 	
-					<i class="fa fa-lg" ng-click="publishNote(note)" title="Toggle to publish/unpublish"
+				<span class="publish btn-group">
+					<a data-toggle="dropdown">
+						<span ng-show="note.publishedAt">
+							<span class="hidden-xs">Published on </span>
+							{{note.publishedAt | date : 'MMM dd, yyyy' }} 
+						</span>
+						<span class="status" ng-show="!note.publishedAt">
+							{{ note.modifiedAt ? 'Publish' : 'Nothing to publish' }}
+						</span> 
+					</a>
+					<i class="fa fa-lg" ng-click="" title="Toggle to publish/unpublish"
 						ng-class="{'fa-toggle-on': note.publishedAt, 
 							'fa-toggle-off': !note.publishedAt,
 							'unpublished-changes': (note.publishedAt && note.publishedAt != note.modifiedAt)
 						}">
 					</i>
+					<ul class="dropdown-menu dropdown-menu-right" role="menu">
+						<li><a>Publish (changes)</a></li>
+						<li><a>Unpublish</a></li>
+		        <li class="divider"></li>
+						<li>
+							<a href ng-click="open($event)"><i class="fa fa-calendar"></i>
+								Set Publish Date</a>
+						</li>
+					</ul>					
 				</span>
+				<input type="text" ng-model="dt" is-open="opened" class="form-control" maxlength="10" datepicker-popup="yyyy-MM-dd" datepicker-options="dateOptions"
+	      	date-disabled="disabled(date, mode)" ng-required="true" close-text="Close" />
+
+							<a href ng-click="open($event)"><i class="fa fa-calendar"></i>
+								Set Publish Date</a>
+
 				<span class="spacer"></span>
 				<div class="btn-group">
 		      <button type="button" class="btn btn-sm btn-info dropdown-toggle" 

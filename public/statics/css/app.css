@@ -12,6 +12,10 @@ body {
 	outline: 0;
 }
 
+.dropdown-menu > .disabled > a  {
+	color: #bbb !important;
+}
+
 h1 {
 	font-size: 170%;
 }
@@ -58,10 +62,10 @@ h1, h2, h3, h4, h5, h6 {
 
 .ace_editor {
 	margin: 0;
-	height: 88vh;
+	margin-top: 3vh;
+	height: 85vh;
 }
 .ace_content {
-	margin-top: 30px !important;
 }
 
 .ul-hover > li {
