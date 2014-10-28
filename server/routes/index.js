@@ -43,7 +43,8 @@
 	/* Handle for 'home' route */
 	app.get('/', function (req, res) {
 		res.render('index', {
-			user: req.user
+			user: req.user,
+			authUser: req.user
 		})
 	})
 
@@ -58,7 +59,8 @@
 					function (err, posts) {
 						res.render('posts/index', {
 							posts: posts,
-							user: user
+							user: user,
+							authUser: req.user
 						})
 				})
 			} else {
@@ -80,7 +82,8 @@
 						if(post) {
 							res.render('posts/post', {
 								post: post,
-								user: user
+								user: user,
+								authUser: req.user
 							})
 						} else {
 							return next(err);

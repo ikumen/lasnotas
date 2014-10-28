@@ -43,18 +43,14 @@ blockquote {
 	border-bottom: 1px solid #eee;
 	margin-bottom: 5px;
 }
-.header .nav a {
-	margin-top: 2px;
-	margin-left: 10px;
-	/*text-decoration: none;*/
+.header .nav {
+	margin: 5px 2px 2px 2px !important;
+	text-decoration: none;
 	font-size: 90%;
 }
-.header .nav {
-	display: none;
-}
-.header .nav .btn {
-	padding: 0 10px;
-	opacity: .6;
+
+.header .nav a {
+	text-decoration: none;
 }
 .header .title a {
 	font-size: 120%;
@@ -93,11 +89,15 @@ ul.posts span {
 .footer a, .post-footer a, .post-header a {
 	text-decoration: none;
 }
+.post-header {
+	margin-top: 5px;
+	margin-bottom: 10px;
+}
 .content .post {
 	padding-top: 0px;
 }
 .post > section > h1 {
-	margin-bottom: 30px;
+	margin-bottom: 20px;
 }
 .post-stats {
 	font-size: 80%;
@@ -178,6 +178,9 @@ ul.posts span {
 	}
 	.header .title a { 
 		font-size: 160%; 
+	}
+	.post > section > h1 {
+		margin-bottom: 40px;
 	}
 }
 
