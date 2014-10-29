@@ -5,6 +5,7 @@ $projectDir | pwd
 bower install; 
 
 # copy shared libs
+mkdir -p public/lib
 cp -Rf lib/* public/lib/
 
 # build minified version of ace
