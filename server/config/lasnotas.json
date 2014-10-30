@@ -20,7 +20,8 @@
 		},
 
 		"session": {
-			"secret": "ketchupandmustard"
+			"keys": ["ketchupandmustard", "soysauceandwasabi"],
+			"secureProxy": false
 		},
 
 		"oauth": {

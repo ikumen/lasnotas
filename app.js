@@ -24,7 +24,8 @@ var path = require('path');
 var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
-var session = require('express-session');
+var session = require('cookie-session'); //require('express-session');
+
 var bodyParser = require('body-parser');
 
 var models = require('./server/models/index');
@@ -48,9 +49,11 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
-secret: config.getProperty("security.session.secret") || "ketchupandmustard",
-	resave: true,
-	saveUninitialized: true
+	keys: config.getProperties('security.session.keys'),
+	seccureProxy: config.getProperty('security.session.secureProxy')
+// secret: config.getProperty("security.session.secret") || "ketchupandmustard",
+// 	resave: true,
+// 	saveUninitialized: true
 }));
 
 var forceSsl = function (req, res, next) {

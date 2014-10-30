@@ -24,6 +24,7 @@
 	var app = module.exports = express();
 	
 	var secUtils = require('../security/utils'),
+			config = require('../config'),
 			models = require('../models');
 
 	// TODO: after refactoring routes to use separate express instance
