@@ -313,6 +313,7 @@ angular.module('lasnotas')
 
 		publishNote: function () {
 			var self = this;
+			console.log("inside Editor.publishNote: ", $note.post.date)
 			NoteService.publish(
 				{ id: $note.id, post: { date: $note.post.date }}, 
 				function (resp, headers) {

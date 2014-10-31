@@ -21,7 +21,7 @@ html(lang='en')
 						a(href='/@#{user.name}') Random Bits
 						span
 							|  | #{user.fullName} on 
-							=moment(post.publishedAt).format('MMM DD, YYYY') 
+							=moment(post.post.date).format('MMM DD, YYYY') 
 				div(class='hidden-xs col-sm-1 col-md-1 col-lg-4')
 
 			div(class='row content')

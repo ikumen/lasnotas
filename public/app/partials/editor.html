@@ -18,33 +18,65 @@
 			<span class="visible-xs-inline status">{{ noteStatus(note) }}</span>
 			<span class="hidden-xs status">{{ noteStatus(note, 'l') }}</span>
 			<div class="editor-nav-btns pull-right">
-				<span class="status" ng-show="!note.publishedAt && !note.modifiedAt">
+				<span class="status" ng-show="noteStatus(note) === 'New'">
 					Nothing to publish
 				</span>
 				<span class="publish status btn-group">
 					<span ng-show="!note.publishedAt && note.modifiedAt">
-						Not published yet
+						Not published
 					</span>
 					<span ng-show="note.publishedAt">
-						Published on {{note.publishedAt | date : 'MMM dd, yyyy' }} 
+						Published on {{note.post.date | date : 'MMM dd, yyyy' }} 
 					</span>	
 					<i class="fa fa-lg" data-toggle="dropdown" 
 						title="Toggle to publish/unpublish"
 						ng-class="{'fa-toggle-on': note.publishedAt, 
 							'fa-toggle-off': !note.publishedAt,
-							'unpublished-changes': (note.publishedAt && note.publishedAt != note.modifiedAt)
+							'unpublished-changes': publishStatus() === 3
 						}">
 					</i>
 
 					<ul class="dropdown-menu dropdown-menu-right" role="menu">
-						<li><a ng-class="{'disabled': !note.publishedAt && !note.modifiedAt}"><i class="fa fa-toggle-on"></i> Publish (changes)</a></li>
-						<li><a ng-class="{'disabled' : !note.publishedAt}"><i class="fa fa-toggle-off"></i> Unpublish</a></li>
+						<!-- show disabled publish option -->
+						<li x-ng-show="publishStatus() % 2 === 0" data-stopPropagation="true">
+							<a class="disabled"><i class="fa fa-toggle-on"></i> Publish</a>
+						</li>
+						<!-- show publish option -->
+						<li x-ng-show="publishStatus() % 2 === 1">
+							<a x-ng-click="publishNote()"><i class="fa fa-toggle-on"></i> 
+								Publish {{ publishStatus() === 3 ? '(changes)' : ''}}
+							</a>
+						</li>
+
+						<!-- show disabled unpublish option -->
+						<li x-ng-show="publishStatus() < 2" data-stopPropagation="true">
+							<a class="disabled"><i class="fa fa-toggle-off"></i> Unpublish</a>
+						</li>
+						<!-- show unpublish option -->
+						<li x-ng-show="publishStatus() >= 2">
+							<a x-ng-click="unpublishNote()"><i class="fa fa-toggle-off"></i> Unpublish</a>
+						</li>
+
 		        <li class="divider"></li>
-						<li class="publish-backdate" data-stopPropagation="true"
-							ng-class="{'disabled': !note.publishedAt && !note.modifiedAt}" >
-							<span data-stopPropagation="true">Backdate your post</span><br/>
-							<input type="text" value="" data-stopPropagation="true" class="form-input" size="12" maxlength="10" placeholder="{{note.publishedAt ? (note.publishedAt | date : 'yyyy-MM-dd') : 'yyyy-MM-dd'}}"> <button class="btn btn-xs btn-info">Ok</button>
-	 					</li>
+
+		        <!-- show disabled publish backdate -->
+		        <li class="publish-backdate" data-stopPropagation="true" 
+		        		x-ng-show="publishStatus() === 0">
+		        	<span class="disabled" data-stopPropagation="true">Backdate your post</span><br/>
+							<input type="text" data-stopPropagation="true" class="disabled" 
+								size="12" maxlength="10" disabled="disabled" placeholder="yyyy-MM-dd"> 
+								<button class="btn btn-xs btn-info disabled" disabled="disabled">Ok</button>
+		        </li>
+		        <!-- show publish backdate -->
+		        <li class="publish-backdate" data-stopPropagation="true"
+		        		x-ng-show="publishStatus() !== 0">
+		        	<span data-stopPropagation="true">Backdate your post</span><br/>
+							<input type="text" data-stopPropagation="true" size="12" maxlength="10" 
+								 x-ng-model="postBackdate"
+								placeholder="{{note.publishedAt ? (note.publishedAt | date : 'yyyy-MM-dd') : 'yyyy-MM-dd'}}"> 
+								<button class="btn btn-xs btn-info" x-ng-click="publishBackdate()">Ok</button>		        	
+		        </li>
+
 					</ul>					
 				</span>
         

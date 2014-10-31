@@ -97,29 +97,27 @@ angular.module('lasnotas')
 				(' on ' + $filter('date')(note.modifiedAt, 'medium')) : '')); 
 	}
 
+	/**
+	 * 0 - nothing to publish
+	 * 1 - not published yet
+	 * 2 - published 
+	 * 3 - published with changes
+	 */
+	$scope.publishStatus = function () {
+		var note = $scope.note
+		if(!note || !note.id)
+			return 0;
+		else if(note.modifiedAt && !note.publishedAt)
+			return 1;
+		else if(note.publishedAt === note.modifiedAt)
+			return 2;
+		else 
+			return 3;
+	}
+
 	$scope.isPublished = function (note) {
 		return (note.publishedAt !== null &&
 			(typeof note.publishedAt !== 'undefined')) 
-	}
-
-	$scope.dateOptions = {
-		formatYear: 'yy',
-		startingDay: 1,
-		showWeeks: false,
-	}
-
-	$scope.dt = new Date();
-
-	$scope.open = function($event) {
-    $event.preventDefault();
-    $event.stopPropagation();
-    console.log("inside datepicker")
-    $scope.opened = true;
-  };
-
-
-	$scope.hasUnpublishedChanges = function (note) {
-		return $scope.isPublished(note) && note.publishedAt !== note.modifiedAt
 	}
 
 	function getNoteTitleOrId (note) {
@@ -132,6 +130,15 @@ angular.module('lasnotas')
 
 	function loadNote() {
 		Editor.openNote(getNoteIdParam());
+	}
+
+	$scope.defaultDateFormat = 'yyyy-MM-dd';
+	$scope.postBackdate = $scope.defaultDateFormat;
+
+	function setPostBackdate (date) {
+		if(date) {
+			$scope.postBackdate = $filter('date')(date, $scope.defaultDateFormat);
+		}
 	}
 
 	/**
@@ -148,12 +155,14 @@ angular.module('lasnotas')
 			})
 			.on('saved', function (note) {
 				$scope.note = note;
+				setPostBackdate(note.post.date);
 				if(note.id !== getNoteIdParam()) {
 					$location.path('/' + note.id);
 				}
 			})
 			.on('opened', function (note) {
 				$scope.note = note;
+				setPostBackdate(note.post.date);
 				Editor.focus();
 			})
 			.on('published', function (note) {
@@ -182,10 +191,25 @@ angular.module('lasnotas')
 	}
 
 	$scope.publishNote = function () {
-		if(!Editor.canPublishNote()) {
+		if($scope.publishStatus() === 0) {
 			$scope.alert("Hey, there's nothing to publish!");
 		} else {
-			Editor.pubUnpubNote();
+			Editor.publishNote();
+		}
+	}
+
+	$scope.unpublishNote = function () {
+		if($scope.publishStatus() <= 1) {
+			$scope.alert("Hey, there's nothing to unpublish!");
+		} else {
+			Editor.unpublishNote();
+		}
+	}
+
+	$scope.publishBackdate = function () {
+		if(/^\d{4}-\d{2}-\d{2}/.test($scope.postBackdate)) {
+			$scope.note.post.date = $scope.postBackdate;
+			$scope.publishNote();
 		}
 	}
 
