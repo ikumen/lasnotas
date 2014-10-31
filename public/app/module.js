@@ -34,6 +34,15 @@ angular.module('lasnotas', [
 		}
 	}
 })
+.run([function () {
+	$(function() {
+		// use currently for dropdown to remain open when workflow calls
+		// additional interaction of li item contents
+		$("body").on("click", "[data-stopPropagation]", function(e) {
+			e.stopPropagation();
+		});
+	});
+}])
 
 /* Hack $location.path to make not reloading optional */
 // .run(['$route', '$rootScope', '$location',
