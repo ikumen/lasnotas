@@ -51,9 +51,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(session({
 	keys: config.getProperties('security.session.keys'),
 	seccureProxy: config.getProperty('security.session.secureProxy')
-// secret: config.getProperty("security.session.secret") || "ketchupandmustard",
-// 	resave: true,
-// 	saveUninitialized: true
 }));
 
 var forceSsl = function (req, res, next) {

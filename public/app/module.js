@@ -5,6 +5,7 @@ angular.module('lasnotas', [
 	'ngRoute',
   'ngSanitize',
   'ngAnimate',
+  "ngQuickDate",
   'ui.bootstrap',
 	'ui.ace'
 ])

@@ -104,7 +104,8 @@ angular.module('lasnotas')
 
 	$scope.dateOptions = {
 		formatYear: 'yy',
-		startingDay: 1
+		startingDay: 1,
+		showWeeks: false,
 	}
 
 	$scope.dt = new Date();
@@ -115,6 +116,8 @@ angular.module('lasnotas')
     console.log("inside datepicker")
     $scope.opened = true;
   };
+
+
 	$scope.hasUnpublishedChanges = function (note) {
 		return $scope.isPublished(note) && note.publishedAt !== note.modifiedAt
 	}
