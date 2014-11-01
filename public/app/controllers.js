@@ -133,12 +133,14 @@ angular.module('lasnotas')
 	}
 
 	$scope.defaultDateFormat = 'yyyy-MM-dd';
-	$scope.postBackdate = $scope.defaultDateFormat;
+	$scope.postBackdate = '';
+
+	function formatDate (date, format) {
+		return $filter('date')(date, (format || $scope.defaultDateFormat), 'UTC');
+	}
 
 	function setPostBackdate (date) {
-		if(date) {
-			$scope.postBackdate = $filter('date')(date, $scope.defaultDateFormat);
-		}
+		$scope.postBackdate = date ? formatDate(date) : '';
 	}
 
 	/**
@@ -210,7 +212,13 @@ angular.module('lasnotas')
 		if(/^\d{4}-\d{2}-\d{2}/.test($scope.postBackdate)) {
 			$scope.note.post.date = $scope.postBackdate;
 			$scope.publishNote();
+		} else {
+			$scope.alert("Please enter backdate as: yyyy-MM-dd")
 		}
+	}
+
+	$scope.isNewBackdate = function () {
+		return ($scope.note && $scope.postBackdate !== formatDate($scope.note.post.date))
 	}
 
 	$scope.removeNote = function (note, callback) {

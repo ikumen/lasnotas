@@ -147,6 +147,9 @@ li.publish-backdate span {
 	opacity: .3;
 	cursor: not-allowed;
 }
+li.publish-backdate input.has-warning {
+	border-color: #f0ad4e;
+}
 
 
 ::-webkit-input-placeholder {

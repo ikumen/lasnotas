@@ -26,7 +26,7 @@
 						Not published
 					</span>
 					<span ng-show="note.publishedAt">
-						Published on {{note.post.date | date : 'MMM dd, yyyy' }} 
+						Published on {{note.post.date | date : 'MMM dd, yyyy' : 'UTC'}} 
 					</span>	
 					<i class="fa fa-lg" data-toggle="dropdown" 
 						title="Toggle to publish/unpublish"
@@ -72,9 +72,9 @@
 		        		x-ng-show="publishStatus() !== 0">
 		        	<span data-stopPropagation="true">Backdate your post</span><br/>
 							<input type="text" data-stopPropagation="true" size="12" maxlength="10" 
-								 x-ng-model="postBackdate"
-								placeholder="{{note.publishedAt ? (note.publishedAt | date : 'yyyy-MM-dd') : 'yyyy-MM-dd'}}"> 
-								<button class="btn btn-xs btn-info" x-ng-click="publishBackdate()">Ok</button>		        	
+								 x-ng-model="postBackdate" x-ng-class="{'has-warning': isNewBackdate()}"
+								placeholder="{{note.publishedAt ? (note.publishedAt | date : 'yyyy-MM-dd' : 'UTC') : 'yyyy-MM-dd'}}"> 
+								<button class="btn btn-xs btn-info" x-ng-click="publishBackdate()">Ok</button>
 		        </li>
 
 					</ul>					

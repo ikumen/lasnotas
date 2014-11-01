@@ -50,7 +50,7 @@
 	})
 
 	/* Handler for all of current user's posts */
-	app.get('/@:username', function (req, res, next) {
+	function getPosts (req, res, next) {
 		var username = req.params.username
 		models.User.findOne({ name: username }, "id name fullName", function (err, user) {
 			if(user) {
@@ -68,10 +68,10 @@
 				return next(err);
 			}
 		})
-	});
+	}
 
 	/* Handler for a current user's post */
-	app.get('/@:username/**', function (req, res, next) {
+	function getPost (req, res, next) {
 		var username = req.params.username
 		var slugs = (req.params[0] || '').split('-');
 		var timestamp = slugs[slugs.length-1]
@@ -94,8 +94,12 @@
 				return next(err);
 			}
 		})
-	});
+	}
 
+	app.get('/@:username', getPosts);
+	app.get('/@:username/posts', getPosts);
+	app.get('/@:username/posts/**', getPost);
+	app.get('/@:username/**', getPost);
 
 })()
 
