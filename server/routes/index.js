@@ -60,6 +60,7 @@
 					function (err, posts) {
 						res.render('posts/index', {
 							posts: posts,
+							username: username,
 							user: user,
 							authUser: req.user
 						})
@@ -83,6 +84,7 @@
 						if(post) {
 							res.render('posts/post', {
 								post: post,
+								username: username,
 								user: user,
 								authUser: req.user
 							})
@@ -95,11 +97,17 @@
 			}
 		})
 	}
-
-	//app.get('/@:username', getPosts);
+	app.get('/@:username', function (req, res, next) {
+		var path = req.path
+		if(path.indexOf('/', path.length - 1) === -1) {
+			return res.redirect(req.path + '/');
+		} else {
+			return getPosts(req, res, next);
+		}
+	});
 	app.get('/@:username/posts', getPosts);
 	app.get('/@:username/posts/**', getPost);
-	//app.get('/@:username/**', getPost);
+	app.get('/@:username/**', getPost);
 
 })()
 
