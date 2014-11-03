@@ -96,10 +96,10 @@
 		})
 	}
 
-	app.get('/@:username', getPosts);
+	//app.get('/@:username', getPosts);
 	app.get('/@:username/posts', getPosts);
 	app.get('/@:username/posts/**', getPost);
-	app.get('/@:username/**', getPost);
+	//app.get('/@:username/**', getPost);
 
 })()
 

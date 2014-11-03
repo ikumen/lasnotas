@@ -9,4 +9,4 @@ block content
 					li
 						span #{moment(post.post.date).format('MMM DD, YYYY')}
 						span  &raquo; 
-						a(href='/@' + user.name + '/' + post.post.slug)= post.title
+						a(href='/@' + user.name + '/posts/' + post.post.slug)= post.title
