@@ -501,6 +501,8 @@ angular.module('lasnotas')
 	function User (user) {
 		this.name = user.name
 		this.id = user.id
+		this.title = user.title
+		this.description = user.description
 		this.fullName = user.fullName
 	}
 
@@ -526,6 +528,8 @@ angular.module('lasnotas')
 				if(user) {
 					self.name = user.name,
 					self.fullName = user.fullName
+					self.title = user.title
+					self.description = user.description
 				}
 				callback(user)
 		})

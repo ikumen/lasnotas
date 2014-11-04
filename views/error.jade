@@ -13,7 +13,8 @@ block content
 						p(class="lead")
 							if error.status === 401
 								if error.reason === 'security.missing.invite'
-									| Sorry, sign up is only open to friends and family at the moment. Please email thong at gnoht dot com for an invite.
+									| Sorry, sign up is closed at the moment. Please email thong at gnoht dot com for an invite.
+									| You can checkout a <a href="https://lasnotas.herokuapp.com">demo here</a>.
 								else	
 									| Please sign in with one of the providers below to get started.
 							else if error.status === 404

@@ -43,7 +43,9 @@
 			res.status(200).send({ user: {				
 				name: currentUser.name,
 				fullName: currentUser.fullName,
-				id: currentUser.id
+				id: currentUser.id,
+				description: currentUser.description,
+				title: currentUser.title
 			}});
 		}
 	});
@@ -51,7 +53,7 @@
 	app.get('/users/@:name/avail', function (req, res, next) {
 		var name = utils.normalizeName(req.params.name);
 
-		models.User.isNameAvailable(name, function (err, avail) {
+		models.User.isNameAvailable(req.user, name, function (err, avail) {
 			if(err) {
 				return next(err);
 			} else {
@@ -65,6 +67,8 @@
 		var profile = {
 			id: (req.params.id || null),
 			name: req.body.name,
+			description: req.body.description,
+			title: req.body.title,
 			fullName: req.body.fullName
 		}
 
@@ -77,11 +81,15 @@
 
 		// make sure we have both a name and fullname
 		else if(userId && profile.name && profile.fullName) {
-			models.User.updateProfile(profile, 
+			models.User.updateProfile(req.user, profile, 
 				function (err, user) {
+					if(err || !user)
+						return next(err);
 					res.status(200).send({ user: {
 						name: user.name,
 						id: userId,
+						title: user.title,
+						description: user.description,
 						fullName: user.fullName
 					}})
 			});

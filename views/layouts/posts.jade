@@ -18,9 +18,9 @@ html(lang='en')
 								a(href='/signout' title='Sign Out') 
 									i(class="fa fa-sign-out")
 						span(class='title')
-							a(href='./' class='special-font') Random Bits 
+							a(href='./' class='special-font') #{user.title}
 							br/
-							span(class='hidden-xs subtitle text-left') From a Father, Developer, DIY Enthusiast
+							span(class='hidden-xs subtitle text-left') #{user.description || ''}
 				div(class='hidden-xs col-sm-1 col-md-1 col-lg-4')
 
 			div(class='row content')

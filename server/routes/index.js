@@ -52,7 +52,7 @@
 	/* Handler for all of current user's posts */
 	function getPosts (req, res, next) {
 		var username = req.params.username
-		models.User.findOne({ name: username }, "id name fullName", function (err, user) {
+		models.User.findOne({ name: username }, "id name title description", function (err, user) {
 			if(user) {
 				models.Note.find({ userId: user.id, publishedAt: { '$ne': null }},
 					'id author publishedAt title post',
@@ -77,7 +77,7 @@
 		var slugs = (req.params[0] || '').split('-');
 		var timestamp = slugs[slugs.length-1]
 	
-		models.User.findOne({ name: username }, "id name fullName", function (err, user) {
+		models.User.findOne({ name: username }, "id name fullName title", function (err, user) {
 			if(user) {
 				models.Note.findOne({ userId: user.id , "post.slug": { $regex: timestamp + "$" }},
 					function (err, post) {
@@ -97,16 +97,27 @@
 			}
 		})
 	}
+
+	// path to list users posts (routed here when using lasnotas.org)
 	app.get('/@:username', function (req, res, next) {
 		var path = req.path
+		// NOTE: from the list view, we build links to each post relative to
+		// the current directory we're in. This allows us to use custom domains
+		// (i.e, user specific or default lasnotas.org). Unfortunately relative
+		// links don't work correctly unless there's a trailing slash for a parent
+		// path, so we check for /posts --> then redirect to --> /posts/
 		if(path.indexOf('/', path.length - 1) === -1) {
 			return res.redirect(req.path + '/');
 		} else {
 			return getPosts(req, res, next);
 		}
 	});
+
+	// path to list all posts (routed here when using custom domain)
 	app.get('/@:username/posts', getPosts);
+	// path to a specific post (routed here when using custom domain)
 	app.get('/@:username/posts/**', getPost);
+	// path to a specific post (routed here when using lasnotas.org)
 	app.get('/@:username/**', getPost);
 
 })()

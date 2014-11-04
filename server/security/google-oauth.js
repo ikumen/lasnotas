@@ -42,25 +42,38 @@ module.exports = function (config, passport, models) {
 	/* Move to parent scope if we add more oauth strategies */
 	function registerUser (user, callback) {
 
-		Invite.findOne({ email: user.email }, function (err, invite) {
-			if(!err) { // no problems looking up invite
-				if(invite) { // yeah we have invite
-					models.User.create(user, function (createErr, createdUser) {
-						return callback(createErr, createdUser)
-					});
-				} else {
-					err = { 
-						status: 401, 
-						message: 'Registration invite not found!',
-						reason: 'security.missing.invite'
-					};
-				}
-			}
-			// not an else if, since we could have gotten 'missing invite error'
-			if(err) {
-				callback(err, null);
+		Invite.count(function (err, count) {
+			if(err)
+				return callback(err, null);
+
+			if(count === 0) {
+				return doRegisterUser(user, callback);				
+			} else {
+				Invite.findOne({ email: user.email }, function (findErr, invite) {
+					if(!findErr) { // no problems looking up invite
+						if(invite) {
+							return doRegisterUser(user, callback);
+						} else {
+							// bubble up our custom error
+							findErr = { 
+								status: 401, 
+								message: 'Registration invite not found!',
+								reason: 'security.missing.invite'
+							};
+						}
+					} 
+					if(findErr) {
+						return callback(findErr, null);
+					}
+				});
 			}
 		});
+	}
+
+	function doRegisterUser (user, callback) {
+		models.User.create(user, function (err, user) {
+			return callback(err, user);
+		})
 	}
 
 	/* Google OAuth2 strategy for authentication */
@@ -88,6 +101,8 @@ module.exports = function (config, passport, models) {
 									, identity: profile.id
 									, token: token
 								}]
+								, title: (profile.displayName || id.toString())
+								, description: null
 							}, function (regErr, regUser) {
 								return done(regErr, regUser);
 							}

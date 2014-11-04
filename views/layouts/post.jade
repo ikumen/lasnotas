@@ -18,7 +18,7 @@ html(lang='en')
 								small(style="color: #ddd") | &nbsp;
 								a(href="/signout" title="Sign Out")
 									i(class="fa fa-sign-out")
-						a(href='./') Random Bits
+						a(href='./') #{user.title}
 						span
 							|  | #{user.fullName} on 
 							=moment(post.post.date).format('MMM DD, YYYY') 

@@ -244,7 +244,9 @@ angular.module('lasnotas')
 									$scope.user = {
 										name: updated.name,
 										id: updated.id,
-										fullName: updated.fullName
+										fullName: updated.fullName,
+										description: updated.description,
+										title: updated.title
 									}
 									parentScope.successAlert('Your profile has been updated!');
 								}
@@ -262,7 +264,9 @@ angular.module('lasnotas')
 					return new User({
 						name: parentScope.user.name, 
 						id: parentScope.user.id,  
-						fullName: parentScope.user.fullName
+						fullName: parentScope.user.fullName,
+						description: parentScope.user.description,
+						title: parentScope.user.title
 					})
 				}
 			}

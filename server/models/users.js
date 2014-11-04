@@ -35,7 +35,11 @@ module.exports = function (schemaUtils) {
 			provider: String,
 			identity: String,
 			token: String
-		}]
+		}],
+		// title for user page
+		title: String,
+		// description for user page
+		description: String 
 	});
 
 	// @see models/index.js for it's use
@@ -49,36 +53,42 @@ module.exports = function (schemaUtils) {
 		return false;
 	}
 
-	UserSchema.static('isNameAvailable', function (name, callback) {
+	UserSchema.static('isNameAvailable', function (user, name, callback) {
 		var self = this;
 		if(!isReservedName(name)) {
-			self.count({ name: name }, function (err, count) {
-				callback(err, count === 0);
-			})
+			if(user.name === name) {
+				callback(null, true);
+			} else {
+				self.count({ name: name }, function (err, count) {
+					callback(err, count === 0);
+				});
+			}
 		} else {
 			callback(null, false);
 		}
 	});
 
 	/** Updates user profile. */
-	UserSchema.static('updateProfile', function (profile, callback) {
+	UserSchema.static('updateProfile', function (user, profile, callback) {
 		// remove special chars and convert to slug form
 		profile.name = utils.normalizeName(profile.name);
 
 		var self = this;
-		this.isNameAvailable(profile.name, function (err, avail) {
+		this.isNameAvailable(user, profile.name, function (err, avail) {
 			if(err || !avail) 
 				callback(err);
 			
 			else {
-				self.findById(profile.id, "id name fullName", 
-					function (err, user) {
+				self.findById(user.id, "id name fullName", 
+					function (err, _user) {
 						// update the existing user
-						user.name = profile.name
-						user.fullName = profile.fullName
+						_user.name = profile.name
+						_user.fullName = profile.fullName
+						_user.description = profile.description
+						_user.title = profile.title
 
 						// save updates
-						user.save(function (err, updatedUser) {
+						_user.save(function (err, updatedUser) {
 							callback(err, updatedUser);
 							Note.update({ userId: updatedUser.id }, 
 								{ userFullName: updatedUser.fullName }, { multi: true },
