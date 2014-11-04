@@ -113,7 +113,6 @@ module.exports = function(schemaUtils) {
 			function (err, note) {
 				if(!err && note) {
 					// create the post we're going to publish
-					console.log(toPublish.post.date)
 					var post = { 
 						// post date will be set explicitly if given in request
 						date: ((toPublish.post && toPublish.post.date) ? toPublish.post.date : 
@@ -128,7 +127,6 @@ module.exports = function(schemaUtils) {
 							.replace(/_/g, '-')		// replace _ with -
 							.toLowerCase()) + '-' + note.id.substring(0, 8) 
 					}
-					console.log(post.date)
 					var now = new Date();
 					// published
 					self.findByIdAndUpdate(note.id, {
